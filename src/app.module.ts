@@ -1,15 +1,22 @@
 import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { CatsModule } from './cats/cats.module';
-import { CatsController } from './cats/cats.controller';
-import { CatsService } from './cats/cats.service';
+import { CatModule } from './cat/cat.module';
 import { LoggerMiddleware } from './logger/logger.middleware';
+import { BreedModule } from './breed/breed.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { databaseConfig } from './config';
 
 @Module({
-  imports: [CatsModule],
-  controllers: [AppController, CatsController],
-  providers: [AppService, CatsService],
+  imports: [
+    TypeOrmModule.forRoot(databaseConfig),
+    CatModule,
+    BreedModule,
+    CatModule,
+    BreedModule,
+  ],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
