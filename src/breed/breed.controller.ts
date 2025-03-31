@@ -30,7 +30,7 @@ export class BreedController {
   @ApiOperation({ summary: 'Get all cats by breed id' })
   @ApiResponse({ status: 200, description: 'Returns all cats by breed id' })
   findCats(@Param('id') id: string): Promise<CatResponseDto[]> {
-    return this.catService.findAll({ where: { breedId: id } });
+    return this.catService.findAll({ breedId: id });
   }
 
   @Post()

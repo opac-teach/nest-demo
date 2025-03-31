@@ -16,7 +16,7 @@ export class BreedEntity {
   @Column()
   name: string;
 
-  @Column()
+  @Column({ default: '' })
   description: string;
 
   @OneToMany(() => CatEntity, (cat) => cat.breed)

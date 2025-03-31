@@ -63,11 +63,14 @@ $ npm run start:prod
 ## Run tests
 
 ```bash
-# unit tests
+# all tests
 $ npm run test
 
+# unit tests
+$ npm run test:unit
+
 # unit tests (watch)
-$ npm run test:watch
+$ npm run test:unit:watch
 
 # e2e tests
 $ npm run test:e2e
