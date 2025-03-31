@@ -27,7 +27,7 @@ export class CreateCatDto {
   breedId: string;
 }
 
-export class UpdateCatDto extends PartialType(CreateCatDto) {
+export class UpdateCatDto {
   @ApiProperty({
     description: 'The name of the cat',
     type: String,

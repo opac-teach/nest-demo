@@ -1,8 +1,13 @@
 import { Injectable, NotFoundException, Param } from '@nestjs/common';
 import { CreateCatDto, UpdateCatDto } from './dtos/cat-input.dto';
 import { CatEntity } from './cat.entity';
-import { Repository } from 'typeorm';
+import { FindManyOptions, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+
+export interface CatFindAllOptions extends FindManyOptions<CatEntity> {
+  breedId?: string;
+  includeBreed?: boolean;
+}
 
 @Injectable()
 export class CatService {
@@ -11,12 +16,20 @@ export class CatService {
     private readonly catRepository: Repository<CatEntity>,
   ) {}
 
-  async findAll(): Promise<CatEntity[]> {
-    return this.catRepository.find();
+  async findAll(options?: CatFindAllOptions): Promise<CatEntity[]> {
+    return this.catRepository.find({
+      relations: options?.includeBreed ? ['breed'] : undefined,
+      where: {
+        breedId: options?.breedId,
+      },
+    });
   }
 
-  async findOne(id: string): Promise<CatEntity> {
-    const cat = await this.catRepository.findOneBy({ id });
+  async findOne(id: string, includeBreed?: boolean): Promise<CatEntity> {
+    const cat = await this.catRepository.findOne({
+      where: { id },
+      relations: includeBreed ? ['breed'] : undefined,
+    });
     if (!cat) {
       throw new NotFoundException('Cat not found');
     }

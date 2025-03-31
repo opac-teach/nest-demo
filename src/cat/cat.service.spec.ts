@@ -51,6 +51,13 @@ describe('CatService', () => {
       expect(result).toEqual([mockCat]);
       expect(mockCatRepository.find).toHaveBeenCalled();
     });
+    it('should return an array of cat with a breedId', async () => {
+      const result = await service.findAll({ where: { breedId: '1' } });
+      expect(result).toEqual([mockCat]);
+      expect(mockCatRepository.find).toHaveBeenCalledWith({
+        where: { breedId: '1' },
+      });
+    });
   });
 
   describe('findOne', () => {
