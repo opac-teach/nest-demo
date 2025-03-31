@@ -7,9 +7,9 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
-import { CatService } from './cat.service';
-import { CatResponseDto, CreateCatDto, UpdateCatDto } from './dtos';
-import { RandomGuard } from '../guards/random.guard';
+import { CatService } from '@/cat/cat.service';
+import { CatResponseDto, CreateCatDto, UpdateCatDto } from '@/cat/dtos';
+import { RandomGuard } from '@/lib/random.guard';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 @Controller('cat')

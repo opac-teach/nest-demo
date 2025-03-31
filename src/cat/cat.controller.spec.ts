@@ -1,9 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CatController } from './cat.controller';
-import { CatService } from './cat.service';
-import { CatEntity } from './cat.entity';
+import { CatController } from '@/cat/cat.controller';
+import { CatService } from '@/cat/cat.service';
+import { CatEntity } from '@/cat/cat.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { BreedEntity } from '@/breed/breed.entity';
+import { BreedService } from '@/breed/breed.service';
 
 describe('CatController', () => {
   let controller: CatController;
@@ -24,9 +26,14 @@ describe('CatController', () => {
       controllers: [CatController],
       providers: [
         CatService,
+        BreedService,
         {
           provide: getRepositoryToken(CatEntity),
           useValue: {} as Partial<Repository<CatEntity>>,
+        },
+        {
+          provide: getRepositoryToken(BreedEntity),
+          useValue: {} as Partial<Repository<BreedEntity>>,
         },
       ],
     }).compile();
@@ -46,7 +53,7 @@ describe('CatController', () => {
       jest.spyOn(catService, 'findAll').mockResolvedValue([mockCat]);
       const result = await controller.findAll();
       expect(result).toEqual([mockCat]);
-      expect(catService.findAll).toHaveBeenCalled();
+      expect(catService.findAll).toHaveBeenCalledWith({ includeBreed: true });
     });
   });
 
@@ -55,7 +62,7 @@ describe('CatController', () => {
       jest.spyOn(catService, 'findOne').mockResolvedValue(mockCat);
       const result = await controller.findOne('1');
       expect(result).toEqual(mockCat);
-      expect(catService.findOne).toHaveBeenCalledWith('1');
+      expect(catService.findOne).toHaveBeenCalledWith('1', true);
     });
   });
 

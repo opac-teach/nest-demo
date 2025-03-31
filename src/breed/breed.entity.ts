@@ -20,7 +20,7 @@ export class BreedEntity {
   description: string;
 
   @OneToMany(() => CatEntity, (cat) => cat.breed)
-  cat: CatEntity[];
+  cats?: CatEntity[];
 
   @Column()
   @Exclude()
