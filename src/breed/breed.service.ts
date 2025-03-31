@@ -24,10 +24,10 @@ export class BreedService {
   }
 
   async create(breed: CreateBreedDto): Promise<BreedEntity> {
-    const newBreed = {
+    const newBreed = this.breedRepository.create({
       name: breed.name,
       description: breed.description,
-    };
+    });
     const createdBreed = await this.breedRepository.save(newBreed);
     return createdBreed;
   }

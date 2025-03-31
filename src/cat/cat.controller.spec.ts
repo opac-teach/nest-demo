@@ -15,6 +15,7 @@ describe('CatController', () => {
     breedId: '1',
     created: new Date(),
     updated: new Date(),
+    color: '11BB22',
     updateTimestamp: jest.fn(),
   };
 

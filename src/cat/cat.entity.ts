@@ -37,4 +37,7 @@ export class CatEntity {
   updateTimestamp() {
     this.updated = new Date();
   }
+
+  @Column()
+  color: string;
 }

@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  ClassSerializerInterceptor,
+  Controller,
+  Get,
+  Param,
+  Post,
+  UseInterceptors,
+} from '@nestjs/common';
 import { BreedService } from './breed.service';
 import { BreedResponseDto, CreateBreedDto } from './dtos';
 import { CatResponseDto } from 'src/cat/dtos/cat-response.dto';
