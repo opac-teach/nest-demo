@@ -5,14 +5,17 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BreedEntity } from '@/breed/breed.entity';
 import { BreedService } from '@/breed/breed.service';
-import { CreateCatDto } from '@/cat/dtos/cat-input.dto';
+import { CreateCatDto, UpdateCatDto } from '@/cat/dtos/cat-input.dto';
 import { generateColor } from '@/lib/colors';
 import { NotFoundException } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { instanceToInstance } from 'class-transformer';
+
 describe('CatService', () => {
   let service: CatService;
   let breedService: BreedService;
   let catRepository: Repository<CatEntity>;
-
+  let eventEmitter: EventEmitter2;
   const mockCat: CatEntity = {
     id: '1',
     name: 'Fluffy',
@@ -53,6 +56,7 @@ describe('CatService', () => {
           provide: getRepositoryToken(BreedEntity),
           useValue: {} as Partial<Repository<BreedEntity>>,
         },
+        EventEmitter2,
       ],
     }).compile();
 
@@ -61,6 +65,8 @@ describe('CatService', () => {
       getRepositoryToken(CatEntity),
     );
     breedService = module.get<BreedService>(BreedService);
+    eventEmitter = module.get<EventEmitter2>(EventEmitter2);
+
     jest.clearAllMocks();
   });
 
@@ -106,12 +112,22 @@ describe('CatService', () => {
         age: 3,
         breedId: '1',
       };
+
+      jest.spyOn(eventEmitter, 'emit').mockImplementation((d) => true);
       jest.spyOn(breedService, 'findOne').mockResolvedValue(mockBreed);
+
       const result = await service.create(newCat);
-      expect(result).toEqual(mockCat);
+      expect(breedService.findOne).toHaveBeenCalledWith(newCat.breedId);
       expect(mockCatRepository.save).toHaveBeenCalledWith({
         ...newCat,
         color: generateColor(mockBreed.seed),
+      });
+      expect(result).toEqual(mockCat);
+
+      expect(eventEmitter.emit).toHaveBeenCalledWith('data.crud', {
+        action: 'create',
+        model: 'cat',
+        cat: mockCat,
       });
     });
 
@@ -131,9 +147,22 @@ describe('CatService', () => {
 
   describe('update', () => {
     it('should update a cat', async () => {
-      const result = await service.update('1', mockCat);
-      expect(result).toEqual(true);
-      expect(mockCatRepository.update).toHaveBeenCalledWith('1', mockCat);
+      const updateCat: UpdateCatDto = { name: 'Fluffy updated' };
+      const updatedCat: CatEntity = instanceToInstance(mockCat);
+      Object.assign(updatedCat, updateCat);
+
+      jest.spyOn(eventEmitter, 'emit').mockImplementation((d) => true);
+      jest.spyOn(service, 'findOne').mockResolvedValue(updatedCat);
+
+      const result = await service.update('1', updateCat);
+      expect(result).toEqual(updatedCat);
+      expect(mockCatRepository.update).toHaveBeenCalledWith('1', updateCat);
+
+      expect(eventEmitter.emit).toHaveBeenCalledWith('data.crud', {
+        action: 'update',
+        model: 'cat',
+        cat: updatedCat,
+      });
     });
   });
 });

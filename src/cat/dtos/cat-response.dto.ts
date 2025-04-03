@@ -58,4 +58,11 @@ export class CatResponseDto {
   @Expose()
   @Type(() => Date)
   updated: Date;
+
+  @ApiProperty({
+    description: 'The color of the cat',
+    type: String,
+  })
+  @Expose()
+  color: string;
 }

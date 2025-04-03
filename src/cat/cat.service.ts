@@ -5,7 +5,7 @@ import { FindManyOptions, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BreedService } from '@/breed/breed.service';
 import { generateColor } from '@/lib/colors';
-
+import { EventEmitter2 } from '@nestjs/event-emitter';
 export interface CatFindAllOptions extends FindManyOptions<CatEntity> {
   breedId?: string;
   includeBreed?: boolean;
@@ -17,6 +17,7 @@ export class CatService {
     @InjectRepository(CatEntity)
     private readonly catRepository: Repository<CatEntity>,
     private readonly breedService: BreedService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async findAll(options?: CatFindAllOptions): Promise<CatEntity[]> {
@@ -46,14 +47,27 @@ export class CatService {
 
     const newCat = this.catRepository.create({ ...cat, color });
     const createdCat = await this.catRepository.save(newCat);
+
+    this.eventEmitter.emit('data.crud', {
+      action: 'create',
+      model: 'cat',
+      cat: createdCat,
+    });
+
     return createdCat;
   }
 
-  async update(id: string, cat: UpdateCatDto): Promise<boolean> {
-    const updatedCat = await this.catRepository.update(id, cat);
-    if (updatedCat.affected === 0) {
+  async update(id: string, cat: UpdateCatDto): Promise<CatEntity> {
+    const updateResponse = await this.catRepository.update(id, cat);
+    if (updateResponse.affected === 0) {
       throw new NotFoundException('Cat not found');
     }
-    return true;
+    const updatedCat = await this.findOne(id);
+    this.eventEmitter.emit('data.crud', {
+      action: 'update',
+      model: 'cat',
+      cat: updatedCat,
+    });
+    return updatedCat;
   }
 }

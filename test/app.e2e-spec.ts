@@ -8,8 +8,14 @@ import { CreateCatDto } from '@/cat/dtos';
 import { RandomGuard } from '@/lib/random.guard';
 import { BreedResponseDto } from '@/breed/dtos';
 import { CatResponseDto } from '@/cat/dtos';
+import { Socket, io } from 'socket.io-client';
+import { wait } from '@/lib/utils';
+
 describe('AppController (e2e)', () => {
   let app: INestApplication<App>;
+  let server: ReturnType<INestApplication['getHttpServer']>;
+  let ioClient: Socket;
+  let events: { event: string; data: any }[] = [];
 
   const inputBreed: CreateBreedDto = {
     name: 'Fluffy',
@@ -22,7 +28,7 @@ describe('AppController (e2e)', () => {
     breedId: '',
   };
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     })
@@ -34,15 +40,38 @@ describe('AppController (e2e)', () => {
     registerGlobals(app);
 
     await app.init();
+
+    server = app.getHttpServer();
+
+    app.listen(9001);
+    ioClient = io('http://localhost:9001', {
+      autoConnect: false,
+      transports: ['websocket', 'polling'],
+    });
+    ioClient.connect();
+    ioClient.emit('subscribe', { name: 'test' });
+    ioClient.onAny((event, data) => {
+      events.push({ event, data });
+    });
+  });
+
+  afterEach(async () => {
+    events = [];
+  });
+
+  afterAll(async () => {
+    ioClient.offAny();
+    ioClient.disconnect();
+    await app.close();
   });
 
   it('Health check', () => {
-    request(app.getHttpServer()).get('/').expect(200).expect('OK');
+    request(server).get('/').expect(200).expect('OK');
   });
 
   describe('Breed', () => {
     it('should create a breed', async () => {
-      const res = await request(app.getHttpServer())
+      const res = await request(server)
         .post('/breed')
         .send(inputBreed)
         .expect(201);
@@ -51,16 +80,24 @@ describe('AppController (e2e)', () => {
       expect(res.body.description).toBe(inputBreed.description);
       expect(res.body.id).toBeDefined();
       expect(res.body.seed).not.toBeDefined();
+      expect(events).toContainEqual({
+        event: 'data.crud',
+        data: {
+          action: 'create',
+          model: 'breed',
+          breed: res.body,
+        },
+      });
     });
 
     it('should rejects wrong inputs', async () => {
-      await request(app.getHttpServer())
+      await request(server)
         .post('/breed')
         .send({
           description: 'A fluffy breed',
         })
         .expect(400);
-      await request(app.getHttpServer())
+      await request(server)
         .post('/breed')
         .send({
           name: '',
@@ -69,28 +106,28 @@ describe('AppController (e2e)', () => {
     });
 
     it('should get all breeds', async () => {
-      const { body: createdBreed } = await request(app.getHttpServer())
+      const { body: createdBreed } = await request(server)
         .post('/breed')
         .send(inputBreed)
         .expect(201);
-      const res = await request(app.getHttpServer()).get('/breed').expect(200);
+      const res = await request(server).get('/breed').expect(200);
       expect(res.body).toContainEqual(createdBreed);
     });
 
     it('should get all cats of a breed', async () => {
-      const { body: createdBreed } = await request(app.getHttpServer())
+      const { body: createdBreed } = await request(server)
         .post('/breed')
         .send(inputBreed)
         .expect(201);
 
-      const { body: createdCat } = await request(app.getHttpServer())
+      const { body: createdCat } = await request(server)
         .post('/cat')
         .send({
           ...inputCat,
           breedId: createdBreed.id,
         })
         .expect(201);
-      const { body: createdCat2 } = await request(app.getHttpServer())
+      const { body: createdCat2 } = await request(server)
         .post('/cat')
         .send({
           ...inputCat,
@@ -98,7 +135,7 @@ describe('AppController (e2e)', () => {
         })
         .expect(201);
 
-      const res = await request(app.getHttpServer())
+      const res = await request(server)
         .get(`/breed/${createdBreed.id}/cats`)
         .expect(200);
 
@@ -111,12 +148,12 @@ describe('AppController (e2e)', () => {
     let cat: CatResponseDto;
 
     beforeAll(async () => {
-      const res = await request(app.getHttpServer())
+      const res = await request(server)
         .post('/breed')
         .send(inputBreed)
         .expect(201);
       breed = res.body;
-      const catRes = await request(app.getHttpServer())
+      const catRes = await request(server)
         .post('/cat')
         .send({
           ...inputCat,
@@ -127,7 +164,7 @@ describe('AppController (e2e)', () => {
     });
 
     it('should create a cat', async () => {
-      const res = await request(app.getHttpServer())
+      const res = await request(server)
         .post('/cat')
         .send({
           ...inputCat,
@@ -140,24 +177,30 @@ describe('AppController (e2e)', () => {
       expect(res.body.breedId).toBe(breed.id);
       expect(res.body.id).toBeDefined();
       expect(res.body.color.length).toBe(6);
+      expect(events).toContainEqual({
+        event: 'data.crud',
+        data: {
+          action: 'create',
+          model: 'cat',
+          cat: res.body,
+        },
+      });
     });
 
     it('should get all cats', async () => {
-      const res = await request(app.getHttpServer()).get('/cat').expect(200);
+      const res = await request(server).get('/cat').expect(200);
       const catWithBreed = { ...cat, breed };
       expect(res.body).toContainEqual(catWithBreed);
     });
 
     it('should get a cat by id', async () => {
-      const res = await request(app.getHttpServer())
-        .get(`/cat/${cat.id}`)
-        .expect(200);
+      const res = await request(server).get(`/cat/${cat.id}`).expect(200);
       const catWithBreed = { ...cat, breed };
       expect(res.body).toEqual(catWithBreed);
     });
 
     it('should update a cat', async () => {
-      const { body: updatedCat } = await request(app.getHttpServer())
+      const { body: updatedCat } = await request(server)
         .put(`/cat/${cat.id}`)
         .send({
           ...inputCat,
@@ -168,12 +211,21 @@ describe('AppController (e2e)', () => {
       expect(updatedCat.name).toBe('Alfred 2');
       expect(updatedCat.age).toBe(4);
 
-      const findCatRes = await request(app.getHttpServer())
+      const findCatRes = await request(server)
         .get(`/cat/${cat.id}`)
         .expect(200);
 
       const updatedCatWithBreed = { ...updatedCat, breed };
       expect(findCatRes.body).toEqual(updatedCatWithBreed);
+
+      expect(events).toContainEqual({
+        event: 'data.crud',
+        data: {
+          action: 'update',
+          model: 'cat',
+          cat: updatedCat,
+        },
+      });
     });
   });
 });

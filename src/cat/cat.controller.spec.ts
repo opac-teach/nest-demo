@@ -6,7 +6,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BreedEntity } from '@/breed/breed.entity';
 import { BreedService } from '@/breed/breed.service';
-
+import { EventEmitterModule } from '@nestjs/event-emitter';
 describe('CatController', () => {
   let controller: CatController;
   let catService: CatService;
@@ -36,6 +36,7 @@ describe('CatController', () => {
           useValue: {} as Partial<Repository<BreedEntity>>,
         },
       ],
+      imports: [EventEmitterModule.forRoot()],
     }).compile();
 
     controller = module.get<CatController>(CatController);
@@ -86,12 +87,10 @@ describe('CatController', () => {
         name: 'Fluffy',
         age: 3,
       };
-      jest.spyOn(catService, 'update').mockResolvedValue(true);
-      jest.spyOn(catService, 'findOne').mockResolvedValue(mockCat);
+      jest.spyOn(catService, 'update').mockResolvedValue(mockCat);
       const result = await controller.update('1', mockUpdateCatDto);
       expect(result).toEqual(mockCat);
       expect(catService.update).toHaveBeenCalledWith('1', mockUpdateCatDto);
-      expect(catService.findOne).toHaveBeenCalledWith('1');
     });
   });
 });

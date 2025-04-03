@@ -45,7 +45,6 @@ export class CatController {
     @Param('id') id: string,
     @Body() cat: UpdateCatDto,
   ): Promise<CatResponseDto> {
-    await this.catService.update(id, cat);
-    return this.catService.findOne(id);
+    return this.catService.update(id, cat);
   }
 }

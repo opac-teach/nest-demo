@@ -33,14 +33,12 @@ export class UpdateCatDto {
     type: String,
   })
   @IsString()
-  @IsNotEmpty()
-  name: string;
+  name?: string;
 
   @ApiProperty({
     description: 'The age of the cat',
     type: Number,
   })
   @IsNumber()
-  @IsNotEmpty()
-  age: number;
+  age?: number;
 }

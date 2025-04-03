@@ -12,14 +12,17 @@ import { BreedModule } from './breed/breed.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { databaseConfig } from './config';
 import { Reflector } from '@nestjs/core';
-
+import { LiveModule } from './live/live.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 @Module({
   imports: [
     TypeOrmModule.forRoot(databaseConfig),
+    EventEmitterModule.forRoot(),
     CatModule,
     BreedModule,
     CatModule,
     BreedModule,
+    LiveModule,
   ],
   controllers: [AppController],
 })
