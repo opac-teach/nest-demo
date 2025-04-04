@@ -1,5 +1,5 @@
 {
-  "name": "nest-demo",
+  "name": "app",
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -8,36 +8,24 @@
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "nest start",
     "dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-    "test": "npm run test:unit && npm run test:e2e",
-    "test:unit": "jest",
-    "test:unit:watch": "npm run test:unit -- --watch",
+    "test": "jest",
+    "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
-    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json",
-    "test:e2e:watch": "npm run test:e2e -- --watch"
+    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
     "@nestjs/core": "^11.0.1",
-    "@nestjs/event-emitter": "^3.0.1",
+    "@nestjs/mapped-types": "*",
+    "@nestjs/microservices": "^11.0.13",
     "@nestjs/platform-express": "^11.0.1",
-    "@nestjs/platform-socket.io": "^11.0.12",
-    "@nestjs/swagger": "^11.1.0",
-    "@nestjs/typeorm": "^11.0.0",
-    "@nestjs/websockets": "^11.0.12",
-    "class-transformer": "^0.5.1",
-    "class-validator": "^0.14.1",
-    "pg": "^8.14.1",
+    "ioredis": "^5.6.0",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1",
-    "superwstest": "^2.0.4",
-    "typeorm": "^0.3.21",
-    "uuid": "^11.1.0"
+    "rxjs": "^7.8.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
@@ -57,7 +45,6 @@
     "globals": "^16.0.0",
     "jest": "^29.7.0",
     "prettier": "^3.4.2",
-    "socket.io-client": "^4.8.1",
     "source-map-support": "^0.5.21",
     "supertest": "^7.0.0",
     "ts-jest": "^29.2.5",
@@ -73,9 +60,6 @@
       "json",
       "ts"
     ],
-    "moduleNameMapper": {
-      "^@/(.*)$": "<rootDir>/$1"
-    },
     "rootDir": "src",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
@@ -85,10 +69,6 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node",
-    "testTimeout": 500
-  },
-  "engines": {
-    "node": ">=22.0.0"
+    "testEnvironment": "node"
   }
 }

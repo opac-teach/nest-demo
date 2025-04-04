@@ -6,10 +6,11 @@ import { Repository } from 'typeorm';
 import { BreedEntity } from '@/breed/breed.entity';
 import { BreedService } from '@/breed/breed.service';
 import { CreateCatDto, UpdateCatDto } from '@/cat/dtos/cat-input.dto';
-import { generateColor } from '@/lib/colors';
 import { NotFoundException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { instanceToInstance } from 'class-transformer';
+import { of } from 'rxjs';
+import { mockTheRest } from '@/lib/tests';
 
 describe('CatService', () => {
   let service: CatService;
@@ -35,6 +36,8 @@ describe('CatService', () => {
     generateSeed: jest.fn(),
   };
 
+  const mockColor = '11BB22';
+
   const mockCatRepository: Partial<Repository<CatEntity>> = {
     create: jest.fn().mockImplementation((c) => c),
     find: jest.fn().mockResolvedValue([mockCat]),
@@ -53,12 +56,16 @@ describe('CatService', () => {
           useValue: mockCatRepository,
         },
         {
-          provide: getRepositoryToken(BreedEntity),
-          useValue: {} as Partial<Repository<BreedEntity>>,
+          provide: 'COLORS_SERVICE',
+          useValue: {
+            send: jest.fn().mockReturnValue(of(mockColor)),
+          },
         },
         EventEmitter2,
       ],
-    }).compile();
+    })
+      .useMocker(mockTheRest)
+      .compile();
 
     service = module.get<CatService>(CatService);
     catRepository = module.get<Repository<CatEntity>>(
@@ -120,7 +127,7 @@ describe('CatService', () => {
       expect(breedService.findOne).toHaveBeenCalledWith(newCat.breedId);
       expect(mockCatRepository.save).toHaveBeenCalledWith({
         ...newCat,
-        color: generateColor(mockBreed.seed),
+        color: mockColor,
       });
       expect(result).toEqual(mockCat);
 

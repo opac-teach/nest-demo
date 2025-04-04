@@ -14,12 +14,12 @@ import { databaseConfig } from './config';
 import { Reflector } from '@nestjs/core';
 import { LiveModule } from './live/live.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { ClientsModule } from '@nestjs/microservices';
+import { Transport } from '@nestjs/microservices';
 @Module({
   imports: [
     TypeOrmModule.forRoot(databaseConfig),
     EventEmitterModule.forRoot(),
-    CatModule,
-    BreedModule,
     CatModule,
     BreedModule,
     LiveModule,

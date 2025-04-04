@@ -22,6 +22,7 @@ This project is a RESTful API that allows to manage cats and breeds.
 
 - OpenAPI specification
 - Input validation & Output serialisation
+- Websocket serveur for data modification events
 - Database connection with TypeORM
 - Unit testing with Jest
 - End2end testing with Supertest
@@ -49,11 +50,8 @@ $ docker compose up -d
 ## Compile and run the project
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
+# run development server
+$ npm run dev
 
 # production mode
 $ npm run build
@@ -68,12 +66,11 @@ $ npm run test
 
 # unit tests
 $ npm run test:unit
-
-# unit tests (watch)
 $ npm run test:unit:watch
 
 # e2e tests
 $ npm run test:e2e
+$ npm run test:e2e:watch
 
 # test coverage
 $ npm run test:cov

@@ -2,11 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CatController } from '@/cat/cat.controller';
 import { CatService } from '@/cat/cat.service';
 import { CatEntity } from '@/cat/cat.entity';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { BreedEntity } from '@/breed/breed.entity';
-import { BreedService } from '@/breed/breed.service';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { mockTheRest } from '@/lib/tests';
+
 describe('CatController', () => {
   let controller: CatController;
   let catService: CatService;
@@ -24,20 +22,11 @@ describe('CatController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [CatController],
-      providers: [
-        CatService,
-        BreedService,
-        {
-          provide: getRepositoryToken(CatEntity),
-          useValue: {} as Partial<Repository<CatEntity>>,
-        },
-        {
-          provide: getRepositoryToken(BreedEntity),
-          useValue: {} as Partial<Repository<BreedEntity>>,
-        },
-      ],
+      providers: [CatService],
       imports: [EventEmitterModule.forRoot()],
-    }).compile();
+    })
+      .useMocker(mockTheRest)
+      .compile();
 
     controller = module.get<CatController>(CatController);
     catService = module.get<CatService>(CatService);
