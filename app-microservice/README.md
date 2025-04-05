@@ -4,7 +4,7 @@
 
 ## Description
 
-A microservice that compute things built with[Nest](https://github.com/nestjs/nest)
+A microservice that compute things, built with [Nest](https://github.com/nestjs/nest)
 
 Communication made via Redis
 

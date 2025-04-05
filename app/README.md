@@ -4,34 +4,7 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) demonstration app.
-
-This is a basic NestJS application which showcases fundamentals features of the framework.
-
-### Project description
-
-This project is a RESTful API that allows to manage cats and breeds.
-
-#### Functional features
-
-- A list of breeds with CRUD operations
-- A list of cats with breed with CRUD operations
-- Each breed has a seed that is not exposed publicly which serves to generate cat's colors
-
-#### Technical features
-
-- OpenAPI specification
-- Input validation & Output serialisation
-- Websocket serveur for data modification events
-- Database connection with TypeORM
-- Unit testing with Jest
-- End2end testing with Supertest
-- Middleware for logging
-- Guard for random error generation
-
-## API Documentation
-
-The API documentation is available at `/swagger` endpoint.
+Main app for the NestJS demo.
 
 # Development
 
@@ -78,21 +51,14 @@ $ npm run test:cov
 
 # TODO
 
-- Queuing
-- Websockets
 - Caching
 - Stats
 - Migrations
-- Docker prod
 - CORS
 - Auth (jwt/cookies)
 - GraphQL
-- MicroServices
-- Serverless
-
 - Task scheduling
 - versioning
-- events
 - compression
 - file upload
 - streaming
