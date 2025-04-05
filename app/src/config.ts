@@ -11,3 +11,10 @@ export const databaseConfig: TypeOrmModuleOptions = {
   //   logging: process.env.NODE_ENV !== 'production',
   logging: false,
 };
+
+export const redisConfig = {
+  host: process.env.REDIS_HOST || 'localhost',
+  port: parseInt(process.env.REDIS_PORT || '6379'),
+};
+
+export const port = process.env.PORT || 3000;

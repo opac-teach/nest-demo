@@ -49,7 +49,7 @@ export class CatService {
     // const colorObservable = this.client.send<string, string>('generate_color', seed);
     // const color = await firstValueFrom(colorObservable);
 
-    const color = 'AABBCC';
+    const color = '11BB22';
 
     const newCat = this.catRepository.create({ ...cat, color });
     const createdCat = await this.catRepository.save(newCat);

@@ -6,6 +6,7 @@ import { CatEntity } from './cat.entity';
 import { BreedEntity } from '@/breed/breed.entity';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { BreedModule } from '@/breed/breed.module';
+import { redisConfig } from '@/config';
 @Module({
   controllers: [CatController],
   providers: [CatService],
@@ -15,10 +16,7 @@ import { BreedModule } from '@/breed/breed.module';
       {
         name: 'COLORS_SERVICE',
         transport: Transport.REDIS,
-        options: {
-          host: 'localhost',
-          port: 6379,
-        },
+        options: redisConfig,
       },
     ]),
     forwardRef(() => BreedModule),
