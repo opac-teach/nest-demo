@@ -65,7 +65,8 @@ export class CatController {
   async update(
     @Param('id') id: string,
     @Body() cat: UpdateCatDto,
+    @Req() req: { userId: string },
   ): Promise<CatResponseDto> {
-    return this.catService.update(id, cat);
+    return this.catService.update(id, cat, req.userId);
   }
 }

@@ -77,11 +77,22 @@ export class CatService {
     return createdCat;
   }
 
-  async update(id: string, cat: UpdateCatDto): Promise<CatEntity> {
-    const updateResponse = await this.catRepository.update(id, cat);
-    if (updateResponse.affected === 0) {
+  async update(
+    id: string,
+    cat: UpdateCatDto,
+    userId: string,
+  ): Promise<CatEntity> {
+    const existingCat = await this.catRepository.findOne({
+      where: {
+        id: id,
+        userId: userId,
+      },
+      relations: ['breed'],
+    });
+    if (!existingCat) {
       throw new NotFoundException('Cat not found');
     }
+    await this.catRepository.update(existingCat.id, cat);
     const updatedCat = await this.findOne(id);
     this.eventEmitter.emit('data.crud', {
       action: 'update',
