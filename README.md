@@ -48,3 +48,7 @@ docker compose up -d --build
 ```
 
 > The main app is currently disabled to run it without docker in develpment mode, you can enable it by uncommenting the `app` service in the [docker-compose.yml](./docker-compose.yml) file.
+
+## Conventional Commits
+
+The commits have their name based on conventions rules that are described on the next conventional commits website : https://www.conventionalcommits.org/en/v1.0.0/
