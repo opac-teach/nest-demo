@@ -10,6 +10,8 @@ import { firstValueFrom } from 'rxjs';
 export interface CatFindAllOptions extends FindManyOptions<CatEntity> {
   breedId?: string;
   includeBreed?: boolean;
+  ownerId?: string;
+  includeOwner?: boolean
 }
 
 @Injectable()
@@ -24,9 +26,13 @@ export class CatService {
 
   async findAll(options?: CatFindAllOptions): Promise<CatEntity[]> {
     return this.catRepository.find({
-      relations: options?.includeBreed ? ['breed'] : undefined,
+      relations: [
+        ...(options?.includeBreed ? ['breed'] : []),
+        ...(options?.includeOwner ? ['owner'] : []),
+      ],
       where: {
         breedId: options?.breedId,
+        ownerId: options?.ownerId
       },
     });
   }

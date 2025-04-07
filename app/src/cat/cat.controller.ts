@@ -4,13 +4,13 @@ import {
   Get,
   Param,
   Post,
-  Put,
+  Put, Query,
   UseGuards,
 } from '@nestjs/common';
 import { CatService } from '@/cat/cat.service';
 import { CatResponseDto, CreateCatDto, UpdateCatDto } from '@/cat/dtos';
 import { RandomGuard } from '@/lib/random.guard';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {ApiOperation, ApiQuery, ApiResponse} from '@nestjs/swagger';
 
 @Controller('cat') // route '/cat'
 @UseGuards(RandomGuard)
@@ -20,8 +20,31 @@ export class CatController {
   @Get('/') // GET '/cat'
   @ApiOperation({ summary: 'Get all cats' })
   @ApiResponse({ status: 200, description: 'Returns all cats' })
-  findAll(): Promise<CatResponseDto[]> {
-    return this.catService.findAll({ includeBreed: true });
+  @ApiQuery({
+    name: 'ownerId',
+    required: false,
+    type: String,
+    description: 'The id of the owner to filter cats by'
+  })
+  @ApiQuery({
+    name: 'breedId',
+    required: false,
+    type: String,
+    description: 'The id of the breed to filter cats by'
+  })
+  findAll(
+      @Query('ownerId') ownerId?: string,
+      @Query('breedId') breedId?: string,
+      @Query('includeOwner') includeOwner: boolean = true,
+      @Query('includeBreed') includeBreed: boolean = true
+  ): Promise<CatResponseDto[]> {
+    const options = {
+      includeBreed,
+      breedId,
+      ownerId,
+      includeOwner
+    }
+    return this.catService.findAll(options);
   }
 
   @Get(':id') // GET '/cat/:id'

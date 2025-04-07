@@ -7,7 +7,8 @@ import {
   JoinColumn,
 } from 'typeorm';
 
-import { BreedEntity } from '../breed/breed.entity';
+import { BreedEntity } from '@/breed/breed.entity';
+import {UserEntity} from "@/user/user.entity";
 
 @Entity('cat')
 export class CatEntity {
@@ -22,6 +23,9 @@ export class CatEntity {
 
   @Column()
   breedId: string;
+
+  @Column()
+  ownerId: String
 
   @ManyToOne(() => BreedEntity, (breed) => breed.id)
   @JoinColumn({ name: 'breedId' })
@@ -40,4 +44,8 @@ export class CatEntity {
 
   @Column()
   color: string;
+
+  @ManyToOne(() => UserEntity, user => user.cats)
+  @JoinColumn({ name: 'ownerId' })
+  owner: UserEntity;
 }
