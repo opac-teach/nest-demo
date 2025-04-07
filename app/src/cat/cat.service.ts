@@ -12,6 +12,8 @@ import { UserService } from '@/user/user.service';
 export interface CatFindAllOptions extends FindManyOptions<CatEntity> {
   breedId?: string;
   includeBreed?: boolean;
+  userId?: string;
+  includeUser?: boolean;
 }
 
 @Injectable()
@@ -30,9 +32,13 @@ export class CatService {
 
   async findAll(options?: CatFindAllOptions): Promise<CatEntity[]> {
     return this.catRepository.find({
-      relations: options?.includeBreed ? ['breed'] : undefined,
+      relations: [
+        ...(options?.includeBreed ? ['breed'] : []),
+        ...(options?.includeUser ? ['user'] : []),
+      ],
       where: {
         breedId: options?.breedId,
+        userId: options?.userId,
       },
     });
   }

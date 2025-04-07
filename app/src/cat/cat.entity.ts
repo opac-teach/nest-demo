@@ -42,6 +42,9 @@ export class CatEntity {
   @Column()
   color: string;
 
+  @Column({ nullable: true })
+  userId?: string;
+
   @ManyToOne(() => UserEntity, (user) => user.id)
   @JoinColumn({ name: 'userId' })
   user?: UserEntity;
