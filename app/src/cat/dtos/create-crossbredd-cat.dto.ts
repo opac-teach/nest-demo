@@ -5,18 +5,18 @@ export class CreateCrossbreedCatDto {
   @IsString()
   @IsNotEmpty()
   @ApiProperty({
-    description: 'The id of the breed of the cat',
+    description: 'The id of the cat',
     type: String,
   })
-  breedId1: string;
+  catId1: string;
 
   @IsString()
   @IsNotEmpty()
   @ApiProperty({
-    description: 'The id of the breed of the cat',
+    description: 'The id of the cat',
     type: String,
   })
-  breedId2: string;
+  catId2: string;
 
   @ApiProperty({
     description: 'The name of the cat',

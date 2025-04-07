@@ -107,23 +107,35 @@ export class CatService {
     cat: CreateCrossbreedCatDto,
     userId: string,
   ): Promise<CatEntity> {
-    const breed1 = await this.breedService.findOne(cat.breedId1);
-    const breed2 = await this.breedService.findOne(cat.breedId2);
+    const cat1 = await this.catRepository.findOne({
+      where: { id: cat.catId1, userId: userId },
+      relations: ['breed'],
+    });
+    const cat2 = await this.catRepository.findOne({
+      where: { id: cat.catId2, userId: userId },
+      relations: ['breed'],
+    });
+
+    console.log(cat1, cat2);
+
+    if (!cat1?.breed || !cat2?.breed) {
+      throw new NotFoundException('Cat or breed not found');
+    }
 
     let newBreedId: string;
 
-    if (breed1.id === breed2.id) {
-      newBreedId = breed1.id;
+    if (cat1?.breedId === cat2?.breedId) {
+      newBreedId = cat1.breedId;
     } else {
       const newBreed = await this.breedService.create({
-        name: `${breed1.name} x ${breed2.name}`,
+        name: `${cat1.breed.name} x ${cat2.breed.name}`,
         description: 'Crossbreed',
       });
       newBreedId = newBreed.id;
     }
 
     const newCat = this.catRepository.create({
-      name: `${breed1.name} x ${breed2.name}`,
+      name: cat.name,
       userId: userId,
       breedId: newBreedId,
       color: '11BB22',
