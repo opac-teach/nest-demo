@@ -9,13 +9,17 @@ import * as bcrypt from 'bcrypt';
 export class UserService {
   constructor(
     @InjectRepository(UserEntity)
-    private readonly userRepository: Repository<UserEntity>,
+    private userRepository: Repository<UserEntity>,
   ) {}
 
   async findAll(includeCats?: boolean): Promise<UserEntity[]> {
     return this.userRepository.find({
       relations: includeCats ? ['cats'] : undefined,
     });
+  }
+
+  async findOneByEmail(email: string): Promise<UserEntity | null> {
+    return this.userRepository.findOne({ where: { email } });
   }
 
   async findOne(id: string, includeCats?: boolean): Promise<UserEntity> {
@@ -39,16 +43,16 @@ export class UserService {
     return this.userRepository.save(newUser);
   }
 
-  async update(id: string, user: UpdateUserDto): Promise<UserEntity> {
-    const updateResponse = await this.userRepository.update(id, user);
+  async update(userId: string, user: UpdateUserDto): Promise<UserEntity> {
+    const updateResponse = await this.userRepository.update(userId, user);
     if (updateResponse.affected === 0) {
       throw new NotFoundException('User not found');
     }
-    return this.findOne(id);
+    return this.findOne(userId);
   }
 
-  async remove(id: string): Promise<void> {
-    const deleteResponse = await this.userRepository.delete(id);
+  async remove(userId: string): Promise<void> {
+    const deleteResponse = await this.userRepository.delete(userId);
     if (deleteResponse.affected === 0) {
       throw new NotFoundException('User not found');
     }

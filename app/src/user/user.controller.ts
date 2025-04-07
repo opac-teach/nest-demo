@@ -6,12 +6,16 @@ import {
   Param,
   Delete,
   Put,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { UserResponseDto, CreateUserDto, UpdateUserDto } from './dtos';
 import { CatResponseDto } from '@/cat/dtos';
 import { CatService } from '@/cat/cat.service';
+import { AuthGuard, RequestWithUser } from '@/auth/guards/auth.guard';
+
 @Controller('user')
 export class UserController {
   constructor(
@@ -51,20 +55,22 @@ export class UserController {
   }
 
   @Put(':id')
+  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Update a user' })
   @ApiResponse({ status: 200, description: 'Returns the updated user' })
   update(
-    @Param('id') id: string,
+    @Req() req: RequestWithUser,
     @Body() user: UpdateUserDto,
   ): Promise<UserResponseDto> {
-    return this.userService.update(id, user);
+    return this.userService.update(req.user.sub, user);
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Delete a user' })
   @ApiResponse({ status: 200, description: 'Returns the deleted user' })
-  async remove(@Param('id') id: string): Promise<{ message: string }> {
-    await this.userService.remove(id);
+  async remove(@Req() req: RequestWithUser): Promise<{ message: string }> {
+    await this.userService.remove(req.user.sub);
     return { message: 'User deleted successfully' };
   }
 }

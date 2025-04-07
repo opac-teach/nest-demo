@@ -1,9 +1,21 @@
-import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Put,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { CatService } from '@/cat/cat.service';
 import { CatResponseDto, CreateCatDto, UpdateCatDto } from '@/cat/dtos';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { AuthGuard } from '@/auth/guards/auth.guard';
+import { RequestWithUser } from '@/auth/guards/auth.guard';
 
 @Controller('cat')
+@UseGuards(AuthGuard)
 export class CatController {
   constructor(private catService: CatService) {}
 
@@ -24,8 +36,11 @@ export class CatController {
   @Post()
   @ApiOperation({ summary: 'Create a cat' })
   @ApiResponse({ status: 201, description: 'Returns the created cat' })
-  create(@Body() cat: CreateCatDto): Promise<CatResponseDto> {
-    return this.catService.create(cat);
+  create(
+    @Body() cat: CreateCatDto,
+    @Req() req: RequestWithUser,
+  ): Promise<CatResponseDto> {
+    return this.catService.create(cat, req.user.sub);
   }
 
   @Put(':id')
@@ -34,7 +49,8 @@ export class CatController {
   async update(
     @Param('id') id: string,
     @Body() cat: UpdateCatDto,
+    @Req() req: RequestWithUser,
   ): Promise<CatResponseDto> {
-    return this.catService.update(id, cat);
+    return this.catService.update(id, cat, req.user.sub);
   }
 }

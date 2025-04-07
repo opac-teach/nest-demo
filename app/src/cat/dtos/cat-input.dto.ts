@@ -25,14 +25,6 @@ export class CreateCatDto {
   @IsUUID()
   @IsNotEmpty()
   breedId: string;
-
-  @ApiProperty({
-    description: 'The id of the user of the cat',
-    type: String,
-  })
-  @IsUUID()
-  @IsNotEmpty()
-  userId: string;
 }
 
 /**
@@ -41,5 +33,5 @@ export class CreateCatDto {
  * with the breedId and userId fields excluded.
  */
 export class UpdateCatDto extends PartialType(
-  OmitType(CreateCatDto, ['breedId', 'userId'] as const),
+  OmitType(CreateCatDto, ['breedId'] as const),
 ) {}

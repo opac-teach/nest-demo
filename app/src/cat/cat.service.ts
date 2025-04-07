@@ -1,12 +1,16 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { CreateCatDto, UpdateCatDto } from '@/cat/dtos/cat-input.dto';
 import { CatEntity } from '@/cat/cat.entity';
 import { FindManyOptions, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BreedService } from '@/breed/breed.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { ClientProxy } from '@nestjs/microservices';
-// import { firstValueFrom } from 'rxjs';
+// import { ClientProxy } from '@nestjs/microservices';
+
 export interface CatFindAllOptions extends FindManyOptions<CatEntity> {
   breedId?: string;
   userId?: string;
@@ -21,7 +25,7 @@ export class CatService {
     private readonly catRepository: Repository<CatEntity>,
     private readonly breedService: BreedService,
     private readonly eventEmitter: EventEmitter2,
-    @Inject('COLORS_SERVICE') private client: ClientProxy,
+    // @Inject('COLORS_SERVICE') private client: ClientProxy,
   ) {}
 
   async findAll(options?: CatFindAllOptions): Promise<CatEntity[]> {
@@ -35,8 +39,6 @@ export class CatService {
         userId: options?.userId,
       },
     });
-
-    console.log('cats', cats);
 
     return cats;
   }
@@ -59,19 +61,14 @@ export class CatService {
     return cat;
   }
 
-  async create(cat: CreateCatDto): Promise<CatEntity> {
-    // const breed = await this.breedService.findOne(cat.breedId);
-
-    // const { seed } = breed;
-    // const colorObservable = this.client.send<string, string>(
-    //   'generate_color',
-    //   seed,
-    // );
-    // const color = await firstValueFrom(colorObservable);
+  async create(cat: CreateCatDto, userId: string): Promise<CatEntity> {
+    if (!userId) {
+      throw new UnauthorizedException("ID d'utilisateur manquant");
+    }
 
     const color = '11BB22';
 
-    const newCat = this.catRepository.create({ ...cat, color });
+    const newCat = this.catRepository.create({ ...cat, color, userId });
     const createdCat = await this.catRepository.save(newCat);
 
     this.eventEmitter.emit('data.crud', {
@@ -83,7 +80,17 @@ export class CatService {
     return createdCat;
   }
 
-  async update(id: string, cat: UpdateCatDto): Promise<CatEntity> {
+  async update(
+    id: string,
+    cat: UpdateCatDto,
+    userId: string,
+  ): Promise<CatEntity> {
+    const catToUpdate = await this.findOne(id);
+    if (catToUpdate.userId !== userId) {
+      throw new UnauthorizedException(
+        "Vous n'êtes pas autorisé à modifier ce chat",
+      );
+    }
     const updateResponse = await this.catRepository.update(id, cat);
     if (updateResponse.affected === 0) {
       throw new NotFoundException('Cat not found');
