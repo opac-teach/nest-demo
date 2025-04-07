@@ -48,3 +48,15 @@ docker compose up -d --build
 ```
 
 > The main app is currently disabled to run it without docker in develpment mode, you can enable it by uncommenting the `app` service in the [docker-compose.yml](./docker-compose.yml) file.
+
+
+----
+
+### create users : 
+
+nest g module users
+nest g service users
+
+create entity file
+
+add the data and the relation to cat one to many in user and many to one in cat
