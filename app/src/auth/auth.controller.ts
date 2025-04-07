@@ -3,10 +3,24 @@ import { AuthService } from './auth.service';
 import { LoginDto } from './dtos/auth-input.dto';
 import { Response } from 'express';
 import { LoginResponseDto } from './dtos/auth-response.dto';
+import { ApiOperation } from '@nestjs/swagger';
+import { ApiResponse } from '@nestjs/swagger';
+import { CreateUserDto, UserResponseDto } from '@/user/dtos';
+import { UserService } from '@/user/user.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private userService: UserService,
+  ) {}
+
+  @Post('register')
+  @ApiOperation({ summary: 'Create a user' })
+  @ApiResponse({ status: 201, description: 'Returns the created user' })
+  create(@Body() user: CreateUserDto): Promise<UserResponseDto> {
+    return this.userService.create(user);
+  }
 
   @Post('login')
   async login(

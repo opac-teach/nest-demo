@@ -1,7 +1,6 @@
 import {
   Controller,
   Get,
-  Post,
   Body,
   Param,
   Delete,
@@ -11,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { UserResponseDto, CreateUserDto, UpdateUserDto } from './dtos';
+import { UserResponseDto, UpdateUserDto } from './dtos';
 import { CatResponseDto } from '@/cat/dtos';
 import { CatService } from '@/cat/cat.service';
 import { AuthGuard, RequestWithUser } from '@/auth/guards/auth.guard';
@@ -35,13 +34,6 @@ export class UserController {
   @ApiResponse({ status: 200, description: 'Returns a user' })
   findOne(@Param('id') id: string): Promise<UserResponseDto> {
     return this.userService.findOne(id, true);
-  }
-
-  @Post()
-  @ApiOperation({ summary: 'Create a user' })
-  @ApiResponse({ status: 201, description: 'Returns the created user' })
-  create(@Body() user: CreateUserDto): Promise<UserResponseDto> {
-    return this.userService.create(user);
   }
 
   @Get(':id/cats')
