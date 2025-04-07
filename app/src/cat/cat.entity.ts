@@ -7,7 +7,8 @@ import {
   JoinColumn,
 } from 'typeorm';
 
-import { BreedEntity } from '../breed/breed.entity';
+import { BreedEntity } from '@/breed/breed.entity';
+import { UserEntity } from '@/user/user.entity';
 
 @Entity('cat')
 export class CatEntity {
@@ -23,6 +24,9 @@ export class CatEntity {
   @Column()
   breedId: string;
 
+  @Column()
+  userId: string;
+
   @ManyToOne(() => BreedEntity, (breed) => breed.id)
   @JoinColumn({ name: 'breedId' })
   breed?: BreedEntity;
@@ -37,6 +41,10 @@ export class CatEntity {
   updateTimestamp() {
     this.updated = new Date();
   }
+
+  @ManyToOne(() => UserEntity, (user) => user.cats)
+  @JoinColumn({ name: 'userId' })
+  user: UserEntity;
 
   @Column()
   color: string;

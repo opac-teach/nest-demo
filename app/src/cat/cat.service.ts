@@ -7,9 +7,11 @@ import { BreedService } from '@/breed/breed.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
+import {UserEntity} from "@/user/user.entity";
 export interface CatFindAllOptions extends FindManyOptions<CatEntity> {
   breedId?: string;
   includeBreed?: boolean;
+  userId?: string;
 }
 
 @Injectable()
@@ -27,6 +29,7 @@ export class CatService {
       relations: options?.includeBreed ? ['breed'] : undefined,
       where: {
         breedId: options?.breedId,
+        userId: options?.userId,
       },
     });
   }
