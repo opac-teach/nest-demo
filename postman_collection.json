@@ -5,6 +5,74 @@
   },
   "item": [
     {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/user",
+              "host": ["{{base_url}}"],
+              "path": ["user"]
+            }
+          }
+        },
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/user/:id",
+              "host": ["{{base_url}}"],
+              "path": ["user", ":id"]
+            }
+          }
+        },
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{base_url}}/user",
+              "host": ["{{base_url}}"],
+              "path": ["user"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"string\",\n    \"email\": \"string@example.com\",\n    \"password\": \"string\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "url": {
+              "raw": "{{base_url}}/user/:id",
+              "host": ["{{base_url}}"],
+              "path": ["user", ":id"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"string\",\n    \"password\": \"string\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{base_url}}/user/:id",
+              "host": ["{{base_url}}"],
+              "path": ["user", ":id"]
+            }
+          }
+        }
+      ]
+    },
+    {
       "name": "Cats",
       "item": [
         {
@@ -40,7 +108,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"name\": \"string\",\n    \"age\": 0,\n    \"breedId\": \"string\"\n}"
+              "raw": "{\n    \"name\": \"string\",\n    \"age\": 0,\n    \"breedId\": \"string\",\n    \"userId\": \"string\",\n    \"color\": \"string\"\n}"
             }
           }
         },
@@ -55,7 +123,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"name\": \"string\",\n    \"age\": 0,\n    \"breedId\": \"string\"\n}"
+              "raw": "{\n    \"name\": \"string\",\n    \"age\": 0,\n    \"breedId\": \"string\",\n    \"userId\": \"string\",\n    \"color\": \"string\"\n}"
             }
           }
         }

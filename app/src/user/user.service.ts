@@ -1,26 +1,50 @@
-import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dtos/create-user.dto';
-import { UpdateUserDto } from './dtos/update-user.dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { UserEntity } from './user.entity';
+import { CreateUserDto, UpdateUserDto } from './dtos';
 
 @Injectable()
 export class UserService {
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+  constructor(
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
+  ) {}
+
+  async findAll(includeCats?: boolean): Promise<UserEntity[]> {
+    return this.userRepository.find({
+      relations: includeCats ? ['cats'] : undefined,
+    });
   }
 
-  findAll() {
-    return `This action returns all user`;
+  async findOne(id: string, includeCats?: boolean): Promise<UserEntity> {
+    const user = await this.userRepository.findOne({
+      where: { id },
+      relations: includeCats ? ['cats'] : undefined,
+    });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async create(user: CreateUserDto): Promise<UserEntity> {
+    const newUser = this.userRepository.create(user);
+    return this.userRepository.save(newUser);
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: string, user: UpdateUserDto): Promise<UserEntity> {
+    const updateResponse = await this.userRepository.update(id, user);
+    if (updateResponse.affected === 0) {
+      throw new NotFoundException('User not found');
+    }
+    return this.findOne(id);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(id: string): Promise<void> {
+    const deleteResponse = await this.userRepository.delete(id);
+    if (deleteResponse.affected === 0) {
+      throw new NotFoundException('User not found');
+    }
   }
 }
