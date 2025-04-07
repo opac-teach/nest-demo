@@ -10,10 +10,14 @@ import {
 import { UserService } from './user.service';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { UserResponseDto, CreateUserDto, UpdateUserDto } from './dtos';
-
+import { CatResponseDto } from '@/cat/dtos';
+import { CatService } from '@/cat/cat.service';
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly catService: CatService,
+  ) {}
 
   @Get()
   @ApiOperation({ summary: 'Get all users' })
@@ -34,6 +38,16 @@ export class UserController {
   @ApiResponse({ status: 201, description: 'Returns the created user' })
   create(@Body() user: CreateUserDto): Promise<UserResponseDto> {
     return this.userService.create(user);
+  }
+
+  @Get(':id/cats')
+  @ApiOperation({ summary: 'Get all cats by user id' })
+  @ApiResponse({ status: 200, description: 'Returns all cats by user id' })
+  findCats(@Param('id') id: string): Promise<CatResponseDto[]> {
+    return this.catService.findAll({
+      userId: id,
+      includeUser: true,
+    });
   }
 
   @Put(':id')

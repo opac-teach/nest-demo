@@ -6,10 +6,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { BreedService } from '@/breed/breed.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ClientProxy } from '@nestjs/microservices';
-import { firstValueFrom } from 'rxjs';
+// import { firstValueFrom } from 'rxjs';
 export interface CatFindAllOptions extends FindManyOptions<CatEntity> {
   breedId?: string;
+  userId?: string;
   includeBreed?: boolean;
+  includeUser?: boolean;
 }
 
 @Injectable()
@@ -23,18 +25,33 @@ export class CatService {
   ) {}
 
   async findAll(options?: CatFindAllOptions): Promise<CatEntity[]> {
-    return this.catRepository.find({
-      relations: options?.includeBreed ? ['breed'] : undefined,
+    const cats = await this.catRepository.find({
+      relations: {
+        breed: options?.includeBreed,
+        user: options?.includeUser,
+      },
       where: {
         breedId: options?.breedId,
+        userId: options?.userId,
       },
     });
+
+    console.log('cats', cats);
+
+    return cats;
   }
 
-  async findOne(id: string, includeBreed?: boolean): Promise<CatEntity> {
+  async findOne(
+    id: string,
+    includeBreed?: boolean,
+    includeUser?: boolean,
+  ): Promise<CatEntity> {
     const cat = await this.catRepository.findOne({
       where: { id },
-      relations: includeBreed ? ['breed'] : undefined,
+      relations: {
+        breed: includeBreed,
+        user: includeUser,
+      },
     });
     if (!cat) {
       throw new NotFoundException('Cat not found');
@@ -43,16 +60,16 @@ export class CatService {
   }
 
   async create(cat: CreateCatDto): Promise<CatEntity> {
-    const breed = await this.breedService.findOne(cat.breedId);
+    // const breed = await this.breedService.findOne(cat.breedId);
 
-    const { seed } = breed;
-    const colorObservable = this.client.send<string, string>(
-      'generate_color',
-      seed,
-    );
-    const color = await firstValueFrom(colorObservable);
+    // const { seed } = breed;
+    // const colorObservable = this.client.send<string, string>(
+    //   'generate_color',
+    //   seed,
+    // );
+    // const color = await firstValueFrom(colorObservable);
 
-    // const color = '11BB22';
+    const color = '11BB22';
 
     const newCat = this.catRepository.create({ ...cat, color });
     const createdCat = await this.catRepository.save(newCat);
