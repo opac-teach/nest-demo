@@ -5,6 +5,7 @@ import { UserEntity } from '@/user/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -16,7 +17,11 @@ export class UserService {
 
   public async create(createUserDto: CreateUserDto): Promise<UserEntity> {
     const user = this.userRepository.create(createUserDto);
+    const saltOrRounds = 10;
+    user.password = await bcrypt.hash(user.password, saltOrRounds);
+    console.log(user.password);
     const createdUser = await this.userRepository.save(user);
+    console.log(createdUser);
     this.eventEmitter.emit('data.crud', {
       action: 'create',
       model: 'user',

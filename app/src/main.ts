@@ -2,9 +2,11 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule, registerGlobals } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { port } from '@/config';
+import * as dotenv from 'dotenv';
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
+  dotenv.config();
   registerGlobals(app);
   // Enable swagger and OpenAPI documentation
   const config = new DocumentBuilder()
