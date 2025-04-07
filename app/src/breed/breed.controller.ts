@@ -1,9 +1,10 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import {Body, Controller, Get, Param, Post, UseGuards} from '@nestjs/common';
 import { BreedService } from './breed.service';
 import { BreedResponseDto, CreateBreedDto } from './dtos';
 import { CatResponseDto } from '@/cat/dtos/cat-response.dto';
 import { CatService } from '@/cat/cat.service';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {AuthGuard} from "@/auth/auth.guard";
 
 @Controller('breed')
 export class BreedController {
@@ -36,6 +37,7 @@ export class BreedController {
   @Post()
   @ApiOperation({ summary: 'Create a breed' })
   @ApiResponse({ status: 201, description: 'Returns the created breed' })
+  @UseGuards(AuthGuard)
   create(@Body() breed: CreateBreedDto): Promise<BreedResponseDto> {
     return this.breedService.create(breed);
   }

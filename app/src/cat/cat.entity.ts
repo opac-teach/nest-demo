@@ -45,7 +45,9 @@ export class CatEntity {
   @Column()
   color: string;
 
-  @ManyToOne(() => UserEntity, user => user.cats)
+  @ManyToOne(() => UserEntity, user => user.cats, {
+    onDelete: "CASCADE"
+  })
   @JoinColumn({ name: 'ownerId' })
   owner: UserEntity;
 }

@@ -1,18 +1,24 @@
-import {Controller, Get, Post, Body, Patch, Param, Put} from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Request,
+  Param,
+  Put,
+  UseGuards,
+  UnauthorizedException,
+  Delete
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto, UpdateUserDto, UserResponseDto } from '@/user/dto';
 import { ApiOperation, ApiResponse } from "@nestjs/swagger";
+import { AuthGuard } from "@/auth/auth.guard";
+import {UserGuard} from "@/user/user.guard";
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
-
-  @Post()
-  @ApiOperation({ summary: 'Get a user by id' })
-  @ApiResponse({ status: 200, description: 'Returns a user' })
-  create(@Body() user: CreateUserDto): Promise<UserResponseDto> {
-    return this.userService.create(user);
-  }
 
   @Get('/')
   @ApiOperation({ summary: 'Get all users' })
@@ -31,7 +37,20 @@ export class UserController {
   @Put(':id')
   @ApiOperation({ summary: 'Update a user by id' })
   @ApiResponse({ status: 200, description: 'Returns the updated user' })
-  update(@Param('id') id: string, @Body() user: UpdateUserDto) {
+  @UseGuards(AuthGuard, UserGuard)
+  update(
+      @Param('id') id: string,
+      @Body() user: UpdateUserDto): Promise<UserResponseDto> {
     return this.userService.update(id, user);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete a user by id' })
+  @ApiResponse({ status: 200, description: 'Returns the deleted user' })
+  @UseGuards(AuthGuard, UserGuard)
+  delete(
+      @Param('id') id: string
+  ): Promise<string> {
+    return this.userService.delete(id);
   }
 }

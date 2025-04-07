@@ -1,4 +1,4 @@
-import {BeforeInsert, BeforeUpdate, Column, Entity, OneToMany, PrimaryGeneratedColumn} from "typeorm";
+import {BeforeInsert, BeforeUpdate, Column, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn} from "typeorm";
 import {IsEmail, IsNotEmpty, Length} from "class-validator";
 import {CatEntity} from "@/cat/cat.entity";
 import * as bcrypt from 'bcrypt';
@@ -34,6 +34,9 @@ export class UserEntity {
 
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     updated: Date;
+
+    @DeleteDateColumn()
+    deletedAt?: Date;
 
     @BeforeUpdate()
     updateTimestamp() {

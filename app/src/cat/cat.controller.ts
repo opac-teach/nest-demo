@@ -6,11 +6,14 @@ import {
   Post,
   Put, Query,
   UseGuards,
+  Request
 } from '@nestjs/common';
 import { CatService } from '@/cat/cat.service';
 import { CatResponseDto, CreateCatDto, UpdateCatDto } from '@/cat/dtos';
 import { RandomGuard } from '@/lib/random.guard';
 import {ApiOperation, ApiQuery, ApiResponse} from '@nestjs/swagger';
+import {AuthGuard} from "@/auth/auth.guard";
+import {CatGuard} from "@/cat/cat.guard";
 
 @Controller('cat') // route '/cat'
 @UseGuards(RandomGuard)
@@ -57,13 +60,15 @@ export class CatController {
   @Post() // POST '/cat'
   @ApiOperation({ summary: 'Create a cat' })
   @ApiResponse({ status: 201, description: 'Returns the created cat' })
-  create(@Body() cat: CreateCatDto): Promise<CatResponseDto> {
-    return this.catService.create(cat);
+  @UseGuards(AuthGuard)
+  create(@Body() cat: CreateCatDto, @Request() req): Promise<CatResponseDto> {
+    return this.catService.create(cat, req.user.sub);
   }
 
   @Put(':id') // PUT '/cat/:id'
   @ApiOperation({ summary: 'Update a cat' })
   @ApiResponse({ status: 200, description: 'Returns the updated cat' })
+  @UseGuards(AuthGuard, CatGuard)
   async update(
     @Param('id') id: string,
     @Body() cat: UpdateCatDto,
