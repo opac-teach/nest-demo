@@ -1,0 +1,124 @@
+{
+  "info": {
+    "name": "Nest Demo API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Cats",
+      "item": [
+        {
+          "name": "Get All Cats",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/cat",
+              "host": ["{{base_url}}"],
+              "path": ["cat"]
+            }
+          }
+        },
+        {
+          "name": "Get Cat by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/cat/:id",
+              "host": ["{{base_url}}"],
+              "path": ["cat", ":id"]
+            }
+          }
+        },
+        {
+          "name": "Create Cat",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{base_url}}/cat",
+              "host": ["{{base_url}}"],
+              "path": ["cat"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"string\",\n    \"age\": 0,\n    \"breedId\": \"string\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Cat",
+          "request": {
+            "method": "PUT",
+            "url": {
+              "raw": "{{base_url}}/cat/:id",
+              "host": ["{{base_url}}"],
+              "path": ["cat", ":id"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"string\",\n    \"age\": 0,\n    \"breedId\": \"string\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Breeds",
+      "item": [
+        {
+          "name": "Get All Breeds",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/breed",
+              "host": ["{{base_url}}"],
+              "path": ["breed"]
+            }
+          }
+        },
+        {
+          "name": "Get Breed by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/breed/:id",
+              "host": ["{{base_url}}"],
+              "path": ["breed", ":id"]
+            }
+          }
+        },
+        {
+          "name": "Get Cats by Breed",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/breed/:id/cats",
+              "host": ["{{base_url}}"],
+              "path": ["breed", ":id", "cats"]
+            }
+          }
+        },
+        {
+          "name": "Create Breed",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{base_url}}/breed",
+              "host": ["{{base_url}}"],
+              "path": ["breed"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"string\"\n}"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000"
+    }
+  ]
+} 
