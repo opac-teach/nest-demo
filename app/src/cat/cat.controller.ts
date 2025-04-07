@@ -31,6 +31,13 @@ export class CatController {
     return this.catService.findOne(id, true);
   }
 
+  @Get('/owner/:ownerId')
+  @ApiOperation({ summary: 'Get cats by owner' })
+  @ApiResponse({ status: 200, description: 'Returns cats filtered by owner with their infos' })
+  findByOwner(@Param('ownerId') ownerId: string): Promise<CatResponseDto[]> {
+    return this.catService.findByOwner(ownerId, { includeUser: true });
+  }
+
   @Post() // POST '/cat'
   @ApiOperation({ summary: 'Create a cat' })
   @ApiResponse({ status: 201, description: 'Returns the created cat' })

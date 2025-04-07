@@ -5,35 +5,33 @@ import {
   ManyToOne,
   BeforeUpdate,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 
-import { BreedEntity } from '../breed/breed.entity';
-import { UserEntity } from '../users/user.entity';
+import { CatEntity } from '../cat/cat.entity';
 
-@Entity('cat')
-export class CatEntity {
+@Entity('users')
+export class UserEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()
   name: string;
 
-  @Column()
-  age: number;
+  @Column({ unique: true })
+  email: string;
 
   @Column()
-  breedId: string;
-
-  @ManyToOne(() => BreedEntity, (breed) => breed.id)
-  @JoinColumn({ name: 'breedId' })
-  breed?: BreedEntity;
-
-  @ManyToOne(() => UserEntity, (user) => user.cats)
-  @JoinColumn({ name: 'userId' })
-  user: UserEntity;
+  username: string;
 
   @Column()
-  userId: string;
+  description: string;
+
+  @Column()
+  password: string;
+
+  @OneToMany(() => CatEntity, (cat) => cat.user)
+  cats?: CatEntity[];
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created: Date;
@@ -45,7 +43,4 @@ export class CatEntity {
   updateTimestamp() {
     this.updated = new Date();
   }
-
-  @Column()
-  color: string;
 }
