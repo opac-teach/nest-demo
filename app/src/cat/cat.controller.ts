@@ -5,15 +5,15 @@ import {
   Param,
   Post,
   Put,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { CatService } from '@/cat/cat.service';
 import { CatResponseDto, CreateCatDto, UpdateCatDto } from '@/cat/dtos';
-import { RandomGuard } from '@/lib/random.guard';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { AuthGuard } from '@/auth/jwt-auth.guard';
 
 @Controller('cat') // route '/cat'
-@UseGuards(RandomGuard)
 export class CatController {
   constructor(private catService: CatService) {}
 
@@ -37,9 +37,14 @@ export class CatController {
 
   @Post() // POST '/cat'
   @ApiOperation({ summary: 'Create a cat' })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @ApiResponse({ status: 201, description: 'Returns the created cat' })
-  create(@Body() cat: CreateCatDto): Promise<CatResponseDto> {
-    return this.catService.create(cat);
+  create(
+    @Body() cat: CreateCatDto,
+    @Req() req: { userId: string },
+  ): Promise<CatResponseDto> {
+    return this.catService.create(cat, req.userId);
   }
 
   @Put(':id') // PUT '/cat/:id'
