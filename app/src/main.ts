@@ -3,6 +3,8 @@ import { AppModule, registerGlobals } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { port } from '@/config';
 import * as dotenv from 'dotenv';
+import { AuthMiddleware } from '@/auth/auth.middleware';
+import { JwtService } from '@nestjs/jwt';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -22,6 +24,8 @@ async function bootstrap() {
       in: 'Header',
     })
     .build();
+
+  app.use(new AuthMiddleware(app.get(JwtService)).use);
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('swagger', app, documentFactory);
 
