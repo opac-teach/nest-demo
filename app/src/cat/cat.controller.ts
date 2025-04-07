@@ -19,7 +19,11 @@ export class CatController {
 
   @Get('/') // GET '/cat'
   @ApiOperation({ summary: 'Get all cats' })
-  @ApiResponse({ status: 200, description: 'Returns all cats' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns all cats',
+    type: CatResponseDto,
+  })
   findAll(): Promise<CatResponseDto[]> {
     return this.catService.findAll({ includeBreed: true });
   }
