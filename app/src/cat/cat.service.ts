@@ -8,6 +8,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ClientProxy } from '@nestjs/microservices';
 import { UserEntity } from '@/user/entities/user.entity';
 import { UserService } from '@/user/user.service';
+import { CreateCrossbreedCatDto } from '@/cat/dtos/create-crossbredd-cat.dto';
 
 export interface CatFindAllOptions extends FindManyOptions<CatEntity> {
   breedId?: string;
@@ -100,5 +101,37 @@ export class CatService {
       cat: updatedCat,
     });
     return updatedCat;
+  }
+
+  public async crossbreed(
+    cat: CreateCrossbreedCatDto,
+    userId: string,
+  ): Promise<CatEntity> {
+    const breed1 = await this.breedService.findOne(cat.breedId1);
+    const breed2 = await this.breedService.findOne(cat.breedId2);
+
+    let newBreedId: string;
+
+    if (breed1.id === breed2.id) {
+      newBreedId = breed1.id;
+    } else {
+      const newBreed = await this.breedService.create({
+        name: `${breed1.name} x ${breed2.name}`,
+        description: 'Crossbreed',
+      });
+      newBreedId = newBreed.id;
+    }
+
+    const newCat = this.catRepository.create({
+      name: `${breed1.name} x ${breed2.name}`,
+      userId: userId,
+      breedId: newBreedId,
+      color: '11BB22',
+      age: cat.age,
+    });
+
+    await this.catRepository.save(newCat);
+
+    return await this.findOne(newCat.id, true);
   }
 }

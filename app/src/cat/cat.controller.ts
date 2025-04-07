@@ -18,6 +18,7 @@ import {
   ApiResponse,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@/auth/jwt-auth.guard';
+import { CreateCrossbreedCatDto } from '@/cat/dtos/create-crossbredd-cat.dto';
 
 @Controller('cat') // route '/cat'
 export class CatController {
@@ -68,5 +69,17 @@ export class CatController {
     @Req() req: { userId: string },
   ): Promise<CatResponseDto> {
     return this.catService.update(id, cat, req.userId);
+  }
+
+  @Post('/crossbreed')
+  @ApiOperation({ summary: 'Crossbreed two cats' })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @ApiResponse({ status: 200, description: 'Returns the crossbred cat' })
+  crossbreed(
+    @Body() cat: CreateCrossbreedCatDto,
+    @Req() req: { userId: string },
+  ): Promise<CatResponseDto> {
+    return this.catService.crossbreed(cat, req.userId);
   }
 }

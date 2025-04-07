@@ -19,9 +19,7 @@ export class UserService {
     const user = this.userRepository.create(createUserDto);
     const saltOrRounds = 10;
     user.password = await bcrypt.hash(user.password, saltOrRounds);
-    console.log(user.password);
     const createdUser = await this.userRepository.save(user);
-    console.log(createdUser);
     this.eventEmitter.emit('data.crud', {
       action: 'create',
       model: 'user',
@@ -71,9 +69,9 @@ export class UserService {
     });
   }
 
-  public async remove(id: string): Promise<UserEntity> {
+  public async remove(userId: string): Promise<UserEntity> {
     const user = await this.userRepository.findOne({
-      where: { id },
+      where: { id: userId },
     });
 
     if (!user) {

@@ -56,17 +56,16 @@ export class CommentsService {
     updateCommentDto: UpdateCommentDto,
     userId: string,
   ): Promise<CommentEntity | NotFoundException> {
-    const comment = await this.commentRepository.findOne({
-      where: {
+    const updatedComment = await this.commentRepository.update(
+      {
         id: id,
         userId: userId,
       },
-      relations: ['cat', 'user'],
-    });
-    if (!comment) {
+      updateCommentDto,
+    );
+    if (updatedComment.affected === 0) {
       return new NotFoundException('Comment not found');
     }
-    await this.commentRepository.update(id, updateCommentDto);
     return (
       (await this.commentRepository.findOne({
         where: { id },

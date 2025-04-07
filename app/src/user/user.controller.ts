@@ -31,13 +31,13 @@ export class UserController {
     return this.userService.findOne(id);
   }
 
-  @Patch(':id')
+  @Patch('')
   update(@Req() req: { userId: string }, @Body() updateUserDto: UpdateUserDto) {
     return this.userService.update(req.userId, updateUserDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userService.remove(id);
+  @Delete('')
+  remove(@Req() req: { userId: string }) {
+    return this.userService.remove(req.userId);
   }
 }
