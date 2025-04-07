@@ -1,6 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  ManyToOne,
+} from 'typeorm';
 import { CatEntity } from '@/cat/cat.entity';
 import { Exclude } from 'class-transformer';
+import { CommentEntity } from '@/comments/entities/comment.entity';
 
 @Entity('user')
 export class UserEntity {
@@ -22,4 +29,7 @@ export class UserEntity {
 
   @OneToMany(() => CatEntity, (cat) => cat.user)
   cats: CatEntity[];
+
+  @ManyToOne(() => CommentEntity, (comment) => comment.cat)
+  comments?: CommentEntity[];
 }

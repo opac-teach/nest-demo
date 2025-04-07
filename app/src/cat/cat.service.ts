@@ -35,6 +35,7 @@ export class CatService {
       relations: [
         ...(options?.includeBreed ? ['breed'] : []),
         ...(options?.includeUser ? ['user'] : []),
+        'comments',
       ],
       where: {
         breedId: options?.breedId,
