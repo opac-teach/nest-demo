@@ -7,6 +7,8 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { DataCrudEvent, PublicDataCrudEvent } from './dtos';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { wait } from '@/lib/utils';
+import {CatEntity} from "@/cat/cat.entity";
+import {UserEntity} from "@/user/user.entity";
 
 describe('LiveGateway', () => {
   let app: INestApplication;
@@ -95,10 +97,24 @@ describe('LiveGateway', () => {
 
   it('should emit "data.crud" on "data.crud" event', async () => {
     ioClient.emit('subscribe', { name: 'John' });
+    const mockUser: UserEntity = {
+      id: '1',
+      name: 'Antoine Dupont',
+      description: 'Joueur de rugby.',
+      email: 'toto@gmail.com',
+      password: 'Antoine',
+      created: new Date(),
+      updated: new Date(),
+      cats: [],
+      comments: [],
+      updateTimestamp: () => new Date(),
+      async hashPassword(): Promise<void> {
+      }
+    };
     const dataCrudEvent: DataCrudEvent = {
       action: 'create',
       model: 'cat',
-      cat: {
+        cat: {
         id: '1',
         name: 'John',
         age: 1,
@@ -106,7 +122,10 @@ describe('LiveGateway', () => {
         created: new Date(),
         updated: new Date(),
         color: 'white',
-        updateTimestamp: () => new Date(),
+        updateTimestamp: jest.fn(),
+        ownerId: '1',
+          owner: mockUser,
+        comments: []
       },
     };
 

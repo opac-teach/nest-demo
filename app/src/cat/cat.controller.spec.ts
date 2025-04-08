@@ -4,10 +4,27 @@ import { CatService } from '@/cat/cat.service';
 import { CatEntity } from '@/cat/cat.entity';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { mockTheRest } from '@/lib/tests';
+import {UserEntity} from "@/user/user.entity";
 
 describe('CatController', () => {
   let controller: CatController;
   let catService: CatService;
+
+  const mockUser: UserEntity = {
+    id: '1',
+    name: 'Antoine Dupont',
+    description: 'Joueur de rugby.',
+    email: 'toto@gmail.com',
+    password: 'Antoine',
+    created: new Date(),
+    updated: new Date(),
+    cats: [],
+    comments: [],
+    updateTimestamp: () => new Date(),
+    async hashPassword(): Promise<void> {
+    }
+  };
+
   const mockCat: CatEntity = {
     id: '1',
     name: 'Fluffy',
@@ -17,6 +34,9 @@ describe('CatController', () => {
     updated: new Date(),
     color: '11BB22',
     updateTimestamp: jest.fn(),
+    ownerId: mockUser.id,
+    owner: mockUser,
+    comments: []
   };
 
   beforeEach(async () => {
@@ -41,9 +61,14 @@ describe('CatController', () => {
   describe('findAll', () => {
     it('should return an array of cat', async () => {
       jest.spyOn(catService, 'findAll').mockResolvedValue([mockCat]);
-      const result = await controller.findAll();
+      const result = await controller.findAll(undefined, undefined, true, true);
       expect(result).toEqual([mockCat]);
-      expect(catService.findAll).toHaveBeenCalledWith({ includeBreed: true });
+      expect(catService.findAll).toHaveBeenCalledWith({
+        includeBreed: true,
+        includeOwner: true,
+        breedId: undefined,
+        ownerId: undefined
+      });
     });
   });
 
@@ -64,9 +89,12 @@ describe('CatController', () => {
         breedId: '1',
       };
       jest.spyOn(catService, 'create').mockResolvedValue(mockCat);
-      const result = await controller.create(mockCreateCatDto);
+      const result = await controller.create(mockCreateCatDto, {user: {sub: mockUser.id}});
       expect(result).toEqual(mockCat);
-      expect(catService.create).toHaveBeenCalledWith(mockCreateCatDto);
+      expect(catService.create).toHaveBeenCalledWith(
+          mockCreateCatDto,
+          mockUser.id
+        );
     });
   });
 

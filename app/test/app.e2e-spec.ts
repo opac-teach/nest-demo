@@ -10,6 +10,8 @@ import { BreedResponseDto } from '@/breed/dtos';
 import { CatResponseDto } from '@/cat/dtos';
 import { Socket, io } from 'socket.io-client';
 import { wait } from '@/lib/utils';
+import {CreateUserDto} from "@/user/dto";
+import {CreateCommentDto} from "@/comment/dto";
 
 describe('AppController (e2e)', () => {
   let app: INestApplication<App>;
@@ -27,6 +29,19 @@ describe('AppController (e2e)', () => {
     age: 1,
     breedId: '',
   };
+
+  const inputUser: CreateUserDto = {
+    name: 'Antoine dupont',
+    description: 'Joueur de rugby et fan de chats',
+    email: 'toto@gmail.com',
+    password: 'toto1234'
+  }
+
+  const inputComment: CreateCommentDto = {
+    title: 'First comment',
+    text: 'Jolie chaton',
+    catId: '1'
+  }
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({

@@ -26,17 +26,21 @@ export class CatService {
   ) {}
 
   async findAll(options?: CatFindAllOptions): Promise<CatEntity[]> {
+    const where: any = {}
+    if (options?.breedId) {
+      where.breedId = options.breedId
+    }
+    if (options?.ownerId !== undefined) {
+      where.ownerId = options.ownerId
+    }
+
     return this.catRepository.find({
       relations: [
         ...(options?.includeBreed ? ['breed'] : []),
-        ...(options?.includeOwner ? ['owner'] : []),
-          'comments'
+        ...(options?.includeOwner ? ['owner'] : [])
       ],
-      where: {
-        breedId: options?.breedId,
-        ownerId: options?.ownerId
-      },
-    });
+      where: where,
+    })
   }
 
   async findOne(id: string, includeBreed?: boolean): Promise<CatEntity> {

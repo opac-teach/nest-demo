@@ -11,7 +11,8 @@ export class CommentService {
       private readonly commentRepository: Repository<CommentEntity>
   ) {}
   async create(comment: CreateCommentDto, authorId: string): Promise<CommentEntity> {
-     return this.commentRepository.create({...comment, authorId});
+     const newComment: CommentEntity = this.commentRepository.create({...comment, authorId});
+    return this.commentRepository.save(newComment)
   }
 
   async findAll(): Promise<CommentEntity[]> {
