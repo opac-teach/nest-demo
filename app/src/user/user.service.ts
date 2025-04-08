@@ -88,6 +88,7 @@ export class UserService {
           model: 'user',
           user,
         });
+        //TODO: use comments entity instead
         await this.commentsService.removeAllUserComments(userId);
       },
     );

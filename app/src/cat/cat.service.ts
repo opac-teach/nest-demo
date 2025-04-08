@@ -9,6 +9,7 @@ import { ClientProxy } from '@nestjs/microservices';
 import { UserEntity } from '@/user/entities/user.entity';
 import { UserService } from '@/user/user.service';
 import { CreateCrossbreedCatDto } from '@/cat/dtos/create-crossbredd-cat.dto';
+import { BreedEntity } from '@/breed/breed.entity';
 
 export interface CatFindAllOptions extends FindManyOptions<CatEntity> {
   breedId?: string;
@@ -121,16 +122,10 @@ export class CatService {
       throw new NotFoundException('Cat or breed not found');
     }
 
-    let newBreedId: string;
+    const newBreedId = await this.createCrossBreed(cat1, cat2);
 
-    if (cat1?.breedId === cat2?.breedId) {
-      newBreedId = cat1.breedId;
-    } else {
-      const newBreed = await this.breedService.create({
-        name: `${cat1.breed.name} x ${cat2.breed.name}`,
-        description: 'Crossbreed',
-      });
-      newBreedId = newBreed.id;
+    if (!newBreedId) {
+      throw new NotFoundException('Crossbreed not found');
     }
 
     const newCat = this.catRepository.create({
@@ -144,5 +139,25 @@ export class CatService {
     await this.catRepository.save(newCat);
 
     return await this.findOne(newCat.id, true);
+  }
+
+  public async createCrossBreed(
+    cat1: CatEntity,
+    cat2: CatEntity,
+  ): Promise<string | undefined> {
+    if (!cat1?.breed || !cat2?.breed) return undefined;
+    let newBreedId: string;
+
+    if (cat1?.breedId === cat2?.breedId) {
+      newBreedId = cat1.breedId;
+    } else {
+      const newBreed = await this.breedService.create({
+        name: `${cat1.breed.name} x ${cat2.breed.name}`,
+        description: 'Crossbreed',
+      });
+      newBreedId = newBreed.id;
+    }
+
+    return newBreedId;
   }
 }

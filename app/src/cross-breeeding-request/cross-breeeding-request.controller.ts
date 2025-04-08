@@ -1,4 +1,12 @@
-import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { CrossBreeedingRequestService } from './cross-breeeding-request.service';
 import { CreateCrossBreedingRequestDto } from '@/cross-breeeding-request/dto/createCrossBreedingRequest.dto';
 import { AuthGuard } from '@/auth/jwt-auth.guard';
@@ -26,6 +34,44 @@ export class CrossBreeedingRequestController {
   ) {
     return await this.crossBreeedingRequestService.createCrossBreedingRequest(
       createCrossBreedingRequest,
+      req.userId,
+    );
+  }
+
+  @Get('accept/:id')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Accept a cross breeding request' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns the accepted cross breeding request',
+    type: CrossBreedingRequestEntity,
+  })
+  async acceptCrossBreedingRequest(
+    @Param('id') id: number,
+    @Req() req: { userId: string },
+  ) {
+    return await this.crossBreeedingRequestService.acceptCrossBreedingRequest(
+      Number(id),
+      req.userId,
+    );
+  }
+
+  @Get('reject/:id')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Reject a cross breeding request' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns the rejected cross breeding request',
+    type: CrossBreedingRequestEntity,
+  })
+  async refuseCrossBreedingRequest(
+    @Param('id') id: number,
+    @Req() req: { userId: string },
+  ) {
+    return await this.crossBreeedingRequestService.refuseCrossBreedingRequest(
+      Number(id),
       req.userId,
     );
   }
