@@ -4,6 +4,7 @@ import { CreateBreedDto } from './dtos';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import {CatEntity} from "@/cat/cat.entity";
 @Injectable()
 export class BreedService {
   constructor(
@@ -37,4 +38,19 @@ export class BreedService {
     });
     return createdBreed;
   }
+
+  async findOrCreateHybrid(father: CatEntity, mother: CatEntity): Promise<BreedEntity> {
+    const breedName = `${father.breed?.name}-${mother.breed?.name}`;
+    let breed = await this.breedRepository.findOneBy({ name: breedName });
+    if (!breed) {
+      const seed = `${father.breed?.seed?.slice(0,5)}${mother.breed?.seed?.slice(0,5)}`;
+      breed = this.breedRepository.create({
+        name: breedName,
+        seed,
+      });
+      breed = await this.breedRepository.save(breed);
+    }
+    return breed;
+  }
+
 }

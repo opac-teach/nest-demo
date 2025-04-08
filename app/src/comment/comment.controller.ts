@@ -20,11 +20,15 @@ export class CommentController {
   }
 
   @Get()
+  @ApiOperation({ summary: 'Get all comments' })
+  @ApiResponse({ status: 200, description: 'Returns comments' })
   findAll(): Promise<CommentResponseDto[]> {
     return this.commentService.findAll();
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Get comments by id' })
+  @ApiResponse({ status: 200, description: 'Returns the comment' })
   findOne(@Param('id') id: string): Promise<CommentResponseDto> {
     return this.commentService.findOne(id);
   }

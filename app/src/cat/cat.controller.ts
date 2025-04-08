@@ -9,11 +9,12 @@ import {
   Request
 } from '@nestjs/common';
 import { CatService } from '@/cat/cat.service';
-import { CatResponseDto, CreateCatDto, UpdateCatDto } from '@/cat/dtos';
+import {BreedCatsDto, CatResponseDto, CreateCatDto, UpdateCatDto} from '@/cat/dtos';
 import { RandomGuard } from '@/lib/random.guard';
 import {ApiOperation, ApiQuery, ApiResponse} from '@nestjs/swagger';
 import {AuthGuard} from "@/auth/auth.guard";
 import {CatGuard} from "@/cat/cat.guard";
+import {CatEntity} from "@/cat/cat.entity";
 
 @Controller('cat') // route '/cat'
 @UseGuards(RandomGuard)
@@ -75,4 +76,13 @@ export class CatController {
   ): Promise<CatResponseDto> {
     return this.catService.update(id, cat);
   }
+
+  @UseGuards(AuthGuard)
+  @Post('/breed')
+  @ApiOperation({ summary: 'Breeding two cats from the same owner' })
+  @ApiResponse({ status: 201, description: 'Returns created cat' })
+  breedCats(@Body() data: BreedCatsDto, @Request() req): Promise<CatResponseDto> {
+    return this.catService.breed(data, req.user.sub);
+  }
+
 }

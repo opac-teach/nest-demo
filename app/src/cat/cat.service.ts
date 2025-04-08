@@ -1,5 +1,5 @@
-import { Inject, Injectable, NotFoundException, Param } from '@nestjs/common';
-import { CreateCatDto, UpdateCatDto } from '@/cat/dtos/cat-input.dto';
+import {Inject, Injectable, NotFoundException, Param, UnauthorizedException} from '@nestjs/common';
+import {BreedCatsDto, CreateCatDto, UpdateCatDto} from '@/cat/dtos/cat-input.dto';
 import { CatEntity } from '@/cat/cat.entity';
 import { FindManyOptions, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -7,6 +7,7 @@ import { BreedService } from '@/breed/breed.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
+import {plainToInstance} from "class-transformer";
 export interface CatFindAllOptions extends FindManyOptions<CatEntity> {
   breedId?: string;
   includeBreed?: boolean;
@@ -61,7 +62,6 @@ export class CatService {
     // const color = await firstValueFrom(colorObservable);
 
     const color = '11BB22';
-    console.log('toto', ownerId)
     const newCat = this.catRepository.create({ ...cat, color, ownerId });
     const createdCat = await this.catRepository.save(newCat);
 
@@ -86,5 +86,38 @@ export class CatService {
       cat: updatedCat,
     });
     return updatedCat;
+  }
+
+  async breed(data: BreedCatsDto, userId: string): Promise<CatEntity> {
+    const { fatherId, motherId, name } = data
+    const [father, mother] = await this.catRepository.find({
+      where: [{ id: fatherId }, { id: motherId }],
+      relations: ['breed'],
+    });
+
+    if (!father || !mother) {
+      throw new NotFoundException('Cats not found.');
+    }
+    if (father.ownerId !== userId || mother.ownerId !== userId) {
+      throw new UnauthorizedException('You are not authorized to access this resource.');
+    }
+
+    let breed;
+    if (father.breedId === mother.breedId) {
+      breed = father?.breed;
+    } else {
+      breed = await this.breedService.findOrCreateHybrid(
+          father,
+          mother
+      );
+    }
+    const breedId = breed.id
+
+    const catDto = plainToInstance(CreateCatDto, {
+      name,
+      age: 0,
+      breedId,
+    })
+    return await this.create(catDto, userId)
   }
 }

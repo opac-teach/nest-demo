@@ -35,3 +35,18 @@ export class CreateCatDto {
 export class UpdateCatDto extends PartialType(
   OmitType(CreateCatDto, ['breedId'] as const),
 ) {}
+
+
+export class BreedCatsDto {
+  @IsUUID()
+  @ApiProperty({ description: 'Father cat id', type: String })
+  fatherId: string;
+
+  @IsUUID()
+  @ApiProperty({ description: 'Mother cat id', type: String })
+  motherId: string;
+
+  @IsString()
+  @ApiProperty({ description: 'The name of baby cat', type: String })
+  name: string;
+}
