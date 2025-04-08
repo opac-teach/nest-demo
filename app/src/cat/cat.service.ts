@@ -7,6 +7,8 @@ import { BreedService } from '@/breed/breed.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
+import { UserEntity } from '@/users/users.entity';
+
 export interface CatFindAllOptions extends FindManyOptions<CatEntity> {
   breedId?: string;
   includeBreed?: boolean;
@@ -17,9 +19,16 @@ export class CatService {
   constructor(
     @InjectRepository(CatEntity)
     private readonly catRepository: Repository<CatEntity>,
+
     private readonly breedService: BreedService,
+  
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
+
     private readonly eventEmitter: EventEmitter2,
-    @Inject('COLORS_SERVICE') private client: ClientProxy,
+
+    @Inject('COLORS_SERVICE')
+    private client: ClientProxy,
   ) {}
 
   async findAll(options?: CatFindAllOptions): Promise<CatEntity[]> {
@@ -49,9 +58,16 @@ export class CatService {
     // const colorObservable = this.client.send<string, string>('generate_color', seed);
     // const color = await firstValueFrom(colorObservable);
 
+    const owner = await this.userRepository.findOne({
+      where: { id: cat.owner },
+    });
+    if (!owner) {
+      throw new NotFoundException('Owner not found');
+    }
+
     const color = '11BB22';
 
-    const newCat = this.catRepository.create({ ...cat, color });
+    const newCat = this.catRepository.create({ ...cat, color, owner });
     const createdCat = await this.catRepository.save(newCat);
 
     this.eventEmitter.emit('data.crud', {
@@ -76,4 +92,12 @@ export class CatService {
     });
     return updatedCat;
   }
+
+  async findByOwner(ownerId: string) {
+    return this.catRepository.find({
+      where: { owner: { id: ownerId } },
+      relations: ['owner'],
+    });
+  }
+  
 }

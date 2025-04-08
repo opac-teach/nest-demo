@@ -47,4 +47,12 @@ export class CatController {
   ): Promise<CatResponseDto> {
     return this.catService.update(id, cat);
   }
+
+  @Get('by-owner/:ownerId')
+  @ApiOperation({ summary: 'Get all cats by owner ID, including user info' })
+  @ApiResponse({ status: 200, description: 'Returns all cats for a specific owner' })
+  getCatsByOwner(@Param('ownerId') ownerId: string) {
+    return this.catService.findByOwner(ownerId);
+  }
+
 }
