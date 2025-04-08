@@ -61,6 +61,7 @@ export class CatController {
     status: 200,
     description: 'Returns all commentaires by cat id',
   })
+  @SerializeOptions({ type: CommentaireResponseDto })
   findCommentaires(@Param('id') id: string): Promise<CommentaireResponseDto[]> {
     return this.commentaireService.findAll({ catId: id, includeCat: true });
   }
@@ -68,6 +69,7 @@ export class CatController {
   @Post()
   @ApiOperation({ summary: 'Create a cat' })
   @ApiResponse({ status: 201, description: 'Returns the created cat' })
+  @SerializeOptions({ type: CatResponseDto })
   create(
     @Body() cat: CreateCatDto,
     @Req() req: RequestWithUser,
@@ -78,6 +80,7 @@ export class CatController {
   @Post('kitten')
   @ApiOperation({ summary: 'Create a kitten' })
   @ApiResponse({ status: 201, description: 'Returns the created kitten' })
+  @SerializeOptions({ type: CatResponseDto })
   createKitten(
     @Body() kitten: CreateKittenDto,
     @Req() req: RequestWithUser,
@@ -88,6 +91,7 @@ export class CatController {
   @Put(':id')
   @ApiOperation({ summary: 'Update a cat' })
   @ApiResponse({ status: 200, description: 'Returns the updated cat' })
+  @SerializeOptions({ type: CatResponseDto })
   async update(
     @Param('id') id: string,
     @Body() cat: UpdateCatDto,
@@ -99,6 +103,7 @@ export class CatController {
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a cat' })
   @ApiResponse({ status: 200, description: 'Returns the deleted cat' })
+  @SerializeOptions({ type: CatResponseDto })
   async delete(
     @Param('id') id: string,
     @Req() req: RequestWithUser,

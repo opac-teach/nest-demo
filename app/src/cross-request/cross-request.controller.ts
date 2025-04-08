@@ -35,6 +35,7 @@ export class CrossRequestController {
   @Post()
   @ApiOperation({ summary: 'Create a cross request' })
   @ApiResponse({ status: 200, description: 'Returns a confirmation message' })
+  @SerializeOptions({ type: CrossRequestResponseDto })
   async createCrossRequest(
     @Body() crossRequestInput: CrossRequestInputDto,
     @Req() req: RequestWithUser,
@@ -49,6 +50,7 @@ export class CrossRequestController {
   @Post(':id/answer')
   @ApiOperation({ summary: 'Answer a cross request' })
   @ApiResponse({ status: 200, description: 'Returns a confirmation message' })
+  @SerializeOptions({ type: CrossRequestResponseDto })
   async answerCrossRequest(
     @Param('id') id: string,
     @Req() req: RequestWithUser,

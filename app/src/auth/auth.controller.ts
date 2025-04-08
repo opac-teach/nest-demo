@@ -11,7 +11,6 @@ import {
 import { AuthService } from './auth.service';
 import { LoginDto } from './dtos/auth-input.dto';
 import { Response } from 'express';
-import { LoginResponseDto } from './dtos/auth-response.dto';
 import { ApiOperation } from '@nestjs/swagger';
 import { ApiResponse } from '@nestjs/swagger';
 import { CreateUserDto, UserResponseDto } from '@/user/dtos';
@@ -33,10 +32,12 @@ export class AuthController {
   }
 
   @Post('login')
+  @ApiOperation({ summary: 'Login a user' })
+  @ApiResponse({ status: 200, description: 'Returns a confirmation message' })
   async login(
     @Body() loginDto: LoginDto,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<LoginResponseDto> {
+  ): Promise<{ message: string }> {
     const { token, user } = await this.authService.login(loginDto);
 
     res.cookie('authToken', token, {
@@ -47,7 +48,7 @@ export class AuthController {
     });
 
     return {
-      message: `Bienvenue ${user.name}`,
+      message: `Bienvenue ${user.name} !`,
     };
   }
 
