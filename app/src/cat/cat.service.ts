@@ -2,7 +2,6 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import {
   CreateCatDto,
@@ -14,6 +13,8 @@ import { FindManyOptions, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BreedService } from '@/breed/breed.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { CrossRequestService } from '@/cross-request/cross-request.service';
+import { CrossRequestStatus } from '@/cross-request/cross-request.entity';
 // import { ClientProxy } from '@nestjs/microservices';
 
 export interface CatFindAllOptions extends FindManyOptions<CatEntity> {
@@ -30,6 +31,7 @@ export class CatService {
     @InjectRepository(CatEntity)
     private readonly catRepository: Repository<CatEntity>,
     private readonly breedService: BreedService,
+    private readonly crossRequestService: CrossRequestService,
     private readonly eventEmitter: EventEmitter2,
     // @Inject('COLORS_SERVICE') private client: ClientProxy,
   ) {}
@@ -66,13 +68,13 @@ export class CatService {
   }
 
   async create(cat: CreateCatDto, userId: string): Promise<CatEntity> {
-    if (!userId) {
-      throw new UnauthorizedException("ID d'utilisateur manquant");
-    }
-
     const color = '11BB22';
 
-    const newCat = this.catRepository.create({ ...cat, color, userId });
+    const newCat = this.catRepository.create({
+      ...cat,
+      color,
+      userId,
+    });
     const createdCat = await this.catRepository.save(newCat);
 
     this.eventEmitter.emit('data.crud', {
@@ -99,12 +101,24 @@ export class CatService {
 
     const catParents = [parent1, parent2];
 
+    let isSameOwner: boolean = true;
+
     for (const cat of catParents) {
       if (cat.userId !== userId) {
-        throw new UnauthorizedException(
-          `Le chaton ${cat.name} ne vous appartient pas`,
-        );
+        isSameOwner = false;
       }
+    }
+
+    // Si les deux chats n'ont pas le même créateur, on vérifie qu'une cross-request en statut ACCEPTED existe entre les deux parents
+    if (!isSameOwner) {
+      const crossRequest = await this.crossRequestService.findOneCrossRequest({
+        catId1: parent1.id,
+        catId2: parent2.id,
+        status: CrossRequestStatus.ACCEPTED,
+      });
+
+      // On supprime la cross-request une fois qu'on l'a utilisée, cela permet de créer seulement une fois le chaton
+      await this.crossRequestService.delete(crossRequest.id);
     }
 
     let breedSeedId: string;
@@ -131,15 +145,9 @@ export class CatService {
     cat: UpdateCatDto,
     userId: string,
   ): Promise<CatEntity> {
-    const catToUpdate = await this.findOne(id);
-    if (catToUpdate.userId !== userId) {
-      throw new UnauthorizedException(
-        "Vous n'êtes pas autorisé à modifier ce chat",
-      );
-    }
-    const updateResponse = await this.catRepository.update(id, cat);
+    const updateResponse = await this.catRepository.update({ id, userId }, cat);
     if (updateResponse.affected === 0) {
-      throw new NotFoundException('Cat not found');
+      throw new NotFoundException('Chat non trouvé');
     }
     const updatedCat = await this.findOne(id);
     this.eventEmitter.emit('data.crud', {
@@ -149,4 +157,13 @@ export class CatService {
     });
     return updatedCat;
   }
+
+  async delete(id: string, userId: string): Promise<void> {
+    const deleteResponse = await this.catRepository.delete({ id, userId });
+    if (deleteResponse.affected === 0) {
+      throw new NotFoundException('Chat non trouvé');
+    }
+  }
+
+  // async createCrossKitten(): Promise<CatEntity> {}
 }

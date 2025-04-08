@@ -46,7 +46,7 @@ export class CreateKittenDto {
   name: string;
 
   @ApiProperty({
-    description: 'The id of the parent cat 1    ',
+    description: 'The id of the parent cat 1',
     type: String,
   })
   @IsUUID()

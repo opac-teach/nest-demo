@@ -1,4 +1,13 @@
-import { Controller, Post, Body, Res } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Res,
+  Get,
+  Req,
+  UseGuards,
+  SerializeOptions,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dtos/auth-input.dto';
 import { Response } from 'express';
@@ -7,6 +16,7 @@ import { ApiOperation } from '@nestjs/swagger';
 import { ApiResponse } from '@nestjs/swagger';
 import { CreateUserDto, UserResponseDto } from '@/user/dtos';
 import { UserService } from '@/user/user.service';
+import { RequestWithUser, AuthGuard } from './guards/auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -39,5 +49,14 @@ export class AuthController {
     return {
       message: `Bienvenue ${user.name}`,
     };
+  }
+
+  @Get('me')
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Get the current user' })
+  @ApiResponse({ status: 200, description: 'Returns the current user' })
+  @SerializeOptions({ type: UserResponseDto })
+  getMe(@Req() req: RequestWithUser): Promise<UserResponseDto> {
+    return this.userService.findOne(req.user.sub);
   }
 }

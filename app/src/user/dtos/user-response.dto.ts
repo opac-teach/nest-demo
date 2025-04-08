@@ -1,12 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose, Type } from 'class-transformer';
 
+@Expose()
 export class UserResponseDto {
   @ApiProperty({
     description: 'The id of the user',
     type: String,
   })
-  @Expose()
   @Type(() => String)
   id: string;
 
@@ -14,7 +14,6 @@ export class UserResponseDto {
     description: 'The name of the user',
     type: String,
   })
-  @Expose()
   @Type(() => String)
   name: string;
 
@@ -22,7 +21,6 @@ export class UserResponseDto {
     description: 'The email of the user',
     type: String,
   })
-  @Expose()
   @Type(() => String)
   email: string;
 
@@ -30,7 +28,6 @@ export class UserResponseDto {
     description: 'The created date of the user',
     type: Date,
   })
-  @Expose()
   @Type(() => Date)
   created: Date;
 
@@ -38,7 +35,6 @@ export class UserResponseDto {
     description: 'The updated date of the user',
     type: Date,
   })
-  @Expose()
   @Type(() => Date)
   updated: Date;
 }

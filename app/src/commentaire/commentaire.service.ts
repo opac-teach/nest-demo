@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { FindManyOptions, Repository } from 'typeorm';
 import { CommentaireEntity } from './commentaire.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -46,7 +42,7 @@ export class CommentaireService {
     });
 
     if (!commentaire) {
-      throw new NotFoundException('Commentaire not found');
+      throw new NotFoundException('Commentaire non trouvé');
     }
 
     return commentaire;
@@ -56,10 +52,6 @@ export class CommentaireService {
     commentaire: CreateCommentaireDto,
     userId: string,
   ): Promise<CommentaireEntity> {
-    if (!userId) {
-      throw new UnauthorizedException("ID d'utilisateur manquant");
-    }
-
     const newCommentaire = this.commentaireRepository.create({
       ...commentaire,
       userId,
@@ -72,29 +64,24 @@ export class CommentaireService {
     commentaire: UpdateCommentaireDto,
     userId: string,
   ): Promise<CommentaireEntity> {
-    const commentaireToUpdate = await this.findOne(id);
-    if (commentaireToUpdate.userId !== userId) {
-      throw new UnauthorizedException(
-        "Vous n'êtes pas autorisé à modifier ce commentaire",
-      );
-    }
+    // { id, userId } est une condition pour que le commentaire soit modifié par l'utilisateur qui l'a créé
     const updateResponse = await this.commentaireRepository.update(
-      id,
+      { id, userId },
       commentaire,
     );
     if (updateResponse.affected === 0) {
-      throw new NotFoundException('Commentaire not found');
+      throw new NotFoundException('Commentaire non trouvé');
     }
     return await this.findOne(id);
   }
 
-  async delete(id: string, userId: string): Promise<void> {
-    const commentaireToDelete = await this.findOne(id);
-    if (commentaireToDelete.userId !== userId) {
-      throw new UnauthorizedException(
-        "Vous n'êtes pas autorisé à supprimer ce commentaire",
-      );
+  async delete(commentaireId: string, userId: string): Promise<void> {
+    const deleteResponse = await this.commentaireRepository.delete({
+      id: commentaireId,
+      userId,
+    });
+    if (deleteResponse.affected === 0) {
+      throw new NotFoundException('Commentaire non trouvé');
     }
-    await this.commentaireRepository.delete(id);
   }
 }

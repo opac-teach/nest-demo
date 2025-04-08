@@ -7,6 +7,8 @@ import {
   Put,
   UseGuards,
   Req,
+  SerializeOptions,
+  Delete,
 } from '@nestjs/common';
 import { CatService } from '@/cat/cat.service';
 import {
@@ -32,20 +34,24 @@ export class CatController {
   @Get('/')
   @ApiOperation({ summary: 'Get all cats' })
   @ApiResponse({ status: 200, description: 'Returns all cats' })
+  @SerializeOptions({ type: CatResponseDto })
   findAll(): Promise<CatResponseDto[]> {
     return this.catService.findAll({
       includeBreed: true,
       includeCommentaires: true,
+      includeUser: true,
     });
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a cat by id' })
   @ApiResponse({ status: 200, description: 'Returns a cat' })
+  @SerializeOptions({ type: CatResponseDto })
   findOne(@Param('id') id: string): Promise<CatResponseDto> {
     return this.catService.findOne(id, {
       includeCommentaires: true,
       includeBreed: true,
+      includeUser: true,
     });
   }
 
@@ -88,5 +94,16 @@ export class CatController {
     @Req() req: RequestWithUser,
   ): Promise<CatResponseDto> {
     return this.catService.update(id, cat, req.user.sub);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete a cat' })
+  @ApiResponse({ status: 200, description: 'Returns the deleted cat' })
+  async delete(
+    @Param('id') id: string,
+    @Req() req: RequestWithUser,
+  ): Promise<{ message: string }> {
+    await this.catService.delete(id, req.user.sub);
+    return { message: 'Chat supprimé avec succès' };
   }
 }

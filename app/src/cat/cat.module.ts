@@ -10,7 +10,7 @@ import { redisConfig } from '@/config';
 import { AuthModule } from '../auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
 import { CommentaireModule } from '@/commentaire/commentaire.module';
-
+import { CrossRequestModule } from '@/cross-request/cross-request.module';
 @Module({
   controllers: [CatController],
   providers: [CatService],
@@ -26,6 +26,7 @@ import { CommentaireModule } from '@/commentaire/commentaire.module';
     forwardRef(() => BreedModule),
     forwardRef(() => AuthModule),
     forwardRef(() => CommentaireModule),
+    forwardRef(() => CrossRequestModule),
     JwtModule,
   ],
   exports: [CatService],
