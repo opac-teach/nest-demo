@@ -76,4 +76,11 @@ export class CatService {
     });
     return updatedCat;
   }
+
+  async findByUser(userId: string): Promise<CatEntity[]> {
+    return this.catRepository.find({
+      where: { user: { id: userId } },
+      relations: ['owner'],
+    });
+  }
 }

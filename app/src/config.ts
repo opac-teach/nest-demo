@@ -17,4 +17,4 @@ export const redisConfig = {
   port: parseInt(process.env.REDIS_PORT || '6379'),
 };
 
-export const port = process.env.PORT || 3000;
+export const port = process.env.PORT || 3001;

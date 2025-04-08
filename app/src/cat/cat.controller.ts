@@ -11,6 +11,7 @@ import { CatService } from '@/cat/cat.service';
 import { CatResponseDto, CreateCatDto, UpdateCatDto } from '@/cat/dtos';
 import { RandomGuard } from '@/lib/random.guard';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { get } from 'http';
 
 @Controller('cat') // route '/cat'
 @UseGuards(RandomGuard)
@@ -47,4 +48,12 @@ export class CatController {
   ): Promise<CatResponseDto> {
     return this.catService.update(id, cat);
   }
+
+  @Get('by-user/:userId')
+  @ApiOperation({ summary: 'Get cats by user ID' })
+  @ApiResponse({ status: 200, description: 'Returns cats for a specific user' })
+  getCatsByUser(@Param('userId') userId: string) {
+    return this.catService.findByUser(userId);
+  }
+
 }
