@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 
 import { BreedEntity } from '../breed/breed.entity';
+import { UserEntity } from '@/user/user.entity';
 
 @Entity('cat')
 export class CatEntity {
@@ -26,6 +27,15 @@ export class CatEntity {
   @ManyToOne(() => BreedEntity, (breed) => breed.id)
   @JoinColumn({ name: 'breedId' })
   breed?: BreedEntity;
+
+  @Column()
+  userId: string;
+
+  @ManyToOne(() => UserEntity, (user) => user.id, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'userId' })
+  user: UserEntity;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created: Date;
