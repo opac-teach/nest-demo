@@ -19,6 +19,9 @@ import {
 } from '@nestjs/swagger';
 import { AuthGuard } from '@/auth/jwt-auth.guard';
 import { CreateCrossbreedCatDto } from '@/cat/dtos/create-crossbredd-cat.dto';
+import { Role } from '@/auth/roles/roles.decorator';
+import { RolesEnum } from '@/auth/roles/roles.enum';
+import { RolesGuard } from '@/auth/roles/roles.guard';
 
 @Controller('cat')
 export class CatController {

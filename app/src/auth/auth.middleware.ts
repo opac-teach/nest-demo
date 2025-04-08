@@ -1,6 +1,7 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request, Response, NextFunction } from 'express';
+import { RolesEnum } from '@/auth/roles/roles.enum';
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
@@ -13,13 +14,12 @@ export class AuthMiddleware implements NestMiddleware {
 
     if (token) {
       try {
-        const payload: { sub: string } = await this.jwtService.verifyAsync(
-          token,
-          {
+        const payload: { sub: string; role: RolesEnum } =
+          await this.jwtService.verifyAsync(token, {
             secret: process.env.JWT_SECRET,
-          },
-        );
+          });
         req['userId'] = payload.sub;
+        req['role'] = payload.role;
       } catch {}
     }
 

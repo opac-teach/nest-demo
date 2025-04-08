@@ -8,6 +8,7 @@ import {
 import { CatEntity } from '@/cat/cat.entity';
 import { Exclude } from 'class-transformer';
 import { CommentEntity } from '@/comments/entities/comment.entity';
+import { RolesEnum } from '@/auth/roles/roles.enum';
 
 @Entity('user')
 export class UserEntity {
@@ -26,6 +27,9 @@ export class UserEntity {
 
   @Column()
   biography: string;
+
+  @Column({ default: RolesEnum.USER })
+  role: RolesEnum;
 
   @OneToMany(() => CatEntity, (cat) => cat.user)
   cats: CatEntity[];

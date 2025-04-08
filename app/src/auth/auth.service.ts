@@ -22,7 +22,7 @@ export class AuthService {
   public async login(loginDto: LoginUserDto): Promise<string> {
     const user = await this.userRepository.findOne({
       where: { email: loginDto.email },
-      select: ['id', 'email', 'password'],
+      select: ['id', 'email', 'password', 'role'],
     });
     if (!user) {
       throw new NotFoundException('User not found');
@@ -35,7 +35,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const payload = { email: user.email, sub: user.id };
+    const payload = { email: user.email, sub: user.id, role: user.role };
     const token = this.jwtService.sign(payload, {
       privateKey: process.env.JWT_SECRET,
       expiresIn: '1d',
