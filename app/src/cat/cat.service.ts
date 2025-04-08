@@ -1,9 +1,14 @@
 import {
+  BadRequestException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { CreateCatDto, UpdateCatDto } from '@/cat/dtos/cat-input.dto';
+import {
+  CreateCatDto,
+  CreateKittenDto,
+  UpdateCatDto,
+} from '@/cat/dtos/cat-input.dto';
 import { CatEntity } from '@/cat/cat.entity';
 import { FindManyOptions, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -77,6 +82,48 @@ export class CatService {
     });
 
     return createdCat;
+  }
+
+  async createKitten(
+    kitten: CreateKittenDto,
+    userId: string,
+  ): Promise<CatEntity> {
+    if (kitten.parent1Id === kitten.parent2Id) {
+      throw new BadRequestException(
+        'Les parents ne peuvent pas être identiques',
+      );
+    }
+
+    const parent1 = await this.findOne(kitten.parent1Id);
+    const parent2 = await this.findOne(kitten.parent2Id);
+
+    const catParents = [parent1, parent2];
+
+    for (const cat of catParents) {
+      if (cat.userId !== userId) {
+        throw new UnauthorizedException(
+          `Le chaton ${cat.name} ne vous appartient pas`,
+        );
+      }
+    }
+
+    let breedSeedId: string;
+    if (parent1.breedId === parent2.breedId) {
+      breedSeedId = parent1.breedId;
+    } else {
+      const breed = await this.breedService.findAll();
+      breedSeedId = breed[Math.floor(Math.random() * breed.length)].id;
+    }
+
+    const newKitten = this.catRepository.create({
+      name: kitten.name,
+      age: 1,
+      color: '11BB22',
+      breedId: breedSeedId,
+      userId,
+    });
+
+    return await this.catRepository.save(newKitten);
   }
 
   async update(

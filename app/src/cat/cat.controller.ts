@@ -9,7 +9,12 @@ import {
   Req,
 } from '@nestjs/common';
 import { CatService } from '@/cat/cat.service';
-import { CatResponseDto, CreateCatDto, UpdateCatDto } from '@/cat/dtos';
+import {
+  CatResponseDto,
+  CreateCatDto,
+  CreateKittenDto,
+  UpdateCatDto,
+} from '@/cat/dtos';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AuthGuard } from '@/auth/guards/auth.guard';
 import { RequestWithUser } from '@/auth/guards/auth.guard';
@@ -62,6 +67,16 @@ export class CatController {
     @Req() req: RequestWithUser,
   ): Promise<CatResponseDto> {
     return this.catService.create(cat, req.user.sub);
+  }
+
+  @Post('kitten')
+  @ApiOperation({ summary: 'Create a kitten' })
+  @ApiResponse({ status: 201, description: 'Returns the created kitten' })
+  createKitten(
+    @Body() kitten: CreateKittenDto,
+    @Req() req: RequestWithUser,
+  ): Promise<CatResponseDto> {
+    return this.catService.createKitten(kitten, req.user.sub);
   }
 
   @Put(':id')
