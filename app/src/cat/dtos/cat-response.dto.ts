@@ -1,6 +1,7 @@
 import { BreedResponseDto } from '@/breed/dtos/breed-response';
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose, Type } from 'class-transformer';
+import {IsUUID} from "class-validator";
 
 export class CatResponseDto {
   @ApiProperty({
@@ -32,8 +33,16 @@ export class CatResponseDto {
     type: String,
   })
   @Expose()
-  @Type(() => String)
+  @IsUUID()
   breedId: string;
+
+  @ApiProperty({
+    description: 'The id of the user of the cat',
+    type: String,
+  })
+  @Expose()
+  @IsUUID()
+  userId: string;
 
   @ApiProperty({
     description: 'The breed of the cat',

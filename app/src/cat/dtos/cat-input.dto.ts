@@ -20,12 +20,22 @@ export class CreateCatDto {
 
   @ApiProperty({
     description: 'The id of the breed of the cat',
-    type: Number,
+    type: String,
   })
   @IsUUID()
   @IsNotEmpty()
   breedId: string;
+
+  @ApiProperty({
+    description: 'The id of the user of the cat',
+    type: String,
+  })
+  @IsUUID()
+  @IsNotEmpty()
+  userId: string;
 }
+
+
 
 /**
  * UpdateCatDto is a partial type of CreateCatDto,

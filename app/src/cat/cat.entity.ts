@@ -7,6 +7,8 @@ import {
   JoinColumn,
 } from 'typeorm';
 
+import { IsUUID } from 'class-validator';
+
 import { BreedEntity } from '@/breed/breed.entity';
 import { UserEntity } from '@/user/user.entity';
 
@@ -22,9 +24,11 @@ export class CatEntity {
   age: number;
 
   @Column()
+  @IsUUID()
   breedId: string;
 
-  @Column()
+  @Column({ nullable: true })
+  @IsUUID()
   userId: string;
 
   @ManyToOne(() => BreedEntity, (breed) => breed.id)

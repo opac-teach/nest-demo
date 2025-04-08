@@ -1,6 +1,7 @@
 import {ApiProperty} from "@nestjs/swagger";
 import {Expose, Type} from "class-transformer";
 import {CatResponseDto} from "@/cat/dtos/cat-response.dto";
+import {IsUUID} from "class-validator";
 
 export class UserResponseDto {
 
@@ -40,4 +41,20 @@ export class UserResponseDto {
   @Expose()
   @Type(() => CatResponseDto)
   cats?: CatResponseDto[];
+
+  @ApiProperty({
+    description: 'The date of creation of the user',
+    type: Date,
+  })
+  @Expose()
+  @Type(() => Date)
+  created: Date;
+
+  @ApiProperty({
+    description: 'The date of update of the user',
+    type: Date,
+  })
+  @Expose()
+  @Type(() => Date)
+  updated: Date;
 }
