@@ -44,6 +44,26 @@ export class CatEntity {
   @Column()
   color: string;
 
+  @Column({
+    nullable: true,
+    default: null,
+  })
+  parent1Id?: string;
+
+  @ManyToOne(() => CatEntity, (cat) => cat.id)
+  @JoinColumn({ name: 'parent1Id' })
+  parent1?: CatEntity;
+
+  @Column({
+    nullable: true,
+    default: null,
+  })
+  parent2Id?: string;
+
+  @ManyToOne(() => CatEntity, (cat) => cat.id)
+  @JoinColumn({ name: 'parent2Id' })
+  parent2?: CatEntity;
+
   @Column({ nullable: true })
   userId?: string;
 

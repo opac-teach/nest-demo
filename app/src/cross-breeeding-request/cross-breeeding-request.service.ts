@@ -96,6 +96,8 @@ export class CrossBreeedingRequestService {
         age: 0,
       },
       userId,
+      cat1.id,
+      cat2.id,
     );
   }
 

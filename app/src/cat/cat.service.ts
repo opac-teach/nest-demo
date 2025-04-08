@@ -64,10 +64,20 @@ export class CatService {
     return cat;
   }
 
-  async create(cat: CreateCatDto, userId: string): Promise<CatEntity> {
+  async create(
+    cat: CreateCatDto,
+    userId: string,
+    parent1Id?: string,
+    parent2Id?: string,
+  ): Promise<CatEntity> {
     const color = '11BB22';
 
-    const newCat = this.catRepository.create({ ...cat, color });
+    const newCat = this.catRepository.create({
+      ...cat,
+      color,
+      parent1Id,
+      parent2Id,
+    });
     newCat.user = await this.userService.findOne(userId);
     const createdCat = await this.catRepository.save(newCat);
 
@@ -134,6 +144,8 @@ export class CatService {
       breedId: newBreedId,
       color: '11BB22',
       age: cat.age,
+      parent1Id: cat.catId1,
+      parent2Id: cat.catId2,
     });
 
     await this.catRepository.save(newCat);
