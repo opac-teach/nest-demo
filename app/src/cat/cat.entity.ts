@@ -5,10 +5,11 @@ import {
   ManyToOne,
   BeforeUpdate,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
-
-import { BreedEntity } from '../breed/breed.entity';
-import { UserEntity } from '../user/user.entity';
+import { BreedEntity } from '@/breed/breed.entity';
+import { UserEntity } from '@/user/user.entity';
+import { CommentaireEntity } from '@/commentaire/commentaire.entity';
 
 @Entity('cat')
 export class CatEntity {
@@ -34,6 +35,9 @@ export class CatEntity {
   @ManyToOne(() => UserEntity, (user) => user.cats)
   @JoinColumn({ name: 'userId' })
   user: UserEntity;
+
+  @OneToMany(() => CommentaireEntity, (commentaire) => commentaire.cat)
+  commentaires?: CommentaireEntity[];
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created: Date;

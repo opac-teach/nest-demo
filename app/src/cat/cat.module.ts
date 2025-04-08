@@ -9,6 +9,7 @@ import { BreedModule } from '@/breed/breed.module';
 import { redisConfig } from '@/config';
 import { AuthModule } from '../auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
+import { CommentaireModule } from '@/commentaire/commentaire.module';
 
 @Module({
   controllers: [CatController],
@@ -24,6 +25,7 @@ import { JwtModule } from '@nestjs/jwt';
     ]),
     forwardRef(() => BreedModule),
     forwardRef(() => AuthModule),
+    forwardRef(() => CommentaireModule),
     JwtModule,
   ],
   exports: [CatService],

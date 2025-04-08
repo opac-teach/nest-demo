@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { Repository, DataSource } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from './user.entity';
 import { CreateUserDto, UpdateUserDto } from './dtos';
@@ -10,6 +10,7 @@ export class UserService {
   constructor(
     @InjectRepository(UserEntity)
     private userRepository: Repository<UserEntity>,
+    private dataSource: DataSource,
   ) {}
 
   async findAll(includeCats?: boolean): Promise<UserEntity[]> {
@@ -52,9 +53,36 @@ export class UserService {
   }
 
   async remove(userId: string): Promise<void> {
-    const deleteResponse = await this.userRepository.delete(userId);
-    if (deleteResponse.affected === 0) {
-      throw new NotFoundException('User not found');
+    const queryRunner = this.dataSource.createQueryRunner();
+
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      await queryRunner.manager
+        .createQueryBuilder()
+        .delete()
+        .from('commentaire')
+        .where('userId = :userId', { userId })
+        .execute();
+
+      const deleteResponse = await queryRunner.manager
+        .createQueryBuilder()
+        .delete()
+        .from('user')
+        .where('id = :userId', { userId })
+        .execute();
+
+      if (deleteResponse.affected === 0) {
+        throw new NotFoundException('User not found');
+      }
+
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
     }
   }
 }

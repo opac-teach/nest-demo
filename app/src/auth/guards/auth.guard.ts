@@ -18,7 +18,7 @@ export interface RequestWithUser extends Request {
   user: JwtPayload;
 }
 
-interface RequestWithCookies extends Request {
+export interface RequestWithCookies extends RequestWithUser {
   cookies: {
     authToken?: string;
   };
@@ -44,9 +44,9 @@ export class AuthGuard implements CanActivate {
       (request as RequestWithUser).user = payload;
       return true;
     } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error';
-      throw new UnauthorizedException(`Token invalide: ${errorMessage}`);
+      throw new UnauthorizedException(
+        `Token invalide: ${(error as Error).message}`,
+      );
     }
   }
 }

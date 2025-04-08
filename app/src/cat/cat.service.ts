@@ -16,6 +16,7 @@ export interface CatFindAllOptions extends FindManyOptions<CatEntity> {
   userId?: string;
   includeBreed?: boolean;
   includeUser?: boolean;
+  includeCommentaires?: boolean;
 }
 
 @Injectable()
@@ -33,6 +34,7 @@ export class CatService {
       relations: {
         breed: options?.includeBreed,
         user: options?.includeUser,
+        commentaires: options?.includeCommentaires,
       },
       where: {
         breedId: options?.breedId,
@@ -43,16 +45,13 @@ export class CatService {
     return cats;
   }
 
-  async findOne(
-    id: string,
-    includeBreed?: boolean,
-    includeUser?: boolean,
-  ): Promise<CatEntity> {
+  async findOne(id: string, options?: CatFindAllOptions): Promise<CatEntity> {
     const cat = await this.catRepository.findOne({
       where: { id },
       relations: {
-        breed: includeBreed,
-        user: includeUser,
+        breed: options?.includeBreed,
+        user: options?.includeUser,
+        commentaires: options?.includeCommentaires,
       },
     });
     if (!cat) {

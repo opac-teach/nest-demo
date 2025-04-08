@@ -7,6 +7,7 @@ import {
   Put,
   UseGuards,
   Req,
+  Res,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
@@ -14,12 +15,16 @@ import { UserResponseDto, UpdateUserDto } from './dtos';
 import { CatResponseDto } from '@/cat/dtos';
 import { CatService } from '@/cat/cat.service';
 import { AuthGuard, RequestWithUser } from '@/auth/guards/auth.guard';
+import { CommentaireResponseDto } from '@/commentaire/dtos';
+import { CommentaireService } from '@/commentaire/commentaire.service';
+import { Response } from 'express';
 
 @Controller('user')
 export class UserController {
   constructor(
     private readonly userService: UserService,
     private readonly catService: CatService,
+    private readonly commentaireService: CommentaireService,
   ) {}
 
   @Get()
@@ -46,6 +51,19 @@ export class UserController {
     });
   }
 
+  @Get(':id/commentaires')
+  @ApiOperation({ summary: 'Get all commentaires by user id' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns all commentaires by user id',
+  })
+  findCommentaires(@Param('id') id: string): Promise<CommentaireResponseDto[]> {
+    return this.commentaireService.findAll({
+      userId: id,
+      includeUser: true,
+    });
+  }
+
   @Put(':id')
   @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Update a user' })
@@ -57,12 +75,17 @@ export class UserController {
     return this.userService.update(req.user.sub, user);
   }
 
-  @Delete(':id')
+  @Delete()
   @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Delete a user' })
   @ApiResponse({ status: 200, description: 'Returns the deleted user' })
-  async remove(@Req() req: RequestWithUser): Promise<{ message: string }> {
+  async remove(
+    @Req() req: RequestWithUser,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<{ message: string }> {
     await this.userService.remove(req.user.sub);
-    return { message: 'User deleted successfully' };
+    res.clearCookie('authToken');
+
+    return { message: 'Votre compte a bien été supprimé.' };
   }
 }

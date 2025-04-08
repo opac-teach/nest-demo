@@ -1,4 +1,5 @@
 import { CatEntity } from '@/cat/cat.entity';
+import { CommentaireEntity } from '@/commentaire/commentaire.entity';
 import {
   BeforeUpdate,
   Column,
@@ -23,6 +24,9 @@ export class UserEntity {
 
   @OneToMany(() => CatEntity, (cat) => cat.user)
   cats?: CatEntity[];
+
+  @OneToMany(() => CommentaireEntity, (commentaire) => commentaire.user)
+  commentaires?: CommentaireEntity[];
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created: Date;
