@@ -57,12 +57,6 @@ export class CatService {
   }
 
   async create(cat: CreateCatDto, userId: string): Promise<CatEntity> {
-    const breed = await this.breedService.findOne(cat.breedId);
-
-    // const { seed } = breed;
-    // const colorObservable = this.client.send<string, string>('generate_color', seed);
-    // const color = await firstValueFrom(colorObservable);
-
     const color = '11BB22';
 
     const newCat = this.catRepository.create({ ...cat, color });
@@ -115,8 +109,6 @@ export class CatService {
       where: { id: cat.catId2, userId: userId },
       relations: ['breed'],
     });
-
-    console.log(cat1, cat2);
 
     if (!cat1?.breed || !cat2?.breed) {
       throw new NotFoundException('Cat or breed not found');

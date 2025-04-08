@@ -7,7 +7,6 @@ import {
   OnGatewayInit,
   OnGatewayDisconnect,
   OnGatewayConnection,
-  WsResponse,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { Logger } from '@nestjs/common';

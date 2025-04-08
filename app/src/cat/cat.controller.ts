@@ -20,11 +20,11 @@ import {
 import { AuthGuard } from '@/auth/jwt-auth.guard';
 import { CreateCrossbreedCatDto } from '@/cat/dtos/create-crossbredd-cat.dto';
 
-@Controller('cat') // route '/cat'
+@Controller('cat')
 export class CatController {
   constructor(private catService: CatService) {}
 
-  @Get('/') // GET '/cat'
+  @Get('/')
   @ApiOperation({ summary: 'Get all cats' })
   @ApiResponse({
     status: 200,
@@ -39,14 +39,14 @@ export class CatController {
     return this.catService.findAll(options);
   }
 
-  @Get(':id') // GET '/cat/:id'
+  @Get(':id')
   @ApiOperation({ summary: 'Get a cat by id' })
   @ApiResponse({ status: 200, description: 'Returns a cat' })
   findOne(@Param('id') id: string): Promise<CatResponseDto> {
     return this.catService.findOne(id, true);
   }
 
-  @Post() // POST '/cat'
+  @Post()
   @ApiOperation({ summary: 'Create a cat' })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
@@ -58,7 +58,7 @@ export class CatController {
     return this.catService.create(cat, req.userId);
   }
 
-  @Put(':id') // PUT '/cat/:id'
+  @Put(':id')
   @ApiOperation({ summary: 'Update a cat' })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)

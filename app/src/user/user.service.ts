@@ -6,12 +6,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import * as bcrypt from 'bcrypt';
+import { CommentsService } from '@/comments/comments.service';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
+    private readonly commentsService: CommentsService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
@@ -78,12 +80,17 @@ export class UserService {
       throw new NotFoundException('User not found');
     }
 
-    const deletedUser = await this.userRepository.remove(user);
-    this.eventEmitter.emit('data.crud', {
-      action: 'delete',
-      model: 'user',
-      user: deletedUser,
-    });
-    return deletedUser;
+    await this.userRepository.manager.transaction(
+      async (transactionalEntityManager) => {
+        await transactionalEntityManager.delete(UserEntity, userId);
+        this.eventEmitter.emit('data.crud', {
+          action: 'delete',
+          model: 'user',
+          user,
+        });
+        await this.commentsService.removeAllUserComments(userId);
+      },
+    );
+    return user;
   }
 }

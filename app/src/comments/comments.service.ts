@@ -87,4 +87,17 @@ export class CommentsService {
         return 'Comment deleted';
       });
   }
+
+  public async removeAllUserComments(userId: string): Promise<string> {
+    return await this.commentRepository
+      .delete({
+        userId: userId,
+      })
+      .then((result) => {
+        if (result.affected === 0) {
+          throw new NotFoundException('No comments found for this user');
+        }
+        return 'All comments deleted';
+      });
+  }
 }

@@ -17,6 +17,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { CommentsModule } from './comments/comments.module';
+import { CrossBreedingModule } from './cross-breeding/cross-breeding.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { CommentsModule } from './comments/comments.module';
     UserModule,
     AuthModule,
     CommentsModule,
+    CrossBreedingModule,
   ],
   controllers: [AppController],
 })
