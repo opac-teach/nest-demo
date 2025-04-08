@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  NestMiddleware,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, NestMiddleware } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request, Response, NextFunction } from 'express';
 
@@ -14,19 +10,17 @@ export class AuthMiddleware implements NestMiddleware {
 
   async use(req: Request, res: Response, next: NextFunction) {
     const token = this.extractTokenFromHeader(req);
-    if (!token) {
-      throw new UnauthorizedException();
-    }
 
-    try {
-      const payload: {
-        sub: string;
-      } = await this.jwtService.verifyAsync(token, {
-        secret: process.env.JWT_SECRET,
-      });
-      req['userId'] = payload.sub;
-    } catch {
-      throw new UnauthorizedException();
+    if (token) {
+      try {
+        const payload: { sub: string } = await this.jwtService.verifyAsync(
+          token,
+          {
+            secret: process.env.JWT_SECRET,
+          },
+        );
+        req['userId'] = payload.sub;
+      } catch {}
     }
 
     next();

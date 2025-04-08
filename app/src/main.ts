@@ -24,10 +24,10 @@ async function bootstrap() {
       in: 'Header',
     })
     .build();
-
-  app.use(new AuthMiddleware(app.get(JwtService)).use);
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('swagger', app, documentFactory);
+
+  app.use(new AuthMiddleware(app.get(JwtService)).use);
 
   await app.listen(port);
 }

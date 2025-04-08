@@ -8,15 +8,12 @@ import {
 @Injectable()
 export class AuthGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
-    const request: {
-      userId: string;
-      headers: {
-        authorization: string;
-      };
-    } = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest();
+
     if (!request.userId) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('User is not authenticated');
     }
+
     return true;
   }
 }

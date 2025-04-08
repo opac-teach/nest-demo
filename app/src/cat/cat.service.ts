@@ -45,10 +45,17 @@ export class CatService {
     });
   }
 
-  async findOne(id: string, includeBreed?: boolean): Promise<CatEntity> {
+  async findOne(
+    id: string,
+    includeBreed?: boolean,
+    includeUser?: boolean,
+  ): Promise<CatEntity> {
     const cat = await this.catRepository.findOne({
       where: { id },
-      relations: includeBreed ? ['breed'] : undefined,
+      relations: [
+        ...(includeBreed ? ['breed'] : []),
+        ...(includeUser ? ['user'] : []),
+      ],
     });
     if (!cat) {
       throw new NotFoundException('Cat not found');

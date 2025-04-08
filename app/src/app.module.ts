@@ -18,6 +18,7 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { CommentsModule } from './comments/comments.module';
 import { CrossBreedingModule } from './cross-breeding/cross-breeding.module';
+import { CrossBreeedingRequestModule } from './cross-breeeding-request/cross-breeeding-request.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { CrossBreedingModule } from './cross-breeding/cross-breeding.module';
     AuthModule,
     CommentsModule,
     CrossBreedingModule,
+    CrossBreeedingRequestModule,
   ],
   controllers: [AppController],
 })
