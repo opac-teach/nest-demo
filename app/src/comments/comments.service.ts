@@ -100,4 +100,17 @@ export class CommentsService {
         return 'All comments deleted';
       });
   }
+
+  public async removeCommentByMod(commentId: string) {
+    return await this.commentRepository
+      .delete({
+        id: commentId,
+      })
+      .then((result) => {
+        if (result.affected === 0) {
+          throw new NotFoundException('Comment not found');
+        }
+        return 'Comment deleted';
+      });
+  }
 }

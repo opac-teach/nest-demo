@@ -14,6 +14,8 @@ import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { AuthGuard } from '@/auth/jwt-auth.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { Role } from '@/auth/roles/roles.decorator';
+import { RolesEnum } from '@/auth/roles/roles.enum';
 
 @Controller('comments')
 export class CommentsController {
@@ -60,5 +62,13 @@ export class CommentsController {
   @ApiBearerAuth()
   remove(@Param('id') id: string, @Req() req: { userId: string }) {
     return this.commentsService.remove(id, req.userId);
+  }
+
+  @Delete('mod/:id')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @Role(RolesEnum.MODERATOR)
+  removeCommentByMod(@Param('id') id: string) {
+    return this.commentsService.removeCommentByMod(id);
   }
 }
