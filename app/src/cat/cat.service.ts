@@ -29,6 +29,7 @@ export class CatService {
       relations: [
         ...(options?.includeBreed ? ['breed'] : []),
         ...(options?.includeOwner ? ['owner'] : []),
+          'comments'
       ],
       where: {
         breedId: options?.breedId,
@@ -40,7 +41,11 @@ export class CatService {
   async findOne(id: string, includeBreed?: boolean): Promise<CatEntity> {
     const cat = await this.catRepository.findOne({
       where: { id },
-      relations: includeBreed ? ['breed'] : undefined,
+      relations: [
+        ...(includeBreed ? ['breed'] : []),
+        'owner',
+        'comments'
+      ],
     });
     if (!cat) {
       throw new NotFoundException('Cat not found');

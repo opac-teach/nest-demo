@@ -1,18 +1,18 @@
 import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
-import { CatService } from './cat.service';
+import {CommentService} from "@/comment/comment.service";
 
 @Injectable()
-export class CatGuard implements CanActivate {
-    constructor(private readonly catService: CatService) {}
+export class CommentGuard implements CanActivate {
+    constructor(private readonly commentService: CommentService) {}
 
     async canActivate(
         context: ExecutionContext,
     ): Promise<boolean> {
         const request = context.switchToHttp().getRequest();
         const userId = request.user.sub;
-        const catId = request.params.id;
-        const cat = await this.catService.findOne(catId);
-        if (!cat || cat.ownerId !== userId) {
+        const commentId = request.params.id;
+        const comment = await this.commentService.findOne(commentId);
+        if (!comment || comment.authorId !== userId) {
             throw new UnauthorizedException('You are not authorized to access this cat');
         }
         return true;

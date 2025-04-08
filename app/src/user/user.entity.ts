@@ -3,6 +3,7 @@ import {IsEmail, IsNotEmpty, Length} from "class-validator";
 import {CatEntity} from "@/cat/cat.entity";
 import * as bcrypt from 'bcrypt';
 import {Exclude} from "class-transformer";
+import {CommentEntity} from "@/comment/comment.entity";
 
 @Entity('user')
 export class UserEntity {
@@ -29,14 +30,14 @@ export class UserEntity {
     @OneToMany(() => CatEntity, cat => cat.owner)
     cats: CatEntity[];
 
+    @OneToMany(() => CommentEntity, comment => comment.author)
+    comments: CommentEntity[];
+
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     created: Date;
 
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     updated: Date;
-
-    @DeleteDateColumn()
-    deletedAt?: Date;
 
     @BeforeUpdate()
     updateTimestamp() {

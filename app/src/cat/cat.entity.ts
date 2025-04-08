@@ -4,11 +4,12 @@ import {
   Column,
   ManyToOne,
   BeforeUpdate,
-  JoinColumn,
+  JoinColumn, OneToMany,
 } from 'typeorm';
 
 import { BreedEntity } from '@/breed/breed.entity';
 import {UserEntity} from "@/user/user.entity";
+import {CommentEntity} from "@/comment/comment.entity";
 
 @Entity('cat')
 export class CatEntity {
@@ -50,4 +51,7 @@ export class CatEntity {
   })
   @JoinColumn({ name: 'ownerId' })
   owner: UserEntity;
+
+  @OneToMany(() => CommentEntity, comment => comment.cat)
+  comments: CommentEntity[];
 }
