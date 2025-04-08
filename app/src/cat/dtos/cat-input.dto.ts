@@ -25,6 +25,10 @@ export class CreateCatDto {
   @IsUUID()
   @IsNotEmpty()
   breedId: string;
+
+  @IsNumber()
+  userId: number;
+
 }
 
 /**

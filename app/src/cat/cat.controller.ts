@@ -13,7 +13,7 @@ import { RandomGuard } from '@/lib/random.guard';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 @Controller('cat') // route '/cat'
-@UseGuards(RandomGuard)
+//@UseGuards(RandomGuard)
 export class CatController {
   constructor(private catService: CatService) {}
 

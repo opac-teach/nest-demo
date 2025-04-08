@@ -50,8 +50,15 @@ export class CatService {
     // const color = await firstValueFrom(colorObservable);
 
     const color = '11BB22';
-
-    const newCat = this.catRepository.create({ ...cat, color });
+    
+    const newCat = this.catRepository.create({
+      name: cat.name,
+      age: cat.age,
+      breedId: cat.breedId,
+      userId: cat.userId,  // Ici on utilise userId directement
+      color,
+    });
+    
     const createdCat = await this.catRepository.save(newCat);
 
     this.eventEmitter.emit('data.crud', {
@@ -76,4 +83,17 @@ export class CatService {
     });
     return updatedCat;
   }
+
+
+  findCatsByUser(userId: number) {
+    return this.catRepository.find({ where: { user: { id: userId } }, relations: ['user'] });
+  }
+  
+  /*findByUserId(userId: number): Promise<CatEntity[]> {
+    return this.catRepository.find({
+      where: { user: { id: userId } },
+      relations: ['user'], 
+    });
+  }*/
+
 }
