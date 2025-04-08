@@ -6,7 +6,7 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindManyOptions, Repository } from 'typeorm';
+import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
 import { CrossRequestEntity, CrossRequestStatus } from './cross-request.entity';
 import { CatService } from '@/cat/cat.service';
 import { CrossRequestInputDto } from './dtos';
@@ -15,6 +15,15 @@ export interface CrossRequestFindAllOptions
   extends FindManyOptions<CrossRequestEntity> {
   forMe?: boolean;
   fromMe?: boolean;
+}
+
+export interface CrossRequestFindOneOptions
+  extends FindOneOptions<CrossRequestEntity> {
+  catId1?: string;
+  catId2?: string;
+  requestId?: string;
+  status?: CrossRequestStatus;
+  isUsed?: boolean;
 }
 
 @Injectable()
@@ -38,12 +47,9 @@ export class CrossRequestService {
     });
   }
 
-  async findOneCrossRequest(options?: {
-    catId1?: string;
-    catId2?: string;
-    requestId?: string;
-    status?: CrossRequestStatus;
-  }): Promise<CrossRequestEntity> {
+  async findOneCrossRequest(
+    options?: CrossRequestFindOneOptions,
+  ): Promise<CrossRequestEntity> {
     const crossRequest = await this.crossRequestRepository.findOne({
       where: options?.requestId
         ? { id: options.requestId }
@@ -52,11 +58,13 @@ export class CrossRequestService {
               senderCatId: options?.catId1,
               receiverCatId: options?.catId2,
               status: options?.status,
+              isUsed: options?.isUsed,
             },
             {
               senderCatId: options?.catId2,
               receiverCatId: options?.catId1,
               status: options?.status,
+              isUsed: options?.isUsed,
             },
           ],
     });
@@ -149,7 +157,10 @@ export class CrossRequestService {
     return this.crossRequestRepository.save(crossRequest);
   }
 
-  async delete(requestId: string): Promise<void> {
-    await this.crossRequestRepository.delete(requestId);
+  async update(
+    requestId: string,
+    data: Partial<CrossRequestEntity>,
+  ): Promise<void> {
+    await this.crossRequestRepository.update(requestId, data);
   }
 }

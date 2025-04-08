@@ -115,10 +115,13 @@ export class CatService {
         catId1: parent1.id,
         catId2: parent2.id,
         status: CrossRequestStatus.ACCEPTED,
+        isUsed: false,
       });
 
-      // On supprime la cross-request une fois qu'on l'a utilisée, cela permet de créer seulement une fois le chaton
-      await this.crossRequestService.delete(crossRequest.id);
+      // On indique que la cross-request a été utilisée afin de ne pas pouvoir la réutiliser une seconde fois
+      await this.crossRequestService.update(crossRequest.id, {
+        isUsed: true,
+      });
     }
 
     let breedSeedId: string;
@@ -164,6 +167,4 @@ export class CatService {
       throw new NotFoundException('Chat non trouvé');
     }
   }
-
-  // async createCrossKitten(): Promise<CatEntity> {}
 }

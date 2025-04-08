@@ -44,4 +44,16 @@ export class CrossRequestEntity {
     default: CrossRequestStatus.PENDING,
   })
   status: CrossRequestStatus;
+
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  createdAt: Date;
+
+  @Column({
+    type: 'boolean',
+    default: false,
+  })
+  isUsed: boolean;
 }

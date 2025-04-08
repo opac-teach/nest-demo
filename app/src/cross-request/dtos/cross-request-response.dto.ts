@@ -34,4 +34,20 @@ export class CrossRequestResponseDto {
   @Expose()
   @Type(() => String)
   status: string;
+
+  @ApiProperty({
+    description: 'The created at of the cross request',
+    type: Date,
+  })
+  @Expose()
+  @Type(() => Date)
+  createdAt: Date;
+
+  @ApiProperty({
+    description: 'The is used of the cross request',
+    type: Boolean,
+  })
+  @Expose()
+  @Type(() => Boolean)
+  isUsed: boolean;
 }
