@@ -1,10 +1,10 @@
-import { Controller, Get, Post, Body, Put, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Param, Delete, HttpException, ConflictException, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger';
+import { ApiOperation, ApiBody, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { UserEntity } from './users.entity';
-import { CatService } from '@/cat/cat.service';
+import { AuthGuard } from '@/lib/auth.guard';
 
 @Controller('users')
 export class UsersController {
@@ -14,8 +14,14 @@ export class UsersController {
   @ApiOperation({ summary: 'Create a user' })
   @ApiBody({type:CreateUserDto})
   @ApiResponse({ status: 201, description: 'Returns the created user', type: UserEntity})
-  create(@Body() user: CreateUserDto) {
-    return this.usersService.create(user);
+  async create(@Body() user: CreateUserDto) {
+    try {
+      return await this.usersService.create(user);
+    } catch (error) {
+      if(error.driverError?.code === "23505"){
+        throw new ConflictException()
+      }
+    }
   }
 
   @Get('/') // GET '/users'
@@ -32,6 +38,9 @@ export class UsersController {
     return this.usersService.findOne(id);
   }
 
+  
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
   @Put(':id') // PUT '/users/:id'
   @ApiOperation({ summary: 'Update a user' })
   @ApiResponse({ status: 200, description: 'Returns the updated user' })
@@ -42,9 +51,11 @@ export class UsersController {
     return this.usersService.update(id, user);
   }
 
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+    return this.usersService.remove(id);
   }
 
 }

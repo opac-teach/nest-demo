@@ -5,7 +5,8 @@ import {
   ManyToOne,
   BeforeUpdate,
   JoinColumn,
-  OneToMany
+  OneToMany,
+  Unique
 } from 'typeorm';
 
 import { CatEntity } from 'src/cat/cat.entity';
@@ -15,8 +16,11 @@ export class UserEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column({unique:true})
   name: string;
+
+  @Column()
+  password: string;
 
   @Column()
   description : string;

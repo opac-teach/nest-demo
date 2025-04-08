@@ -1,7 +1,7 @@
 import { ApiProperty, OmitType, PartialType } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber, IsString, IsUUID } from 'class-validator';
 
-export class CreateUserDto {
+export class AuthDto {
   @ApiProperty({
     description: 'The name of the user',
     type: String,
@@ -17,12 +17,4 @@ export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
   password: string;
-
-  @ApiProperty({
-    description: 'The description of the user',
-    type: String,
-  })
-  @IsString()
-  @IsNotEmpty()
-  description: string;
 }

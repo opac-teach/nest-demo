@@ -15,6 +15,7 @@ import { Reflector } from '@nestjs/core';
 import { LiveModule } from './live/live.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { UsersModule } from './users/users.module';
     BreedModule,
     LiveModule,
     UsersModule,
+    AuthModule,
   ],
   controllers: [AppController],
 })

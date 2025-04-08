@@ -1,7 +1,7 @@
 import { Inject, Injectable, NotFoundException, Param } from '@nestjs/common';
 import { CreateCatDto, UpdateCatDto } from '@/cat/dtos/cat-input.dto';
 import { CatEntity } from '@/cat/cat.entity';
-import { FindManyOptions, Repository } from 'typeorm';
+import { EqualOperator, FindManyOptions, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BreedService } from '@/breed/breed.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -51,23 +51,15 @@ export class CatService {
     return cat;
   }
 
-  async create(cat: CreateCatDto): Promise<CatEntity> {
+  async create(userId: string, cat: CreateCatDto): Promise<CatEntity> {
     const breed = await this.breedService.findOne(cat.breedId);
 
     // const { seed } = breed;
     // const colorObservable = this.client.send<string, string>('generate_color', seed);
     // const color = await firstValueFrom(colorObservable);
-
-    const owner = await this.userRepository.findOne({
-      where: { id: cat.owner },
-    });
-    if (!owner) {
-      throw new NotFoundException('Owner not found');
-    }
-
+    console.log("id", userId)
     const color = '11BB22';
-
-    const newCat = this.catRepository.create({ ...cat, color, owner });
+    const newCat = this.catRepository.create({ ...cat, color, userId });
     const createdCat = await this.catRepository.save(newCat);
 
     this.eventEmitter.emit('data.crud', {
