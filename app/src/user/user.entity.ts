@@ -1,5 +1,6 @@
 import { CatEntity } from '@/cat/cat.entity';
 import { CommentaireEntity } from '@/commentaire/commentaire.entity';
+import { CrossRequestEntity } from '@/cross-request/cross-request.entity';
 import {
   BeforeUpdate,
   Column,
@@ -27,6 +28,12 @@ export class UserEntity {
 
   @OneToMany(() => CommentaireEntity, (commentaire) => commentaire.user)
   commentaires?: CommentaireEntity[];
+
+  @OneToMany(() => CrossRequestEntity, (crossRequest) => crossRequest.sender)
+  sentCrossRequests?: CrossRequestEntity[];
+
+  @OneToMany(() => CrossRequestEntity, (crossRequest) => crossRequest.receiver)
+  receivedCrossRequests?: CrossRequestEntity[];
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created: Date;

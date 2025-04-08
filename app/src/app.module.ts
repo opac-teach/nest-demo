@@ -18,6 +18,7 @@ import { UserModule } from './user/user.module';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { CommentaireModule } from './commentaire/commentaire.module';
+import { CrossRequestModule } from './cross-request/cross-request.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { CommentaireModule } from './commentaire/commentaire.module';
     UserModule,
     AuthModule,
     CommentaireModule,
+    CrossRequestModule,
   ],
   controllers: [AppController],
 })
