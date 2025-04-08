@@ -20,7 +20,11 @@ export class BreedResponseDto {
   @Type(() => String)
   description: string;
 
-  @ApiProperty({ type: [CatResponseDto] })
+  @ApiProperty({
+    description: 'The cats of the breed',
+    type: CatResponseDto,
+    isArray: true,
+  })
   @Expose()
   @Type(() => CatResponseDto)
   cats?: CatResponseDto[];
