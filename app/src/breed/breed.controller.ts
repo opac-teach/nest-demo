@@ -4,6 +4,7 @@ import { BreedResponseDto, CreateBreedDto } from './dtos';
 import { CatResponseDto } from '@/cat/dtos/cat-response.dto';
 import { CatService } from '@/cat/cat.service';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { Public } from '@/publicRoutes';
 
 @Controller('breed')
 export class BreedController {
@@ -12,9 +13,11 @@ export class BreedController {
     private catService: CatService,
   ) {}
 
+
   @Get('/')
   @ApiOperation({ summary: 'Get all breeds' })
   @ApiResponse({ status: 200, description: 'Returns all breeds' })
+
   findAll(): Promise<BreedResponseDto[]> {
     return this.breedService.findAll();
   }
@@ -33,6 +36,7 @@ export class BreedController {
     return this.catService.findAll({ breedId: id });
   }
 
+  @Public()
   @Post()
   @ApiOperation({ summary: 'Create a breed' })
   @ApiResponse({ status: 201, description: 'Returns the created breed' })

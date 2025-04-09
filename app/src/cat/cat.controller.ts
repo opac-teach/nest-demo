@@ -6,6 +6,7 @@ import {
   Post,
   Put,
   UseGuards,
+  Request
 } from '@nestjs/common';
 import { CatService } from '@/cat/cat.service';
 import { CatResponseDto, CreateCatDto, UpdateCatDto } from '@/cat/dtos';
@@ -34,8 +35,8 @@ export class CatController {
   @Post() // POST '/cat'
   @ApiOperation({ summary: 'Create a cat' })
   @ApiResponse({ status: 201, description: 'Returns the created cat' })
-  create(@Body() cat: CreateCatDto): Promise<CatResponseDto> {
-    return this.catService.create(cat);
+  create(@Body() cat: CreateCatDto, @Request() req): Promise<CatResponseDto> {
+    return this.catService.create(cat, req.user.userId);
   }
 
   @Put(':id') // PUT '/cat/:id'
