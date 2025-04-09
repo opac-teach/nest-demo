@@ -1,10 +1,12 @@
-import { Controller, Get, Post, Body, Put, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Param, Delete, UseGuards, Request } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { RandomGuard } from '@/lib/random.guard';
+import { AuthGuard } from '@/auth/auth.guard';
 
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+
+import { ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
  
 @Controller('users')  
 @UseGuards(RandomGuard)
@@ -32,17 +34,21 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
-  @Put(':id')
+  @Put('update')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Update a user' })
   @ApiResponse({ status: 200, description: 'Returns the updated user' })
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(id, updateUserDto);
+  update(@Body() updateUserDto: UpdateUserDto, @Request() req) {
+    return this.usersService.update(updateUserDto, req);
   }
 
-  @Delete(':id')
+  @Delete('delete')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete a user' })
   @ApiResponse({ status: 200, description: 'Returns the deleted user' })
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(id);
+  remove(@Request () req) {
+    return this.usersService.remove(req);
   }
 }

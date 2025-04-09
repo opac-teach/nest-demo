@@ -4,10 +4,11 @@ import { UsersController } from './users.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from './user.entity';
 import { CatEntity } from '@/cat/cat.entity';
+import { CommentaryEntity } from '@/commentary/commentary.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UserEntity, CatEntity]),
+    TypeOrmModule.forFeature([UserEntity, CatEntity, CommentaryEntity]),
   ],
   exports: [UsersService],
   controllers: [UsersController],

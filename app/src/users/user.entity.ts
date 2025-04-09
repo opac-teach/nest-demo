@@ -2,13 +2,15 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
+  ManyToMany,
   BeforeUpdate,
-  JoinColumn,
+  JoinTable,
   OneToMany,
+  JoinColumn,
 } from 'typeorm';
 
 import { CatEntity } from '../cat/cat.entity';
+import { CommentaryEntity } from '@/commentary/commentary.entity';
 
 @Entity('users')
 export class UserEntity {
@@ -38,6 +40,9 @@ export class UserEntity {
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updated: Date;
+
+  @OneToMany(() => CommentaryEntity, (commentary) => commentary.user)
+  commentaries: CommentaryEntity[]
 
   @BeforeUpdate()
   updateTimestamp() {

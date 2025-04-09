@@ -39,6 +39,7 @@ export class UsersService {
   }
 
   async findAll(): Promise<UserEntity[]> {
+    console.log(process.env.SECRET_KEY);
     return this.userRepository.find();
   }
 
@@ -58,10 +59,13 @@ export class UsersService {
     return user;
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto): Promise<UserEntity> {
-    const user = await this.userRepository.findOneBy({ id });
+  async update(updateUserDto: UpdateUserDto, req: any): Promise<UserEntity> {
+    const user = await this.userRepository.findOneBy({ id: req.user.sub});
     if (!user) {
       throw new NotFoundException('User not found');
+    }
+    if (updateUserDto.password) {
+      updateUserDto.password = await this.hashString(updateUserDto.password);
     }
     const updatedUser = this.userRepository.merge(user, updateUserDto);
     const savedUser = await this.userRepository.save(updatedUser);
@@ -73,8 +77,9 @@ export class UsersService {
     return savedUser;
   }
 
-  async remove(id: string): Promise<UserEntity> {
-    const user = await this.userRepository.findOneBy({ id });
+  async remove(req: any): Promise<UserEntity> {
+    
+    const user = await this.userRepository.findOneBy({ id: req.user.sub });
     if (!user) {
       throw new NotFoundException('User not found');
     }

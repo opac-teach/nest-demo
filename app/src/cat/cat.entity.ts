@@ -5,10 +5,12 @@ import {
   ManyToOne,
   BeforeUpdate,
   JoinColumn,
+  OneToMany
 } from 'typeorm';
 
 import { BreedEntity } from '../breed/breed.entity';
 import { UserEntity } from '../users/user.entity';
+import { CommentaryEntity } from '@/commentary/commentary.entity';
 
 @Entity('cat')
 export class CatEntity {
@@ -40,6 +42,10 @@ export class CatEntity {
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updated: Date;
+  
+  @OneToMany(() => CommentaryEntity, (commentary) => commentary.cat)
+  @JoinColumn({ name: 'commentaryId' })
+  commentaries: CommentaryEntity[]
 
   @BeforeUpdate()
   updateTimestamp() {
