@@ -111,14 +111,17 @@ describe('CatService', () => {
         where: {},
       });
     });
-  });
 
-  it('should return an array of cat with breeds', async () => {
-    const result = await service.findAll({ breedId: '1', includeBreed: true });
-    expect(result).toEqual([mockCat]);
-    expect(mockCatRepository.find).toHaveBeenCalledWith({
-      relations: { breed: true },
-      where: { breedId: '1' },
+    it('should return an array of cat with breeds and breedId', async () => {
+      const result = await service.findAll({
+        breedId: '1',
+        includeBreed: true,
+      });
+      expect(result).toEqual([mockCat]);
+      expect(mockCatRepository.find).toHaveBeenCalledWith({
+        relations: { breed: true },
+        where: { breedId: '1' },
+      });
     });
   });
 
@@ -126,6 +129,22 @@ describe('CatService', () => {
     it('should return a single cat', async () => {
       const result = await service.findOne('1');
       expect(result).toEqual(mockCat);
+    });
+
+    it('should return a single cat with a user', async () => {
+      const result = await service.findOne(mockCat.userId, {
+        includeUser: true,
+      });
+      expect(result).toEqual(mockCat);
+      expect(mockCatRepository.findOne).toHaveBeenCalledWith({
+        relations: { user: true },
+        where: { id: mockCat.userId },
+      });
+    });
+
+    it('should return NotFoundException', async () => {
+      jest.spyOn(service, 'findOne').mockRejectedValue(new NotFoundException());
+      await expect(service.findOne('321')).rejects.toThrow(NotFoundException);
     });
   });
 

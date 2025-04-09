@@ -4,7 +4,7 @@ import { CatService } from '@/cat/cat.service';
 import { CatEntity } from '@/cat/cat.entity';
 import { mockTheRest } from '@/lib/tests';
 import { RequestWithUser } from '@/auth/guards/auth.guard';
-import { UpdateCatDto } from '@/cat/dtos';
+import { CreateCatDto, UpdateCatDto } from '@/cat/dtos';
 
 describe('CatController', () => {
   let controller: CatController;
@@ -25,7 +25,7 @@ describe('CatController', () => {
     user: { sub: '1', email: 'test@example.com' },
   };
 
-  const mockUserId = '1';
+  const mockOtherUserId = '2';
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -61,9 +61,9 @@ describe('CatController', () => {
   describe('findOne', () => {
     it('should return a single cat', async () => {
       jest.spyOn(catService, 'findOne').mockResolvedValue(mockCat);
-      const result = await controller.findOne('1');
+      const result = await controller.findOne(mockCat.id);
       expect(result).toEqual(mockCat);
-      expect(catService.findOne).toHaveBeenCalledWith('1', {
+      expect(catService.findOne).toHaveBeenCalledWith(mockCat.id, {
         includeCommentaires: true,
         includeBreed: true,
         includeUser: true,
@@ -73,7 +73,7 @@ describe('CatController', () => {
 
   describe('create', () => {
     it('should create a new cat', async () => {
-      const mockCreateCatDto = {
+      const mockCreateCatDto: CreateCatDto = {
         name: 'Fluffy',
         age: 3,
         breedId: '1',
@@ -86,7 +86,7 @@ describe('CatController', () => {
       expect(result).toEqual(mockCat);
       expect(catService.create).toHaveBeenCalledWith(
         mockCreateCatDto,
-        mockUserId,
+        mockCat.userId,
       );
     });
   });
@@ -99,16 +99,18 @@ describe('CatController', () => {
       };
       jest.spyOn(catService, 'update').mockResolvedValue(mockCat);
       const result = await controller.update(
-        '1',
+        mockCat.id,
         mockUpdateCatDto,
         mockReq as RequestWithUser,
       );
       expect(result).toEqual(mockCat);
       expect(catService.update).toHaveBeenCalledWith(
-        '1',
+        mockCat.id,
         mockUpdateCatDto,
-        mockUserId,
+        mockReq.user?.sub,
       );
     });
+
+    // TODO: update d'un chat qui nous appartient pas
   });
 });

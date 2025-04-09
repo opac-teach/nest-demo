@@ -1,8 +1,18 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { Repository, DataSource } from 'typeorm';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { Repository, DataSource, FindManyOptions } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from './user.entity';
 import { CreateUserDto, UpdateUserDto } from './dtos';
+import * as bcrypt from 'bcrypt';
+
+export interface UserFindAllOptions extends FindManyOptions<UserEntity> {
+  includeCats?: boolean;
+  includeCommentaires?: boolean;
+}
 
 @Injectable()
 export class UserService {
@@ -12,24 +22,26 @@ export class UserService {
     private dataSource: DataSource,
   ) {}
 
-  async findAll(includeCats?: boolean): Promise<UserEntity[]> {
+  async findAll(options?: UserFindAllOptions): Promise<UserEntity[]> {
     return this.userRepository.find({
-      relations: includeCats ? ['cats'] : undefined,
+      relations: {
+        cats: options?.includeCats,
+        commentaires: options?.includeCommentaires,
+      },
     });
   }
 
-  async findOneByEmail(email: string): Promise<UserEntity> {
-    const user = await this.userRepository.findOne({ where: { email } });
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-    return user;
+  async findOneByEmail(email: string): Promise<UserEntity | null> {
+    return await this.userRepository.findOne({ where: { email } });
   }
 
-  async findOne(id: string, includeCats?: boolean): Promise<UserEntity> {
+  async findOne(id: string, options?: UserFindAllOptions): Promise<UserEntity> {
     const user = await this.userRepository.findOne({
       where: { id },
-      relations: includeCats ? ['cats'] : undefined,
+      relations: {
+        cats: options?.includeCats,
+        commentaires: options?.includeCommentaires,
+      },
     });
     if (!user) {
       throw new NotFoundException('User not found');
@@ -37,8 +49,16 @@ export class UserService {
     return user;
   }
 
-  async create(user: CreateUserDto): Promise<UserEntity> {
-    const newUser = this.userRepository.create(user);
+  async register(user: CreateUserDto): Promise<UserEntity> {
+    const hashedPassword = await bcrypt.hash(user.password, 10);
+    const existingUser = await this.findOneByEmail(user.email);
+    if (existingUser) {
+      throw new BadRequestException('User already exists');
+    }
+    const newUser = this.userRepository.create({
+      ...user,
+      password: hashedPassword,
+    });
     return this.userRepository.save(newUser);
   }
 

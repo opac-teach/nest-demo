@@ -19,14 +19,14 @@ export class CommentaireEntity {
 
   @ManyToOne(() => UserEntity, (user) => user.commentaires)
   @JoinColumn({ name: 'userId' })
-  user: UserEntity;
+  user?: UserEntity;
 
   @Column()
   userId: string;
 
   @ManyToOne(() => CatEntity, (cat) => cat.commentaires)
   @JoinColumn({ name: 'catId' })
-  cat: CatEntity;
+  cat?: CatEntity;
 
   @Column()
   catId: string;

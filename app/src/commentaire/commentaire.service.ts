@@ -36,9 +36,16 @@ export class CommentaireService {
     return commentaires;
   }
 
-  async findOne(id: string): Promise<CommentaireEntity> {
+  async findOne(
+    id: string,
+    options?: CommentaireFindAllOptions,
+  ): Promise<CommentaireEntity> {
     const commentaire = await this.commentaireRepository.findOne({
-      where: { id },
+      relations: {
+        cat: options?.includeCat,
+        user: options?.includeUser,
+      },
+      where: { id, userId: options?.userId, catId: options?.catId },
     });
 
     if (!commentaire) {
@@ -64,7 +71,7 @@ export class CommentaireService {
     commentaire: UpdateCommentaireDto,
     userId: string,
   ): Promise<CommentaireEntity> {
-    // { id, userId } est une condition pour que le commentaire soit modifié par l'utilisateur qui l'a créé
+    // { id, userId } vérifie que le commentaire peut être modifié seulement par l'utilisateur qui l'a créé
     const updateResponse = await this.commentaireRepository.update(
       { id, userId },
       commentaire,

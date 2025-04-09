@@ -31,14 +31,14 @@ export class UserController {
   @ApiOperation({ summary: 'Get all users' })
   @ApiResponse({ status: 200, description: 'Returns all users' })
   findAll(): Promise<UserResponseDto[]> {
-    return this.userService.findAll(true);
+    return this.userService.findAll({ includeCats: true });
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a user by id' })
   @ApiResponse({ status: 200, description: 'Returns a user' })
   findOne(@Param('id') id: string): Promise<UserResponseDto> {
-    return this.userService.findOne(id, true);
+    return this.userService.findOne(id, { includeCats: true });
   }
 
   @Get(':id/cats')
@@ -84,7 +84,7 @@ export class UserController {
     @Res({ passthrough: true }) res: Response,
   ): Promise<{ message: string }> {
     await this.userService.remove(req.user.sub);
-    res.clearCookie('authToken');
+    res?.clearCookie('authToken');
 
     return { message: 'Votre compte a bien été supprimé.' };
   }

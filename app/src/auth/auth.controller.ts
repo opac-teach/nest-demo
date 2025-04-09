@@ -28,12 +28,13 @@ export class AuthController {
   @ApiOperation({ summary: 'Create a user' })
   @ApiResponse({ status: 201, description: 'Returns the created user' })
   register(@Body() user: CreateUserDto): Promise<UserResponseDto> {
-    return this.authService.register(user);
+    return this.userService.register(user);
   }
 
   @Post('login')
   @ApiOperation({ summary: 'Login a user' })
   @ApiResponse({ status: 200, description: 'Returns a confirmation message' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   async login(
     @Body() loginDto: LoginDto,
     @Res({ passthrough: true }) res: Response,
