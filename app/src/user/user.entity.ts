@@ -1,6 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import {BeforeInsert, Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { CatEntity } from '@/cat/cat.entity';
 import { IsEmail } from 'class-validator';
+import * as bcrypt from 'bcrypt';
 
 @Entity('user')
 export class UserEntity {
@@ -22,6 +23,13 @@ export class UserEntity {
 
   @Column({ nullable: false })
   password: string;
+
+  @BeforeInsert()
+  async hashPassword() {
+    if (this.password) {
+      this.password = await bcrypt.hash(this.password, 10);
+    }
+  }
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created: Date;

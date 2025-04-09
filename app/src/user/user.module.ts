@@ -5,11 +5,13 @@ import {UserEntity} from "@/user/user.entity";
 import {UserController} from "@/user/user.controller";
 import {UserService} from "@/user/user.service";
 import {CatModule} from "@/cat/cat.module";
+import {AuthModule} from "@/auth/auth.module";
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([UserEntity, CatEntity]),
     forwardRef(() => CatModule),
+    forwardRef(() => AuthModule),
   ],
   controllers: [UserController],
   providers: [UserService],

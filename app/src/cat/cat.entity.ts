@@ -11,6 +11,7 @@ import { IsUUID } from 'class-validator';
 
 import { BreedEntity } from '@/breed/breed.entity';
 import { UserEntity } from '@/user/user.entity';
+import {Exclude} from "class-transformer";
 
 @Entity('cat')
 export class CatEntity {
@@ -25,6 +26,7 @@ export class CatEntity {
 
   @Column()
   @IsUUID()
+  @Exclude()
   breedId: string;
 
   @Column({ nullable: true })
