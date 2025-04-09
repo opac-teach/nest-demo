@@ -5,6 +5,7 @@ import {
   Param,
   Post,
   Put,
+  SerializeOptions,
   Delete,
   Query,
   UseGuards,
@@ -21,6 +22,8 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 
+@Controller('cat') // route '/cat'
+// @UseGuards(RandomGuard)
 @Controller('cat')
 @ApiTags('cat')
 @ApiBearerAuth() 
@@ -46,9 +49,14 @@ export class CatController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a cat by id' })
-  @ApiResponse({ status: 200, description: 'Returns a cat' })
-  findOne(@Param('id') id: string): Promise<CatResponseDto> {
-    return this.catService.findOne(id, true);
+  @ApiResponse({
+    status: 200,
+    description: 'Returns a cat',
+    type: CatResponseDto,
+  })
+  async findOne(@Param('id') id: string): Promise<CatResponseDto> {
+    const cat = await this.catService.findOne(id, true);
+    return new CatResponseDto(cat);
   }
 
   @UseGuards(AuthGuard('jwt'))
