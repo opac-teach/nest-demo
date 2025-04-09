@@ -45,7 +45,8 @@ export class CommentController {
   @ApiOperation({ summary: 'delete a comment' })
   @ApiResponse({ status: 200, description: 'Returns the deleted comment' })
   @UseGuards(AuthGuard, CommentGuard)
-  async remove(@Param('id') id: string): Promise<string> {
-    return await this.commentService.remove(id);
+  async remove(@Param('id') id: string): Promise<{}> {
+    const result: string = await this.commentService.remove(id);
+    return { message: result }
   }
 }

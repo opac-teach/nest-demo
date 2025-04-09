@@ -40,7 +40,6 @@ export class CommentService {
 
   async remove(id: string) {
     await this.commentRepository.delete(id);
-
     return 'Commentaire supprimé.'
   }
 }

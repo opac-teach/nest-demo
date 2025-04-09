@@ -27,6 +27,20 @@ export class CreateCommentDto {
     catId: string;
 }
 
-export class UpdateCommentDto extends PartialType(
-    OmitType(CreateCommentDto, ['catId'] as const),
-) {}
+export class UpdateCommentDto {
+    @ApiProperty({
+        description: 'The title of the comment',
+        type: String,
+    })
+    @IsString()
+    @IsNotEmpty()
+    title: string;
+
+    @ApiProperty({
+        description: 'The text of the comment',
+        type: String,
+    })
+    @IsString()
+    @IsNotEmpty()
+    text: string;
+}

@@ -27,6 +27,14 @@ export class UserController {
     return this.userService.findAll();
   }
 
+  @Get('/me')
+  @ApiOperation({ summary: 'Get user info connected' })
+  @ApiResponse({ status: 200, description: 'Returns the connected user' })
+  @UseGuards(AuthGuard)
+  async me(@Request() req): Promise<UserResponseDto> {
+    return await this.userService.findOne(req.user.sub);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get a user by id' })
   @ApiResponse({ status: 200, description: 'Returns a user' })
@@ -38,19 +46,21 @@ export class UserController {
   @ApiOperation({ summary: 'Update a user by id' })
   @ApiResponse({ status: 200, description: 'Returns the updated user' })
   @UseGuards(AuthGuard, UserGuard)
-  update(
+  async update(
       @Param('id') id: string,
       @Body() user: UpdateUserDto): Promise<UserResponseDto> {
-    return this.userService.update(id, user);
+    return await this.userService.update(id, user);
   }
 
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a user by id' })
   @ApiResponse({ status: 200, description: 'Returns the deleted user' })
   @UseGuards(AuthGuard, UserGuard)
-  delete(
+  async delete(
       @Param('id') id: string
-  ): Promise<string> {
-    return this.userService.delete(id);
+  ): Promise<{}> {
+    const result: string = await this.userService.delete(id);
+
+    return { message: result }
   }
 }
