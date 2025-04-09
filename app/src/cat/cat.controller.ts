@@ -5,6 +5,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { CatService } from '@/cat/cat.service';
@@ -16,11 +17,13 @@ import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 @UseGuards(RandomGuard)
 export class CatController {
   constructor(private catService: CatService) {}
-
   @Get('/') // GET '/cat'
   @ApiOperation({ summary: 'Get all cats' })
   @ApiResponse({ status: 200, description: 'Returns all cats' })
-  findAll(): Promise<CatResponseDto[]> {
+  findAll(@Query('userId') userId?: string): Promise<CatResponseDto[]> {
+    if (userId) {
+      return this.catService.findByUser(userId);
+    }
     return this.catService.findAll({ includeBreed: true });
   }
 
