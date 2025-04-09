@@ -12,11 +12,17 @@ import { UserService } from '@/user/user.service';
 import { UserEntity } from '@/user/entities/user.entity';
 import { UserModule } from '@/user/user.module';
 import { CommentsModule } from '@/comments/comments.module';
+import { CommentEntity } from '@/comments/entities/comment.entity';
 @Module({
   controllers: [CatController],
   providers: [CatService, UserService],
   imports: [
-    TypeOrmModule.forFeature([CatEntity, BreedEntity, UserEntity]),
+    TypeOrmModule.forFeature([
+      CatEntity,
+      BreedEntity,
+      UserEntity,
+      CommentEntity,
+    ]),
     AuthModule,
     CommentsModule,
     UserModule,
