@@ -4,6 +4,7 @@ import { UserEntity } from './user.entity';
 import { FindManyOptions, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import * as bcrypt from 'bcrypt';
 
 export interface UserFindAllOptions extends FindManyOptions<UserEntity> {
   includeCats?: boolean;
@@ -18,7 +19,6 @@ export class UserService {
   ) {}
 
   async findAll(options?: UserFindAllOptions): Promise<UserEntity[]> {
-    console.log(options?.includeCats);
     return this.userRepository.find({
       relations: {
         cats: options?.includeCats,
@@ -41,8 +41,26 @@ export class UserService {
     return user;
   }
 
+  async findOneByEmail(email: string): Promise<UserEntity> {
+    const user = await this.userRepository.findOneBy({
+      email,
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return user;
+  }
+
   async create(user: CreateUserDto): Promise<UserEntity> {
-    const newUser = this.userRepository.create(user);
+    const salt = await bcrypt.genSalt();
+    const hashedPassword = await bcrypt.hash(user.password, salt);
+
+    const newUser = this.userRepository.create({
+      ...user,
+      password: hashedPassword,
+    });
     const createdUser = await this.userRepository.save(newUser);
 
     this.eventEmitter.emit('data.crud', {

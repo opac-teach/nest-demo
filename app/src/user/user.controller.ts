@@ -1,7 +1,6 @@
 import {
   Controller,
   Get,
-  Post,
   Body,
   Patch,
   Param,
@@ -11,8 +10,8 @@ import {
   SerializeOptions,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto, UpdateUserDto } from './dtos/user-input.dto';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { UpdateUserDto } from './dtos/user-input.dto';
+import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { UserResponseDto } from './dtos/user-response.dto';
 import { CatResponseDto } from '@/cat/dtos';
 import { CatService } from '@/cat/cat.service';
@@ -26,6 +25,7 @@ export class UserController {
 
   @Get() // GET '/user'
   @SerializeOptions({ type: UserResponseDto })
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Get all users' })
   @ApiResponse({
     status: 200,
@@ -60,18 +60,6 @@ export class UserController {
   })
   findCatsByUserId(@Param('id') id: string): Promise<CatResponseDto[]> {
     return this.catService.findAll({ userId: id });
-  }
-
-  @Post() // POST '/user'
-  @SerializeOptions({ type: UserResponseDto })
-  @ApiOperation({ summary: 'Create a user' })
-  @ApiResponse({
-    status: 201,
-    description: 'Returns the created user',
-    type: UserResponseDto,
-  })
-  create(@Body() userInputDto: CreateUserDto): Promise<UserResponseDto> {
-    return this.userService.create(userInputDto);
   }
 
   @Patch(':id') // PATCH '/user/:id'

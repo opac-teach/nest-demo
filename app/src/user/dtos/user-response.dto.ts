@@ -1,7 +1,8 @@
 import { CatResponseDto } from '@/cat/dtos';
 import { ApiProperty } from '@nestjs/swagger';
-import { Expose, Type } from 'class-transformer';
+import { Exclude, Expose, Type } from 'class-transformer';
 
+@Exclude()
 export class UserResponseDto {
   @ApiProperty({
     description: 'The id of the user',
@@ -10,6 +11,14 @@ export class UserResponseDto {
   @Expose()
   @Type(() => String)
   id: string;
+
+  @ApiProperty({
+    description: 'The email address of the user',
+    type: String,
+  })
+  @Expose()
+  @Type(() => String)
+  email: string;
 
   @ApiProperty({
     description: 'The username of the user',
