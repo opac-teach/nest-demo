@@ -21,13 +21,4 @@ export class BreedEntity {
 
   @OneToMany(() => CatEntity, (cat) => cat.breed)
   cats?: CatEntity[];
-
-  @Column()
-  @Exclude()
-  seed: string;
-
-  @BeforeInsert()
-  generateSeed() {
-    this.seed = Math.random().toString(36).substring(2, 15);
-  }
 }
