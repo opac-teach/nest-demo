@@ -5,7 +5,6 @@ import { App } from 'supertest/types';
 import { AppModule, registerGlobals } from '@/app.module';
 import { CreateBreedDto } from '@/breed/dtos/create-breed';
 import { CreateCatDto } from '@/cat/dtos';
-import { RandomGuard } from '@/lib/random.guard';
 import { BreedResponseDto } from '@/breed/dtos';
 import { CatResponseDto } from '@/cat/dtos';
 import { Socket, io } from 'socket.io-client';
@@ -32,7 +31,7 @@ describe('AppController (e2e)', () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     })
-      .overrideGuard(RandomGuard)
+      .overrideGuard()
       .useValue({ canActivate: () => true })
       .compile();
 
