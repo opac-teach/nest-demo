@@ -5,16 +5,13 @@ import {
   Param,
   Post,
   Put,
-  UseGuards,
   Request
 } from '@nestjs/common';
 import { CatService } from '@/cat/cat.service';
 import { CatResponseDto, CreateCatDto, UpdateCatDto } from '@/cat/dtos';
-import { RandomGuard } from '@/lib/random.guard';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 @Controller('cat') // route '/cat'
-@UseGuards(RandomGuard)
 export class CatController {
   constructor(private catService: CatService) {}
 
