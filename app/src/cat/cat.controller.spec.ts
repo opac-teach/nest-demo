@@ -4,6 +4,8 @@ import { CatService } from '@/cat/cat.service';
 import { CatEntity } from '@/cat/cat.entity';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { mockTheRest } from '@/lib/tests';
+import { RequestWithUser } from '@/auth/guards/auth.guard';
+import { UpdateCatDto } from '@/cat/dtos';
 
 describe('CatController', () => {
   let controller: CatController;
@@ -13,10 +15,15 @@ describe('CatController', () => {
     name: 'Fluffy',
     age: 3,
     breedId: '1',
+    userId: '1',
     created: new Date(),
     updated: new Date(),
     color: '11BB22',
     updateTimestamp: jest.fn(),
+  };
+
+  const mockReq: Partial<RequestWithUser> = {
+    user: { sub: '1', email: 'test@example.com' },
   };
 
   beforeEach(async () => {
@@ -43,7 +50,9 @@ describe('CatController', () => {
       jest.spyOn(catService, 'findAll').mockResolvedValue([mockCat]);
       const result = await controller.findAll();
       expect(result).toEqual([mockCat]);
-      expect(catService.findAll).toHaveBeenCalledWith({ includeBreed: true });
+      expect(catService.findAll.bind(catService)).toHaveBeenCalledWith({
+        includeBreed: true,
+      });
     });
   });
 
@@ -52,7 +61,10 @@ describe('CatController', () => {
       jest.spyOn(catService, 'findOne').mockResolvedValue(mockCat);
       const result = await controller.findOne('1');
       expect(result).toEqual(mockCat);
-      expect(catService.findOne).toHaveBeenCalledWith('1', true);
+      expect(catService.findOne.bind(catService)).toHaveBeenCalledWith(
+        '1',
+        true,
+      );
     });
   });
 
@@ -64,22 +76,36 @@ describe('CatController', () => {
         breedId: '1',
       };
       jest.spyOn(catService, 'create').mockResolvedValue(mockCat);
-      const result = await controller.create(mockCreateCatDto);
+      const result = await controller.create(
+        mockCreateCatDto,
+        mockReq as RequestWithUser,
+      );
       expect(result).toEqual(mockCat);
-      expect(catService.create).toHaveBeenCalledWith(mockCreateCatDto);
+      expect(catService.create.bind(catService)).toHaveBeenCalledWith(
+        mockCreateCatDto,
+        mockReq as RequestWithUser,
+      );
     });
   });
 
   describe('update', () => {
     it('should update a cat', async () => {
-      const mockUpdateCatDto = {
+      const mockUpdateCatDto: UpdateCatDto = {
         name: 'Fluffy',
         age: 3,
       };
       jest.spyOn(catService, 'update').mockResolvedValue(mockCat);
-      const result = await controller.update('1', mockUpdateCatDto);
+      const result = await controller.update(
+        '1',
+        mockUpdateCatDto,
+        mockReq as RequestWithUser,
+      );
       expect(result).toEqual(mockCat);
-      expect(catService.update).toHaveBeenCalledWith('1', mockUpdateCatDto);
+      expect(catService.update.bind(catService)).toHaveBeenCalledWith(
+        '1',
+        mockUpdateCatDto,
+        mockReq as RequestWithUser,
+      );
     });
   });
 });

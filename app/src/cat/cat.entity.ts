@@ -34,7 +34,7 @@ export class CatEntity {
 
   @ManyToOne(() => UserEntity, (user) => user.cats)
   @JoinColumn({ name: 'userId' })
-  user: UserEntity;
+  user?: UserEntity;
 
   @OneToMany(() => CommentaireEntity, (commentaire) => commentaire.cat)
   commentaires?: CommentaireEntity[];
