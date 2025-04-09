@@ -40,13 +40,13 @@ export class CommentsService {
     });
   }
 
-  public async findOne(id: string): Promise<CommentEntity | NotFoundException> {
+  public async findOne(id: string): Promise<CommentEntity> {
     const comment = await this.commentRepository.findOne({
       where: { id },
       relations: ['cat', 'user'],
     });
     if (!comment) {
-      return new NotFoundException('Comment not found');
+      throw new NotFoundException('Comment not found');
     }
     return comment;
   }
@@ -55,23 +55,26 @@ export class CommentsService {
     id: string,
     updateCommentDto: UpdateCommentDto,
     userId: string,
-  ): Promise<CommentEntity | NotFoundException> {
+  ): Promise<CommentEntity> {
     const updatedComment = await this.commentRepository.update(
-      {
-        id: id,
-        userId: userId,
-      },
+      { id, userId },
       updateCommentDto,
     );
+
     if (updatedComment.affected === 0) {
-      return new NotFoundException('Comment not found');
+      throw new NotFoundException('Comment not found');
     }
-    return (
-      (await this.commentRepository.findOne({
-        where: { id },
-        relations: ['cat', 'user'],
-      })) || new NotFoundException('Comment not found')
-    );
+
+    const comment = await this.commentRepository.findOne({
+      where: { id },
+      relations: ['cat', 'user'],
+    });
+
+    if (!comment) {
+      throw new NotFoundException('Comment not found');
+    }
+
+    return comment;
   }
 
   public async remove(id: string, userId: string): Promise<string> {
