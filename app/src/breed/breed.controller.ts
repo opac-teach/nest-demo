@@ -38,7 +38,7 @@ export class BreedController {
   @Get(':id/cats')
   @ApiOperation({ summary: 'Get all cats by breed id' })
   @ApiResponse({ status: 200, description: 'Returns all cats by breed id' })
-  @SerializeOptions({ type: BreedResponseDto })
+  @SerializeOptions({ type: CatResponseDto })
   findCats(@Param('id') id: string): Promise<CatResponseDto[]> {
     return this.catService.findAll({ breedId: id });
   }

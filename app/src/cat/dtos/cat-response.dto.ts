@@ -2,6 +2,7 @@ import { BreedResponseDto } from '@/breed/dtos/breed-response';
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose, Type } from 'class-transformer';
 
+@Exclude()
 export class CatResponseDto {
   @ApiProperty({
     description: 'The id of the cat',
