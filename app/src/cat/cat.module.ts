@@ -8,9 +8,9 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { BreedModule } from '@/breed/breed.module';
 import { redisConfig } from '@/config';
 import { AuthModule } from '../auth/auth.module';
-import { JwtModule } from '@nestjs/jwt';
 import { CommentaireModule } from '@/commentaire/commentaire.module';
 import { CrossRequestModule } from '@/cross-request/cross-request.module';
+
 @Module({
   controllers: [CatController],
   providers: [CatService],
@@ -24,10 +24,9 @@ import { CrossRequestModule } from '@/cross-request/cross-request.module';
       },
     ]),
     forwardRef(() => BreedModule),
-    forwardRef(() => AuthModule),
-    forwardRef(() => CommentaireModule),
+    AuthModule,
+    CommentaireModule,
     forwardRef(() => CrossRequestModule),
-    JwtModule,
   ],
   exports: [CatService],
 })

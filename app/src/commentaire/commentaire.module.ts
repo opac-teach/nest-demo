@@ -3,7 +3,6 @@ import { CommentaireService } from './commentaire.service';
 import { CommentaireController } from './commentaire.controller';
 import { CommentaireEntity } from './commentaire.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { JwtModule } from '@nestjs/jwt';
 import { AuthModule } from '@/auth/auth.module';
 
 @Module({
@@ -12,7 +11,6 @@ import { AuthModule } from '@/auth/auth.module';
   imports: [
     TypeOrmModule.forFeature([CommentaireEntity]),
     forwardRef(() => AuthModule),
-    JwtModule,
   ],
   exports: [CommentaireService],
 })

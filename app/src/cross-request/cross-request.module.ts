@@ -5,7 +5,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CrossRequestEntity } from './cross-request.entity';
 import { CatModule } from '@/cat/cat.module';
 import { AuthModule } from '@/auth/auth.module';
-import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   controllers: [CrossRequestController],
@@ -13,8 +12,7 @@ import { JwtModule } from '@nestjs/jwt';
   imports: [
     TypeOrmModule.forFeature([CrossRequestEntity]),
     forwardRef(() => CatModule),
-    forwardRef(() => AuthModule),
-    JwtModule,
+    AuthModule,
   ],
   exports: [CrossRequestService],
 })
