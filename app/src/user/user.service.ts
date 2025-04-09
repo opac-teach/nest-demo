@@ -6,14 +6,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import * as bcrypt from 'bcrypt';
-import { CommentsService } from '@/comments/comments.service';
+import { CommentEntity } from '@/comments/entities/comment.entity';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
-    private readonly commentsService: CommentsService,
+    @InjectRepository(CommentEntity)
+    private readonly commentRepository: Repository<CommentEntity>,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
@@ -88,8 +89,9 @@ export class UserService {
           model: 'user',
           user,
         });
-        //TODO: use comments entity instead
-        await this.commentsService.removeAllUserComments(userId);
+        await this.commentRepository.delete({
+          userId: userId,
+        });
       },
     );
     return user;

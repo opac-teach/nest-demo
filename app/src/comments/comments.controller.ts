@@ -16,6 +16,7 @@ import { AuthGuard } from '@/auth/jwt-auth.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { Role } from '@/auth/roles/roles.decorator';
 import { RolesEnum } from '@/auth/roles/roles.enum';
+import { RolesGuard } from '@/auth/roles/roles.guard';
 
 @Controller('comments')
 export class CommentsController {
@@ -67,7 +68,8 @@ export class CommentsController {
   @Delete('mod/:id')
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
-  @Role(RolesEnum.MODERATOR)
+  @Role(RolesEnum.ADMIN)
+  @UseGuards(RolesGuard)
   removeCommentByMod(@Param('id') id: string) {
     return this.commentsService.removeCommentByMod(id);
   }
