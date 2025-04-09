@@ -19,6 +19,7 @@ describe('AppController (e2e)', () => {
   let ioClient: Socket;
   let events: { event: string; data: any }[] = [];
   let token: string
+  let tokenHacker: string
 
   const inputBreed: CreateBreedDto = {
     name: 'Fluffy',
@@ -34,8 +35,15 @@ describe('AppController (e2e)', () => {
   const inputUser: CreateUserDto = {
     name: 'John Doe',
     description: 'je suis fan de chats.',
-    email: 'test@gmail.com',
-    password: 'Test1234@'
+    email: 'matteo@gmail.com',
+    password: 'Matteo1234@'
+  }
+
+  const inputUserHacker: CreateUserDto = {
+    name: 'hack man',
+    description: 'je suis fan de hack.',
+    email: 'hack@gmail.com',
+    password: 'Hack1234@'
   }
 
   const inputComment: CreateCommentDto = {
@@ -69,6 +77,21 @@ describe('AppController (e2e)', () => {
     ioClient.onAny((event, data) => {
       events.push({ event, data });
     });
+
+    const loginResponseHacker = await request(server)
+        .post('/auth/login')
+        .send({
+          username: inputUserHacker.email,
+          password: inputUserHacker.password,
+        })
+        .expect(200);
+    expect(loginResponseHacker.body.access_token).toEqual(expect.any(String));
+    tokenHacker = loginResponseHacker.body.access_token;
+    await request(server)
+        .post('/auth/register')
+        .send({
+          ...inputUser
+        })
 
     const loginResponse = await request(server)
         .post('/auth/login')
@@ -300,6 +323,19 @@ describe('AppController (e2e)', () => {
           })
       );
     });
+
+    it('should not update a cat : not allowed', async () => {
+      const { body: updatedCat } = await request(server)
+          .put(`/cat/${cat.id}`)
+          .set('Authorization', `Bearer ${tokenHacker}`)
+          .send({
+            ...inputCat,
+            name: 'Alfred 2',
+            age: 4,
+          })
+          .expect(401)
+      expect(updatedCat.message).toEqual('You are not authorized to access this cat')
+    })
   });
 
   describe('Comment', (): void => {
@@ -374,6 +410,18 @@ describe('AppController (e2e)', () => {
       }));
     })
 
+    it('should not update a comment : not allowed', async (): Promise<void> => {
+      const { body: updatedComment } = await request(server)
+          .put(`/comment/${comment.id}`)
+          .set('Authorization', `Bearer ${tokenHacker}`)
+          .send({
+            title: 'update comment',
+            text: 'modification',
+          })
+          .expect(401)
+      expect(updatedComment.message).toEqual('You are not authorized to access this comment')
+    })
+
     it('should update a comment', async (): Promise<void> => {
       const { body: updatedComment } = await request(server)
           .put(`/comment/${comment.id}`)
@@ -401,6 +449,14 @@ describe('AppController (e2e)', () => {
         updated: expect.any(String),
       }));
     });
+
+    it('should not delete a comment : not allowed', async (): Promise<void> => {
+      const res = await request(server)
+          .delete(`/comment/${comment.id}`)
+          .set('Authorization', `Bearer ${tokenHacker}`)
+          .expect(401);
+      expect(res.body.message).toEqual('You are not authorized to access this comment');
+    })
 
     it('should delete a comment', async (): Promise<void> => {
       const res = await request(server)
@@ -438,6 +494,18 @@ describe('AppController (e2e)', () => {
       }));
     })
 
+    it('should not update a user : not allowed', async () => {
+      const { body: updatedUser } = await request(server)
+          .put(`/user/${user.id}`)
+          .set('Authorization', `Bearer ${tokenHacker}`)
+          .send({
+            name: 'Matteo',
+            description: 'Nouvelle bio',
+          })
+          .expect(401)
+      expect(updatedUser.message).toEqual('You are not authorized to access this resource')
+    })
+
     it('should update a user', async (): Promise<void> => {
       const { body: updatedUser } = await request(server)
           .put(`/user/${user.id}`)
@@ -464,7 +532,15 @@ describe('AppController (e2e)', () => {
       }));
     });
 
-    it('should delete a comment', async (): Promise<void> => {
+    it('should not delete a user : not allowed', async (): Promise<void> => {
+      const res = await request(server)
+          .delete(`/user/${user.id}`)
+          .set('Authorization', `Bearer ${tokenHacker}`)
+          .expect(401);
+      expect(res.body.message).toEqual('You are not authorized to access this resource');
+    })
+
+    it('should delete a user', async (): Promise<void> => {
       const res = await request(server)
           .delete(`/user/${user.id}`)
           .set('Authorization', `Bearer ${token}`)

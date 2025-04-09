@@ -13,7 +13,7 @@ export class CommentGuard implements CanActivate {
         const commentId = request.params.id;
         const comment = await this.commentService.findOne(commentId);
         if (!comment || comment.authorId !== userId) {
-            throw new UnauthorizedException('You are not authorized to access this cat');
+            throw new UnauthorizedException('You are not authorized to access this comment');
         }
         return true;
     }
