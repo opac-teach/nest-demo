@@ -33,7 +33,7 @@ export class UserEntity {
   password: string;
 
   @OneToMany(() => CatEntity, (cat) => cat.user)
-  cats?: CatEntity[];
+  cats: CatEntity[];
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created: Date;

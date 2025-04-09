@@ -11,14 +11,6 @@ export class CreateCommentaryDto {
     text: string;
 
     @ApiProperty({
-        description: 'The ID of the related user',
-        type: String,
-    })
-    @IsUUID()
-    @IsNotEmpty()
-    user: string;
-
-    @ApiProperty({
         description: 'The ID of the related cat',
         type: String,
     })

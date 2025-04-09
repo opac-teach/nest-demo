@@ -8,9 +8,10 @@ import { CommentaryEntity } from './commentary.entity';
 
 @Module({
   imports: [
-      TypeOrmModule.forFeature([UserEntity, CatEntity, CommentaryEntity]),
+      TypeOrmModule.forFeature([CommentaryEntity, UserEntity, CatEntity ]),
     ],
   controllers: [CommentaryController],
   providers: [CommentaryService],
+  exports: [CommentaryService],
 })
 export class CommentaryModule {}

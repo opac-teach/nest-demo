@@ -17,19 +17,19 @@ export class CommentaryEntity {
   id: string;
 
   @Column()
-  content: string;
+  text: string;
+  
+  @ManyToOne(() => CatEntity, (cat) => cat.commentaries)
+  cat: CatEntity;
+  
+  @ManyToOne(() => UserEntity, (users) => users.commentaries)
+  user: UserEntity;
   
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created: Date;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updated: Date;
-
-  @ManyToOne(() => CatEntity, (cat) => cat.commentaries)
-  cat: CatEntity
-
-  @ManyToOne(() => UserEntity, (users) => users.commentaries)
-  user: UserEntity
 
   @BeforeUpdate()
   updateTimestamp() {

@@ -16,9 +16,9 @@ export class UsersService {
   ) {}
 
   private async hashString(str: string): Promise<string> {
-    const saltRounds = 10; // Define the cost factor for hashing
+    const saltRounds = 10;
     return await bcrypt.hash(str, saltRounds);
-}
+  }
 
   async create(createUserDto: CreateUserDto): Promise<UserEntity> {
 
@@ -39,7 +39,6 @@ export class UsersService {
   }
 
   async findAll(): Promise<UserEntity[]> {
-    console.log(process.env.SECRET_KEY);
     return this.userRepository.find();
   }
 
