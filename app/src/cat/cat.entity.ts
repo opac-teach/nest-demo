@@ -5,9 +5,12 @@ import {
   ManyToOne,
   BeforeUpdate,
   JoinColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 
 import { BreedEntity } from '../breed/breed.entity';
+import { User } from '../user/user.entity';
 
 @Entity('cat')
 export class CatEntity {
@@ -27,16 +30,18 @@ export class CatEntity {
   @JoinColumn({ name: 'breedId' })
   breed?: BreedEntity;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @Column()
+  ownerId: number;
+
+  @ManyToOne(() => User, (user) => user.cats, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'ownerId' })
+  owner: User;
+
+  @CreateDateColumn({ type: 'timestamp' })
   created: Date;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @UpdateDateColumn({ type: 'timestamp' })
   updated: Date;
-
-  @BeforeUpdate()
-  updateTimestamp() {
-    this.updated = new Date();
-  }
 
   @Column()
   color: string;

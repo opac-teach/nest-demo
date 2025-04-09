@@ -10,14 +10,15 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   registerGlobals(app);
-  // Enable swagger and OpenAPI documentation
+
   const config = new DocumentBuilder()
     .setTitle('Cats example')
     .setDescription('The cats API description')
     .setVersion('1.0')
     .build();
-  const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('swagger', app, documentFactory);
+
+  const document = SwaggerModule.createDocument(app, config); // ✅ ici
+  SwaggerModule.setup('swagger', app, document);              // ✅ ici
 
   await app.listen(port);
 }
