@@ -6,7 +6,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { BreedService } from '@/breed/breed.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ClientProxy } from '@nestjs/microservices';
-import { firstValueFrom } from 'rxjs';
+import { UsersService } from '@/users/users.service';
+import { UsersEntity } from '@/users/users.entity';
 export interface CatFindAllOptions extends FindManyOptions<CatEntity> {
   breedId?: string;
   includeBreed?: boolean;
@@ -14,12 +15,14 @@ export interface CatFindAllOptions extends FindManyOptions<CatEntity> {
 
 @Injectable()
 export class CatService {
+  private userService: any;
   constructor(
     @InjectRepository(CatEntity)
     private readonly catRepository: Repository<CatEntity>,
     private readonly breedService: BreedService,
     private readonly eventEmitter: EventEmitter2,
     @Inject('COLORS_SERVICE') private client: ClientProxy,
+    private  readonly usersService : UsersService
   ) {}
 
   async findAll(options?: CatFindAllOptions): Promise<CatEntity[]> {
@@ -42,16 +45,20 @@ export class CatService {
     return cat;
   }
 
-  async create(cat: CreateCatDto): Promise<CatEntity> {
+  async create(cat: CreateCatDto, userId: number): Promise<CatEntity> {
     const breed = await this.breedService.findOne(cat.breedId);
 
-    // const { seed } = breed;
-    // const colorObservable = this.client.send<string, string>('generate_color', seed);
-    // const color = await firstValueFrom(colorObservable);
+    if (!breed) {
+      throw new NotFoundException('breed not exists');
+    }
+
+    const user = await this.usersService.findById(userId) as UsersEntity;
+
 
     const color = '11BB22';
 
-    const newCat = this.catRepository.create({ ...cat, color });
+    const newCat = this.catRepository.create({ ...cat, color, user });
+    console.log(newCat);
     const createdCat = await this.catRepository.save(newCat);
 
     this.eventEmitter.emit('data.crud', {
@@ -60,6 +67,7 @@ export class CatService {
       cat: createdCat,
     });
 
+    console.log(createdCat);
     return createdCat;
   }
 

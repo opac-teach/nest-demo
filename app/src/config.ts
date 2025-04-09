@@ -1,4 +1,5 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import * as process from 'node:process';
 
 export const databaseConfig: TypeOrmModuleOptions = {
   type: 'postgres',
