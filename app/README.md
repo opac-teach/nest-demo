@@ -52,6 +52,7 @@ $ npm run test:cov
 # TODO
 
 - Caching
+- Transactions
 - Stats
 - Migrations
 - CORS
