@@ -16,6 +16,7 @@ import { LiveModule } from './live/live.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { CommentService } from './comment/comment/comment.service';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { AuthModule } from './auth/auth.module';
     AuthModule,
   ],
   controllers: [AppController],
+  providers: [CommentService],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {

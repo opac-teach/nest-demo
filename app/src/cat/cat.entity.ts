@@ -3,6 +3,7 @@ import {
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
+  OneToMany,
   BeforeUpdate,
   JoinColumn,
   CreateDateColumn,
@@ -11,6 +12,7 @@ import {
 
 import { BreedEntity } from '../breed/breed.entity';
 import { User } from '../user/user.entity';
+import { Comment } from '@/comment/comment.entity';
 
 @Entity('cat')
 export class CatEntity {
@@ -36,6 +38,9 @@ export class CatEntity {
   @ManyToOne(() => User, (user) => user.cats, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'ownerId' })
   owner: User;
+
+  @OneToMany(() => Comment, (comment) => comment.cat)
+  comments: Comment[];  
 
   @CreateDateColumn({ type: 'timestamp' })
   created: Date;

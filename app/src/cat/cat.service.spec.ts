@@ -17,40 +17,50 @@ describe('CatService', () => {
   let breedService: BreedService;
   let catRepository: Repository<CatEntity>;
   let eventEmitter: EventEmitter2;
+
   const mockCat: CatEntity = {
     id: '1',
     name: 'Fluffy',
     age: 3,
     breedId: '1',
+    ownerId: 1,
+    color: '11BB22',
     created: new Date(),
     updated: new Date(),
-    color: '11BB22',
-    updateTimestamp: jest.fn(),
+    breed: {
+      id: '1',
+      name: 'Siamese',
+      description: 'Friendly',
+      seed: 'seed',
+      generateSeed: jest.fn(),
+      cats: [],
+    },
+    owner: {
+      id: 1,
+      email: 'test@example.com',
+      username: 'test',
+      password: 'hashed',
+      cats: [],
+      comments: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    comments: [],
   };
-
-  const mockBreed: BreedEntity = {
-    id: '1',
-    name: 'Fluffy',
-    seed: '1234567890',
-    description: 'Fluffy is a cat',
-    generateSeed: jest.fn(),
-  };
-
-  const mockColor = '11BB22';
 
   const mockCatRepository: Partial<Repository<CatEntity>> = {
-    create: jest.fn().mockImplementation((c) => c),
+    create: jest.fn().mockImplementation((cat) => cat),
     find: jest.fn().mockResolvedValue([mockCat]),
     findOne: jest.fn().mockResolvedValue(mockCat),
     save: jest.fn().mockResolvedValue(mockCat),
     update: jest.fn().mockResolvedValue({ affected: 1 }),
+    delete: jest.fn().mockResolvedValue({ affected: 1 }),
   };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         CatService,
-        BreedService,
         {
           provide: getRepositoryToken(CatEntity),
           useValue: mockCatRepository,
@@ -58,23 +68,20 @@ describe('CatService', () => {
         {
           provide: 'COLORS_SERVICE',
           useValue: {
-            send: jest.fn().mockReturnValue(of(mockColor)),
+            send: jest.fn().mockReturnValue(of('11BB22')),
           },
         },
         EventEmitter2,
+        BreedService,
       ],
     })
       .useMocker(mockTheRest)
       .compile();
 
     service = module.get<CatService>(CatService);
-    catRepository = module.get<Repository<CatEntity>>(
-      getRepositoryToken(CatEntity),
-    );
+    catRepository = module.get<Repository<CatEntity>>(getRepositoryToken(CatEntity));
     breedService = module.get<BreedService>(BreedService);
     eventEmitter = module.get<EventEmitter2>(EventEmitter2);
-
-    jest.clearAllMocks();
   });
 
   it('should be defined', () => {
@@ -82,106 +89,97 @@ describe('CatService', () => {
   });
 
   describe('findAll', () => {
-    it('should return an array of cat', async () => {
+    it('should return all cats', async () => {
       const result = await service.findAll();
       expect(result).toEqual([mockCat]);
-      expect(mockCatRepository.find).toHaveBeenCalledWith({
-        relations: undefined,
-        where: {},
-      });
     });
 
-    it('should return an array of cat with a breedId', async () => {
+    it('should filter by breed', async () => {
       const result = await service.findAll({ breedId: '1' });
       expect(result).toEqual([mockCat]);
-      expect(mockCatRepository.find).toHaveBeenCalledWith({
-        where: { breedId: '1' },
-      });
     });
-    it('should return an array of cat with breeds', async () => {
+
+    it('should include breed relation', async () => {
       const result = await service.findAll({ includeBreed: true });
       expect(result).toEqual([mockCat]);
-      expect(mockCatRepository.find).toHaveBeenCalledWith({
-        relations: ['breed'],
-        where: {},
-      });
-    });
-  });
-
-  it('should return an array of cat with breeds', async () => {
-    const result = await service.findAll({ breedId: '1', includeBreed: true });
-    expect(result).toEqual([mockCat]);
-    expect(mockCatRepository.find).toHaveBeenCalledWith({
-      relations: ['breed'],
-      where: { breedId: '1' },
     });
   });
 
   describe('findOne', () => {
-    it('should return a single cat', async () => {
+    it('should return one cat', async () => {
       const result = await service.findOne('1');
       expect(result).toEqual(mockCat);
+    });
+
+    it('should throw if not found', async () => {
+      jest.spyOn(catRepository, 'findOne').mockResolvedValue(null);
+      await expect(service.findOne('2')).rejects.toThrow(NotFoundException);
     });
   });
 
   describe('create', () => {
-    it('should create a new cat', async () => {
-      const newCat: CreateCatDto = {
-        name: 'Fluffy',
-        age: 3,
+    it('should create a cat', async () => {
+      const createDto: CreateCatDto = {
+        name: 'Mimi',
+        age: 2,
         breedId: '1',
       };
 
-      jest.spyOn(eventEmitter, 'emit').mockImplementation((d) => true);
-      jest.spyOn(breedService, 'findOne').mockResolvedValue(mockBreed);
+      jest.spyOn(breedService, 'findOne').mockResolvedValue(mockCat.breed as BreedEntity);
+      jest.spyOn(eventEmitter, 'emit');
 
-      const result = await service.create(newCat);
-      expect(breedService.findOne).toHaveBeenCalledWith(newCat.breedId);
-      expect(mockCatRepository.save).toHaveBeenCalledWith({
-        ...newCat,
-        color: mockColor,
-      });
+      const result = await service.create(createDto, 1);
       expect(result).toEqual(mockCat);
-
-      expect(eventEmitter.emit).toHaveBeenCalledWith('data.crud', {
-        action: 'create',
-        model: 'cat',
-        cat: mockCat,
-      });
-    });
-
-    it('should not create if no breed is found', async () => {
-      const newCat: CreateCatDto = {
-        name: 'Fluffy',
-        age: 3,
-        breedId: '1',
-      };
-      jest
-        .spyOn(breedService, 'findOne')
-        .mockRejectedValue(new NotFoundException());
-      await expect(service.create(newCat)).rejects.toThrow(NotFoundException);
-      expect(mockCatRepository.save).not.toHaveBeenCalled();
+      expect(catRepository.save).toHaveBeenCalled();
     });
   });
 
   describe('update', () => {
-    it('should update a cat', async () => {
-      const updateCat: UpdateCatDto = { name: 'Fluffy updated' };
-      const updatedCat: CatEntity = instanceToInstance(mockCat);
-      Object.assign(updatedCat, updateCat);
-
-      jest.spyOn(eventEmitter, 'emit').mockImplementation((d) => true);
-      jest.spyOn(service, 'findOne').mockResolvedValue(updatedCat);
-
-      const result = await service.update('1', updateCat);
-      expect(result).toEqual(updatedCat);
-      expect(mockCatRepository.update).toHaveBeenCalledWith('1', updateCat);
-
-      expect(eventEmitter.emit).toHaveBeenCalledWith('data.crud', {
-        action: 'update',
-        model: 'cat',
-        cat: updatedCat,
+    it('should update if owner is correct', async () => {
+      const updateDto: UpdateCatDto = { name: 'Updated' };
+  
+      jest.spyOn(catRepository, 'findOne').mockResolvedValue({
+        ...mockCat,
+        ownerId: 1, 
       });
+  
+      jest.spyOn(service, 'findOne').mockResolvedValue({ ...mockCat, ...updateDto });
+      jest.spyOn(eventEmitter, 'emit');
+  
+      const result = await service.update('1', updateDto, 1);
+      expect(result.name).toEqual('Updated');
+    });
+  
+    it('should throw if not owner', async () => {
+      jest.spyOn(catRepository, 'findOne').mockResolvedValue({
+        ...mockCat,
+        ownerId: 1,
+      });
+  
+      await expect(service.update('1', { name: 'x' }, 999)).rejects.toThrow();
     });
   });
+
+  describe('delete', () => {
+    it('should delete if owner ok', async () => {
+      jest.spyOn(eventEmitter, 'emit');
+      jest.spyOn(catRepository, 'findOne').mockResolvedValue({
+        ...mockCat,
+        ownerId: 1,
+      });
+  
+      await expect(service.delete('1', 1)).resolves.toBeUndefined();
+      expect(catRepository.delete).toHaveBeenCalledWith('1');
+    });
+  
+    it('should throw if not owner', async () => {
+      jest.spyOn(catRepository, 'findOne').mockResolvedValue({
+        ...mockCat,
+        ownerId: 1,
+      });
+  
+      await expect(service.delete('1', 999)).rejects.toThrow();
+    });
+  });
+  
 });

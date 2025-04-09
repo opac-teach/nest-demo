@@ -7,6 +7,7 @@ import {
     OneToMany,
   } from 'typeorm';
   import { CatEntity } from '@/cat/cat.entity';
+  import { Comment } from '@/comment/comment.entity';
   
   @Entity()
   export class User {
@@ -33,5 +34,8 @@ import {
   
     @OneToMany(() => CatEntity, (cat) => cat.owner)
     cats: CatEntity[];
+
+    @OneToMany(() => Comment, (comment) => comment.user)
+    comments: Comment[];
   }
   
