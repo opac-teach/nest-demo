@@ -22,6 +22,7 @@ describe('CatService', () => {
     name: 'Fluffy',
     age: 3,
     breedId: '1',
+    userId: '1',
     created: new Date(),
     updated: new Date(),
     color: '11BB22',
@@ -37,6 +38,8 @@ describe('CatService', () => {
   };
 
   const mockColor = '11BB22';
+
+  const mockUserId = '2';
 
   const mockCatRepository: Partial<Repository<CatEntity>> = {
     create: jest.fn().mockImplementation((c) => c),
@@ -86,7 +89,7 @@ describe('CatService', () => {
       const result = await service.findAll();
       expect(result).toEqual([mockCat]);
       expect(mockCatRepository.find).toHaveBeenCalledWith({
-        relations: undefined,
+        relations: {},
         where: {},
       });
     });
@@ -96,13 +99,15 @@ describe('CatService', () => {
       expect(result).toEqual([mockCat]);
       expect(mockCatRepository.find).toHaveBeenCalledWith({
         where: { breedId: '1' },
+        relations: {},
       });
     });
+
     it('should return an array of cat with breeds', async () => {
       const result = await service.findAll({ includeBreed: true });
       expect(result).toEqual([mockCat]);
       expect(mockCatRepository.find).toHaveBeenCalledWith({
-        relations: ['breed'],
+        relations: { breed: true },
         where: {},
       });
     });
@@ -112,7 +117,7 @@ describe('CatService', () => {
     const result = await service.findAll({ breedId: '1', includeBreed: true });
     expect(result).toEqual([mockCat]);
     expect(mockCatRepository.find).toHaveBeenCalledWith({
-      relations: ['breed'],
+      relations: { breed: true },
       where: { breedId: '1' },
     });
   });
@@ -135,11 +140,12 @@ describe('CatService', () => {
       jest.spyOn(eventEmitter, 'emit').mockImplementation((d) => true);
       jest.spyOn(breedService, 'findOne').mockResolvedValue(mockBreed);
 
-      const result = await service.create(newCat);
+      const result = await service.create(newCat, mockUserId);
       expect(breedService.findOne).toHaveBeenCalledWith(newCat.breedId);
       expect(mockCatRepository.save).toHaveBeenCalledWith({
         ...newCat,
         color: mockColor,
+        userId: mockUserId,
       });
       expect(result).toEqual(mockCat);
 
@@ -154,12 +160,14 @@ describe('CatService', () => {
       const newCat: CreateCatDto = {
         name: 'Fluffy',
         age: 3,
-        breedId: '1',
+        breedId: '2',
       };
       jest
         .spyOn(breedService, 'findOne')
         .mockRejectedValue(new NotFoundException());
-      await expect(service.create(newCat)).rejects.toThrow(NotFoundException);
+      await expect(service.create(newCat, mockUserId)).rejects.toThrow(
+        NotFoundException,
+      );
       expect(mockCatRepository.save).not.toHaveBeenCalled();
     });
   });
@@ -173,9 +181,12 @@ describe('CatService', () => {
       jest.spyOn(eventEmitter, 'emit').mockImplementation((d) => true);
       jest.spyOn(service, 'findOne').mockResolvedValue(updatedCat);
 
-      const result = await service.update('1', updateCat);
+      const result = await service.update('1', updateCat, updatedCat.userId);
       expect(result).toEqual(updatedCat);
-      expect(mockCatRepository.update).toHaveBeenCalledWith('1', updateCat);
+      expect(mockCatRepository.update).toHaveBeenCalledWith(
+        { id: '1', userId: updatedCat.userId },
+        updateCat,
+      );
 
       expect(eventEmitter.emit).toHaveBeenCalledWith('data.crud', {
         action: 'update',

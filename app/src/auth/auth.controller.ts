@@ -27,8 +27,8 @@ export class AuthController {
   @Post('register')
   @ApiOperation({ summary: 'Create a user' })
   @ApiResponse({ status: 201, description: 'Returns the created user' })
-  create(@Body() user: CreateUserDto): Promise<UserResponseDto> {
-    return this.userService.create(user);
+  register(@Body() user: CreateUserDto): Promise<UserResponseDto> {
+    return this.authService.register(user);
   }
 
   @Post('login')

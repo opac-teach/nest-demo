@@ -70,6 +70,13 @@ export class CatService {
   async create(cat: CreateCatDto, userId: string): Promise<CatEntity> {
     const color = '11BB22';
 
+    if (cat.breedId) {
+      const breed = await this.breedService.findOne(cat.breedId);
+      if (!breed) {
+        throw new NotFoundException();
+      }
+    }
+
     const newCat = this.catRepository.create({
       ...cat,
       color,

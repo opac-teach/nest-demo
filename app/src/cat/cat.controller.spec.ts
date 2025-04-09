@@ -2,7 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CatController } from '@/cat/cat.controller';
 import { CatService } from '@/cat/cat.service';
 import { CatEntity } from '@/cat/cat.entity';
-import { EventEmitterModule } from '@nestjs/event-emitter';
 import { mockTheRest } from '@/lib/tests';
 import { RequestWithUser } from '@/auth/guards/auth.guard';
 import { UpdateCatDto } from '@/cat/dtos';
@@ -25,6 +24,8 @@ describe('CatController', () => {
   const mockReq: Partial<RequestWithUser> = {
     user: { sub: '1', email: 'test@example.com' },
   };
+
+  const mockUserId = '1';
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -49,8 +50,10 @@ describe('CatController', () => {
       jest.spyOn(catService, 'findAll').mockResolvedValue([mockCat]);
       const result = await controller.findAll();
       expect(result).toEqual([mockCat]);
-      expect(catService.findAll.bind(catService)).toHaveBeenCalledWith({
+      expect(catService.findAll).toHaveBeenCalledWith({
         includeBreed: true,
+        includeCommentaires: true,
+        includeUser: true,
       });
     });
   });
@@ -60,10 +63,11 @@ describe('CatController', () => {
       jest.spyOn(catService, 'findOne').mockResolvedValue(mockCat);
       const result = await controller.findOne('1');
       expect(result).toEqual(mockCat);
-      expect(catService.findOne.bind(catService)).toHaveBeenCalledWith(
-        '1',
-        true,
-      );
+      expect(catService.findOne).toHaveBeenCalledWith('1', {
+        includeCommentaires: true,
+        includeBreed: true,
+        includeUser: true,
+      });
     });
   });
 
@@ -80,9 +84,9 @@ describe('CatController', () => {
         mockReq as RequestWithUser,
       );
       expect(result).toEqual(mockCat);
-      expect(catService.create.bind(catService)).toHaveBeenCalledWith(
+      expect(catService.create).toHaveBeenCalledWith(
         mockCreateCatDto,
-        mockReq as RequestWithUser,
+        mockUserId,
       );
     });
   });
@@ -100,10 +104,10 @@ describe('CatController', () => {
         mockReq as RequestWithUser,
       );
       expect(result).toEqual(mockCat);
-      expect(catService.update.bind(catService)).toHaveBeenCalledWith(
+      expect(catService.update).toHaveBeenCalledWith(
         '1',
         mockUpdateCatDto,
-        mockReq as RequestWithUser,
+        mockUserId,
       );
     });
   });

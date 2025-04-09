@@ -3,7 +3,6 @@ import { Repository, DataSource } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from './user.entity';
 import { CreateUserDto, UpdateUserDto } from './dtos';
-import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -19,8 +18,12 @@ export class UserService {
     });
   }
 
-  async findOneByEmail(email: string): Promise<UserEntity | null> {
-    return this.userRepository.findOne({ where: { email } });
+  async findOneByEmail(email: string): Promise<UserEntity> {
+    const user = await this.userRepository.findOne({ where: { email } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
   }
 
   async findOne(id: string, includeCats?: boolean): Promise<UserEntity> {
@@ -35,12 +38,7 @@ export class UserService {
   }
 
   async create(user: CreateUserDto): Promise<UserEntity> {
-    const hashedPassword = await bcrypt.hash(user.password, 10);
-
-    const newUser = this.userRepository.create({
-      ...user,
-      password: hashedPassword,
-    });
+    const newUser = this.userRepository.create(user);
     return this.userRepository.save(newUser);
   }
 
