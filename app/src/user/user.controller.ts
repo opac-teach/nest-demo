@@ -60,7 +60,6 @@ export class UserController {
   findCommentaires(@Param('id') id: string): Promise<CommentaireResponseDto[]> {
     return this.commentaireService.findAll({
       userId: id,
-      includeUser: true,
     });
   }
 

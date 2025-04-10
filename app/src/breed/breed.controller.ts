@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -52,5 +53,13 @@ export class BreedController {
   @SerializeOptions({ type: BreedResponseDto })
   create(@Body() breed: CreateBreedDto): Promise<BreedResponseDto> {
     return this.breedService.create(breed);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete a breed' })
+  @ApiResponse({ status: 200, description: 'Returns the deleted breed' })
+  async delete(@Param('id') id: string): Promise<{ message: string }> {
+    await this.breedService.delete(id);
+    return { message: 'La race a bien été supprimée.' };
   }
 }

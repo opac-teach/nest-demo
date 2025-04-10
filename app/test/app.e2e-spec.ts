@@ -10,8 +10,9 @@ import { CatResponseDto } from '@/cat/dtos';
 import { Socket, io } from 'socket.io-client';
 import { wait } from '@/lib/utils';
 import { CreateUserDto } from '@/user/dtos';
-import { AuthGuard } from '@/auth/guards/auth.guard';
 import { CommentaireResponseDto } from '@/commentaire/dtos';
+import { UserResponseDto } from '@/user/dtos';
+
 describe('AppController (e2e)', () => {
   let app: INestApplication<App>;
   let server: ReturnType<INestApplication['getHttpServer']>;
@@ -128,12 +129,14 @@ describe('AppController (e2e)', () => {
   });
 
   describe('Breed', () => {
+    let breed: BreedResponseDto;
     it('should create a breed', async () => {
       const res = await request(server)
         .post('/breed')
         .set('Authorization', `Bearer ${authToken}`)
         .send(inputBreed)
         .expect(201);
+      breed = res.body;
 
       expect(res.body.name).toBe(inputBreed.name);
       expect(res.body.description).toBe(inputBreed.description);
@@ -209,6 +212,15 @@ describe('AppController (e2e)', () => {
         .expect(200);
 
       expect(res.body).toEqual([createdCat, createdCat2]);
+    });
+
+    it('should delete a breed', async () => {
+      const res = await request(server)
+        .delete(`/breed/${breed.id}`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .expect(200);
+
+      expect(res.body.message).toBe('La race a bien été supprimée.');
     });
   });
 
@@ -312,6 +324,7 @@ describe('AppController (e2e)', () => {
     let cat: CatResponseDto;
     let breed: BreedResponseDto;
     let commentaire: CommentaireResponseDto;
+    let user: UserResponseDto;
 
     beforeAll(async () => {
       const resBreed = await request(server)
@@ -371,6 +384,23 @@ describe('AppController (e2e)', () => {
       expect(res.body).toContainEqual(commentaire);
     });
 
+    it('should get info of a user', async () => {
+      const res = await request(server)
+        .get(`/user/${userId}`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .expect(200);
+      user = res.body;
+    });
+
+    it('should get all commentaires of a user', async () => {
+      const res = await request(server)
+        .get(`/user/${userId}/commentaires`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .expect(200);
+
+      expect(res.body).toContainEqual(commentaire);
+    });
+
     it('should delete user', async () => {
       const res = await request(server)
         .delete(`/user`)
@@ -378,6 +408,15 @@ describe('AppController (e2e)', () => {
         .expect(200);
 
       expect(res.body.message).toBe('Votre compte a bien été supprimé.');
+    });
+
+    it("shouldn't get commentaire after user deletion", async () => {
+      const res = await request(server)
+        .get(`/commentaire/${commentaire.id}`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .expect(404);
+
+      expect(res.body).not.toContainEqual(commentaire);
     });
   });
 });
