@@ -1,10 +1,11 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { CatEntity } from '@/cat/cat.entity';
+import { CatEntity } from '@/cat/entities/cat.entity';
+import { CommentEntity } from '@/comments/entities/comment.entity';
 
 @Entity('users')
 export class UsersEntity {
     @PrimaryGeneratedColumn()
-    userId: number;
+    id: number;
 
     @Column({unique: true})
     username: string;
@@ -25,5 +26,8 @@ export class UsersEntity {
     description: string
 
     @OneToMany(type => CatEntity, cat => cat.user)
-    cats: CatEntity[];
+    cats?: CatEntity[];
+
+    @OneToMany(() => CommentEntity, comment => comment.user )
+    comments?: CommentEntity[];
 }

@@ -7,6 +7,7 @@ import { Public } from '@/publicRoutes';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
   @Public()
+
   @Post('login')
   async  login(@Body() authBodyDto : AuthBodyDto ) {
     return await this.authService.login(authBodyDto);

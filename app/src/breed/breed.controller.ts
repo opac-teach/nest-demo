@@ -25,14 +25,14 @@ export class BreedController {
   @Get(':id')
   @ApiOperation({ summary: 'Get a breed by id' })
   @ApiResponse({ status: 200, description: 'Returns a breed' })
-  findOne(@Param('id') id: string): Promise<BreedResponseDto> {
+  findOne(@Param('id') id: number): Promise<BreedResponseDto> {
     return this.breedService.findOne(id);
   }
 
   @Get(':id/cats')
   @ApiOperation({ summary: 'Get all cats by breed id' })
   @ApiResponse({ status: 200, description: 'Returns all cats by breed id' })
-  findCats(@Param('id') id: string): Promise<CatResponseDto[]> {
+  findCats(@Param('id') id: number): Promise<CatResponseDto[]> {
     return this.catService.findAll({ breedId: id });
   }
 

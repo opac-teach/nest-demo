@@ -4,16 +4,17 @@ import {
   Column,
   ManyToOne,
   BeforeUpdate,
-  JoinColumn,
+  JoinColumn, OneToMany,
 } from 'typeorm';
 
 import { BreedEntity } from '@/breed/breed.entity';
-import { UsersEntity } from '@/users/users.entity';
+import { UsersEntity } from '@/users/entities/users.entity';
+import { CommentEntity } from '@/comments/entities/comment.entity';
 
 @Entity('cat')
 export class CatEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn()
+  id: number;
 
   @Column()
   name: string;
@@ -22,7 +23,7 @@ export class CatEntity {
   age: number;
 
   @Column()
-  breedId: string;
+  breedId: number;
 
   @ManyToOne(() => BreedEntity, (breed) => breed.id)
   @JoinColumn({ name: 'breedId' })
@@ -42,7 +43,13 @@ export class CatEntity {
   @Column()
   color: string;
 
+  @Column()
+  userId:number
+
   @ManyToOne(() => UsersEntity, (user) => user.cats)
   @JoinColumn({ name: 'userId' })
-  user: UsersEntity;
+  user?: UsersEntity;
+
+  @OneToMany(() => CommentEntity, comment => comment.cat)
+  comments?: CommentEntity[];
 }

@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Post, UseInterceptors } from '@nestjs/common';
 import { UsersService } from '@/users/users.service';
-import { CreateUserBodyDto } from '@/users/usersBodyDto';
+import { CreateUserBodyDto } from '@/users/dto/usersBodyDto';
 import { UsersInterceptor } from '@/users/users.interceptor';
 import { Public } from '@/publicRoutes';
 

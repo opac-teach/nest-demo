@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CatService } from './cat.service';
-import { CatEntity } from './cat.entity';
+import { CatEntity } from './entities/cat.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BreedEntity } from '@/breed/breed.entity';
@@ -11,30 +11,44 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { instanceToInstance } from 'class-transformer';
 import { of } from 'rxjs';
 import { mockTheRest } from '@/lib/tests';
+import { UsersEntity } from '@/users/entities/users.entity';
+import { UsersService } from '@/users/users.service';
 
 describe('CatService', () => {
   let service: CatService;
   let breedService: BreedService;
   let catRepository: Repository<CatEntity>;
   let eventEmitter: EventEmitter2;
+  let usersService: UsersService;
   const mockCat: CatEntity = {
-    id: '1',
+    id: 1,
     name: 'Fluffy',
     age: 3,
-    breedId: '1',
+    breedId: 1,
     created: new Date(),
     updated: new Date(),
     color: '11BB22',
-    updateTimestamp: jest.fn(),
+    userId: 1,
+    updateTimestamp: jest.fn()
   };
 
   const mockBreed: BreedEntity = {
-    id: '1',
+    id: 1,
     name: 'Fluffy',
     seed: '1234567890',
     description: 'Fluffy is a cat',
     generateSeed: jest.fn(),
   };
+
+  const mockUser: UsersEntity = {
+    userId: 1,
+    firstname: "Moumgne",
+    lastname: "Alain",
+    username: "kaiser",
+    email:"moumgne@gmail.com",
+    password: '14523614',
+    description: "Hello world"
+  }
 
   const mockColor = '11BB22';
 
@@ -51,6 +65,7 @@ describe('CatService', () => {
       providers: [
         CatService,
         BreedService,
+        UsersService,
         {
           provide: getRepositoryToken(CatEntity),
           useValue: mockCatRepository,
@@ -72,6 +87,7 @@ describe('CatService', () => {
       getRepositoryToken(CatEntity),
     );
     breedService = module.get<BreedService>(BreedService);
+    usersService = module.get<UsersService>(UsersService);
     eventEmitter = module.get<EventEmitter2>(EventEmitter2);
 
     jest.clearAllMocks();
@@ -92,10 +108,10 @@ describe('CatService', () => {
     });
 
     it('should return an array of cat with a breedId', async () => {
-      const result = await service.findAll({ breedId: '1' });
+      const result = await service.findAll({ breedId: 1 });
       expect(result).toEqual([mockCat]);
       expect(mockCatRepository.find).toHaveBeenCalledWith({
-        where: { breedId: '1' },
+        where: { breedId: 1 },
       });
     });
     it('should return an array of cat with breeds', async () => {
@@ -109,17 +125,17 @@ describe('CatService', () => {
   });
 
   it('should return an array of cat with breeds', async () => {
-    const result = await service.findAll({ breedId: '1', includeBreed: true });
+    const result = await service.findAll({ breedId: 1, includeBreed: true });
     expect(result).toEqual([mockCat]);
     expect(mockCatRepository.find).toHaveBeenCalledWith({
       relations: ['breed'],
-      where: { breedId: '1' },
+      where: { breedId: 1 },
     });
   });
 
   describe('findOne', () => {
     it('should return a single cat', async () => {
-      const result = await service.findOne('1');
+      const result = await service.findOne(1);
       expect(result).toEqual(mockCat);
     });
   });
@@ -129,17 +145,19 @@ describe('CatService', () => {
       const newCat: CreateCatDto = {
         name: 'Fluffy',
         age: 3,
-        breedId: '1',
+        breedId: 1,
       };
 
       jest.spyOn(eventEmitter, 'emit').mockImplementation((d) => true);
       jest.spyOn(breedService, 'findOne').mockResolvedValue(mockBreed);
+      jest.spyOn(usersService, 'findById').mockResolvedValue(mockUser);
 
-      const result = await service.create(newCat);
+      const result = await service.create(newCat, 1);
       expect(breedService.findOne).toHaveBeenCalledWith(newCat.breedId);
       expect(mockCatRepository.save).toHaveBeenCalledWith({
         ...newCat,
         color: mockColor,
+        userId: mockUser.userId,
       });
       expect(result).toEqual(mockCat);
 
@@ -154,12 +172,12 @@ describe('CatService', () => {
       const newCat: CreateCatDto = {
         name: 'Fluffy',
         age: 3,
-        breedId: '1',
+        breedId: 1,
       };
       jest
         .spyOn(breedService, 'findOne')
         .mockRejectedValue(new NotFoundException());
-      await expect(service.create(newCat)).rejects.toThrow(NotFoundException);
+      await expect(service.create(newCat, 1)).rejects.toThrow(NotFoundException);
       expect(mockCatRepository.save).not.toHaveBeenCalled();
     });
   });
@@ -173,9 +191,9 @@ describe('CatService', () => {
       jest.spyOn(eventEmitter, 'emit').mockImplementation((d) => true);
       jest.spyOn(service, 'findOne').mockResolvedValue(updatedCat);
 
-      const result = await service.update('1', updateCat);
+      const result = await service.update(1, updateCat);
       expect(result).toEqual(updatedCat);
-      expect(mockCatRepository.update).toHaveBeenCalledWith('1', updateCat);
+      expect(mockCatRepository.update).toHaveBeenCalledWith(1, updateCat);
 
       expect(eventEmitter.emit).toHaveBeenCalledWith('data.crud', {
         action: 'update',

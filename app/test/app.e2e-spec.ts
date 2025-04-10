@@ -8,13 +8,16 @@ import { CreateCatDto } from '@/cat/dtos';
 import { BreedResponseDto } from '@/breed/dtos';
 import { CatResponseDto } from '@/cat/dtos';
 import { Socket, io } from 'socket.io-client';
-import { wait } from '@/lib/utils';
+import { CreateUserBodyDto } from '@/users/dto/usersBodyDto';
+import { CreateUserResponseDto } from '@/users/dto/usersResponseDto';
+import { AuthResponseDto } from '@/auth/dtos/AuthResponseDto';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication<App>;
   let server: ReturnType<INestApplication['getHttpServer']>;
   let ioClient: Socket;
   let events: { event: string; data: any }[] = [];
+  let token: AuthResponseDto;
 
   const inputBreed: CreateBreedDto = {
     name: 'Fluffy',
@@ -24,15 +27,13 @@ describe('AppController (e2e)', () => {
   const inputCat: CreateCatDto = {
     name: 'Alfred',
     age: 1,
-    breedId: '',
+    breedId: 0,
   };
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     })
-      .overrideGuard()
-      .useValue({ canActivate: () => true })
       .compile();
 
     app = moduleFixture.createNestApplication();
@@ -42,7 +43,7 @@ describe('AppController (e2e)', () => {
 
     server = app.getHttpServer();
 
-    app.listen(9001);
+    await app.listen(9001);
     ioClient = io('http://localhost:9001', {
       autoConnect: false,
       transports: ['websocket', 'polling'],
@@ -67,11 +68,47 @@ describe('AppController (e2e)', () => {
   it('Health check', () => {
     request(server).get('/').expect(200).expect('OK');
   });
+  const newUser: CreateUserBodyDto = {
+    "firstname": "Moumgne",
+    "lastname": "Alain",
+    "username": "kaiser"+new Date().getTime(),
+    "email":"moumgne@gmail.com",
+    "password": "690403765"
+  }
+  describe('authentification', ()=> {
+    it('should create and connect user', async () => {
+      const res = await request(server)
+        .post('/users/createUser')
+        .send(newUser)
+        .expect(201);
+
+      const createdUser: CreateUserResponseDto = res.body;
+      expect(createdUser.success).toBe(true);
+      expect(createdUser.message).toBe(`Le user ${newUser.username} enregistré avec succès`);
+    });
+
+    it('should be authentificate user', async () => {
+      const res = await request(server)
+        .post('/auth/login')
+        .send({
+          username: newUser.username,
+          password: newUser.password,
+        })
+        .expect(201);
+
+      token  = res.body;
+      expect(token.accessToken).toBeDefined();
+    })
+  })
+
+
+
 
   describe('Breed', () => {
     it('should create a breed', async () => {
       const res = await request(server)
         .post('/breed')
+        .set('Authorization', `Bearer ${token}`)
         .send(inputBreed)
         .expect(201);
 

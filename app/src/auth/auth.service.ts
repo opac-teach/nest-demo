@@ -3,7 +3,7 @@ import { UsersService } from '@/users/users.service';
 import { compare } from 'bcryptjs';
 import { AuthBodyDto } from '@/auth/dtos/authBodyDto';
 import { JwtService } from '@nestjs/jwt';
-
+import { AuthResponseDto } from '@/auth/dtos/AuthResponseDto';
 
 @Injectable()
 export class AuthService {
@@ -11,7 +11,7 @@ export class AuthService {
     constructor(private readonly userService: UsersService, private readonly jwtService : JwtService) {
     }
 
-    async login(authBody: AuthBodyDto ){
+    async login(authBody: AuthBodyDto ): Promise<AuthResponseDto> {
 
         const { username, password } = authBody;
         // on récupere l'utilisateur depuis le userService
@@ -26,7 +26,7 @@ export class AuthService {
             throw new NotFoundException({ error: "Mot de passe ou nom d'utilisateur incorrect" });
         }
 
-        return this.authenticateUser({userId: user.userId})
+        return await this.authenticateUser({userId: user.id})
 
     }
 
@@ -38,7 +38,7 @@ export class AuthService {
     // Fonction qui gère l'authentification
     private async authenticateUser({userId} : {userId: number}) {
         const payload = {userId}
-        return {access_token:  await this.jwtService.signAsync(payload)}
+        return {accessToken:  await this.jwtService.signAsync(payload)}
     }
 
     async getProfile(username : string){
@@ -46,6 +46,6 @@ export class AuthService {
       if(!user){
         throw new NotFoundException("Utilisateur non trouvé")
       }
-      return {userId: user.userId, username: user.username};
+      return {userId: user.id, username: user.username};
     }
 }

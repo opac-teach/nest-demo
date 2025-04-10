@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UsersEntity } from '@/users/users.entity';
+import { UsersEntity } from '@/users/entities/users.entity';
 import { Repository } from 'typeorm';
 import {hash} from 'bcryptjs';
-import { CreateUserBodyDto } from '@/users/usersBodyDto';
+import { CreateUserBodyDto } from '@/users/dto/usersBodyDto';
+import { CreateUserResponseDto } from '@/users/dto/usersResponseDto';
 
 @Injectable()
 export class UsersService {
@@ -24,18 +25,21 @@ export class UsersService {
 
     async findById (userId: number): Promise<UsersEntity | null> {
         try {
-            return await this.userRepository.findOneBy({['userId']: userId});
+            return await this.userRepository.findOneBy({['id']: userId});
         }
         catch (error) {
             throw new Error(error.message);
         }
     }
 
-    async createUser(user: CreateUserBodyDto): Promise<string> {
+    async createUser(user: CreateUserBodyDto): Promise<CreateUserResponseDto> {
         const userHashedPassword = await this.hashPassword(user.password);
         try {
             await this.userRepository.save({...user, password: userHashedPassword});// créer le user avec un password crypté
-            return `Le user ${user.username} enregistré avec succès`;
+            return {
+                success: true,
+                message: `Le user ${user.username} enregistré avec succès`
+            };
         }
         catch (error) {
             throw new Error(error.message);

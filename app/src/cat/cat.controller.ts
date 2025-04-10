@@ -25,7 +25,7 @@ export class CatController {
   @Get(':id') // GET '/cat/:id'
   @ApiOperation({ summary: 'Get a cat by id' })
   @ApiResponse({ status: 200, description: 'Returns a cat' })
-  findOne(@Param('id') id: string): Promise<CatResponseDto> {
+  findOne(@Param('id') id: number): Promise<CatResponseDto> {
     return this.catService.findOne(id, true);
   }
 
@@ -40,7 +40,7 @@ export class CatController {
   @ApiOperation({ summary: 'Update a cat' })
   @ApiResponse({ status: 200, description: 'Returns the updated cat' })
   async update(
-    @Param('id') id: string,
+    @Param('id') id: number,
     @Body() cat: UpdateCatDto,
   ): Promise<CatResponseDto> {
     return this.catService.update(id, cat);

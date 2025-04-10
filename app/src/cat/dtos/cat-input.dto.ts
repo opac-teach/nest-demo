@@ -22,9 +22,9 @@ export class CreateCatDto {
     description: 'The id of the breed of the cat',
     type: Number,
   })
-  @IsUUID()
+  @IsNumber()
   @IsNotEmpty()
-  breedId: string;
+  breedId: number;
 }
 
 /**

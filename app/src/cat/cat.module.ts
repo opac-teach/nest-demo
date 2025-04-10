@@ -2,7 +2,7 @@ import { Module, forwardRef } from '@nestjs/common';
 import { CatController } from './cat.controller';
 import { CatService } from './cat.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { CatEntity } from './cat.entity';
+import { CatEntity } from './entities/cat.entity';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { BreedModule } from '@/breed/breed.module';
 import { redisConfig } from '@/config';

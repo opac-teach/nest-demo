@@ -16,7 +16,7 @@ export class BreedService {
     return this.breedRepository.find();
   }
 
-  async findOne(id: string): Promise<BreedEntity> {
+  async findOne(id: number): Promise<BreedEntity> {
     const breed = await this.breedRepository.findOneBy({ id });
     if (!breed) {
       throw new NotFoundException('Breed not found');
