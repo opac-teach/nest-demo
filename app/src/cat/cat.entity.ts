@@ -5,6 +5,7 @@ import {
   ManyToOne,
   BeforeUpdate,
   JoinColumn,
+  OneToMany
 } from 'typeorm';
 
 import { IsUUID } from 'class-validator';
@@ -12,6 +13,7 @@ import { IsUUID } from 'class-validator';
 import { BreedEntity } from '@/breed/breed.entity';
 import { UserEntity } from '@/user/user.entity';
 import {Exclude} from "class-transformer";
+import { CommentEntity } from '@/comments/comments.entity';
 
 @Entity('cat')
 export class CatEntity {
@@ -33,25 +35,28 @@ export class CatEntity {
   @IsUUID()
   userId: string;
 
-  @ManyToOne(() => BreedEntity, (breed) => breed.id)
-  @JoinColumn({ name: 'breedId' })
-  breed?: BreedEntity;
-
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created: Date;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updated: Date;
 
+  @Column()
+  color: string;
+
   @BeforeUpdate()
   updateTimestamp() {
     this.updated = new Date();
   }
 
+  @ManyToOne(() => BreedEntity, (breed) => breed.id)
+  @JoinColumn({ name: 'breedId' })
+  breed?: BreedEntity;
+
   @ManyToOne(() => UserEntity, (user) => user.cats)
   @JoinColumn({ name: 'userId' })
   user: UserEntity;
 
-  @Column()
-  color: string;
+  @OneToMany(() => CommentEntity, (comment) => comment.cat)
+  comments: CommentEntity[];
 }

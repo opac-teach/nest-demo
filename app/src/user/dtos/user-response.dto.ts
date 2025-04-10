@@ -57,4 +57,5 @@ export class UserResponseDto {
   @Expose()
   @Type(() => Date)
   updated: Date;
+
 }

@@ -2,6 +2,7 @@ import {BeforeInsert, Entity, PrimaryGeneratedColumn, Column, OneToMany } from '
 import { CatEntity } from '@/cat/cat.entity';
 import { IsEmail } from 'class-validator';
 import * as bcrypt from 'bcrypt';
+import {CommentEntity} from "@/comments/comments.entity";
 
 @Entity('user')
 export class UserEntity {
@@ -39,4 +40,7 @@ export class UserEntity {
 
   @OneToMany(() => CatEntity, (cat) => cat.user)
   cats: CatEntity[];
+
+  @OneToMany(() => CommentEntity, (comment) => comment.user)
+  comments: CommentEntity[];
 }
