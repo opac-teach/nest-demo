@@ -15,10 +15,10 @@ export class UserEntity {
     id:number;
 
 
-    @Column()
+    @Column({ unique: true })
     username:string;
 
-    @Column()
+    @Column({ unique: true })
     email:string;
 
     @Column()

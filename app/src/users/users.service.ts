@@ -25,12 +25,18 @@ export class UsersService {
   findOne(id: number): Promise<UserEntity | null> {
     return this.userRepository.findOne({ where: { id }, relations: ['cats'] });
   }
- 
+
+  async findByUsername(username: string): Promise<UserEntity | null> {
+    return this.userRepository.findOne({ where: { username } });
+    
+  }
   
   async update(id: number, updateUserDto: UpdateUserDto): Promise<UserEntity | null> {
     await this.userRepository.update(id, updateUserDto);
     return this.findOne(id);
   }
+
+
 
   async remove(id: number): Promise<void> {
     await this.userRepository.delete(id);
