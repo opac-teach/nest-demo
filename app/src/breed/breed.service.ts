@@ -13,7 +13,11 @@ export class BreedService {
   ) {}
 
   async findAll(): Promise<BreedEntity[]> {
-    return this.breedRepository.find();
+    return this.breedRepository.find({
+      relations: {
+        cats: true,
+      },
+    });
   }
 
   async findOne(id: string): Promise<BreedEntity> {

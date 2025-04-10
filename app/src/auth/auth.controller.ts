@@ -1,12 +1,11 @@
 import {
   Controller,
   Post,
-  UseGuards,
   Body,
   SerializeOptions,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { LocalStrategy } from './strategies/local.strategy';
 import { CreateUserDto } from '@/user/dtos/user-input.dto';
 import { UserResponseDto } from '@/user/dtos/user-response.dto';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
@@ -19,7 +18,6 @@ export class AuthController {
   constructor(
     private readonly userService: UserService,
     private readonly authService: AuthService,
-    private readonly localStrategy: LocalStrategy,
   ) {}
 
   @Post('register') // POST '/register'
@@ -35,7 +33,6 @@ export class AuthController {
   }
 
   @Post('login') // POST '/login'
-  @UseGuards(LocalStrategy)
   @SerializeOptions({ type: AuthResponseDto })
   @ApiOperation({ summary: 'Login a user' })
   @ApiResponse({
@@ -44,7 +41,15 @@ export class AuthController {
     type: AuthResponseDto,
   })
   async login(@Body() loginAuthDto: LoginAuthDto): Promise<AuthResponseDto> {
-    const user = await this.localStrategy.validate(loginAuthDto);
+    const user = await this.authService.validateUser(
+      loginAuthDto.email,
+      loginAuthDto.password,
+    );
+
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
     return this.authService.generateToken(user);
   }
 }
