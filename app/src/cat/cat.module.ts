@@ -7,7 +7,6 @@ import { BreedEntity } from '@/breed/breed.entity';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { BreedModule } from '@/breed/breed.module';
 import { redisConfig } from '@/config';
-import { AuthModule } from '@/auth/auth.module';
 @Module({
   controllers: [CatController],
   providers: [CatService],
@@ -21,7 +20,6 @@ import { AuthModule } from '@/auth/auth.module';
       },
     ]),
     forwardRef(() => BreedModule),
-    forwardRef(() => AuthModule),
   ],
   exports: [CatService],
 })

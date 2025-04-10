@@ -5,6 +5,7 @@ import { FindManyOptions, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import * as bcrypt from 'bcrypt';
+import { CommentEntity } from '@/comment/entities/comment.entity';
 
 export interface UserFindAllOptions extends FindManyOptions<UserEntity> {
   includeCats?: boolean;
@@ -75,7 +76,7 @@ export class UserService {
   async update(id: string, user: UpdateUserDto): Promise<UserEntity> {
     const updateResponse = await this.userRepository.update(id, user);
     if (updateResponse.affected === 0) {
-      throw new NotFoundException('Cat not found');
+      throw new NotFoundException('User not found');
     }
 
     const updatedUser = await this.findOne(id);
@@ -92,11 +93,34 @@ export class UserService {
   async remove(id: string): Promise<void> {
     const userToDelete = await this.findOne(id);
 
-    if (!userToDelete) {
-      throw new NotFoundException('User not found');
-    }
+    const commentsToDelete = await this.userRepository.manager.transaction(
+      async (manager) => {
+        const user = await manager.findOne(UserEntity, {
+          where: { id },
+        });
 
-    await this.userRepository.delete(id);
+        if (!user) {
+          throw new NotFoundException('User not found');
+        }
+
+        const comments = await manager.find(CommentEntity, {
+          where: { user: { id } },
+        });
+
+        await manager.delete(CommentEntity, { userId: id });
+        await manager.delete(UserEntity, { id });
+
+        return comments;
+      },
+    );
+
+    commentsToDelete.forEach((comment) => {
+      this.eventEmitter.emit('data.crud', {
+        action: 'delete',
+        model: 'comment',
+        cat: comment,
+      });
+    });
 
     this.eventEmitter.emit('data.crud', {
       action: 'delete',

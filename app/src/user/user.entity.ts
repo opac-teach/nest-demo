@@ -1,4 +1,5 @@
 import { CatEntity } from '@/cat/cat.entity';
+import { CommentEntity } from '@/comment/entities/comment.entity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('user')
@@ -31,4 +32,7 @@ export class UserEntity {
     cascade: true,
   })
   cats?: CatEntity[];
+
+  @OneToMany(() => CommentEntity, (comment) => comment.user)
+  comments?: CommentEntity[];
 }
