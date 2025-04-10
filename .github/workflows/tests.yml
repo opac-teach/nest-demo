@@ -1,5 +1,5 @@
 name: Tests & Coverage
-on: [push]
+on: [push, pull_request]
 
 permissions:
   contents: read
@@ -28,3 +28,4 @@ jobs:
         uses: MishaKav/jest-coverage-comment@main
         with:
           coverage-summary-path: ./app/coverage/coverage-summary.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
