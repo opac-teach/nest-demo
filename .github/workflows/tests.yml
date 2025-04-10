@@ -19,3 +19,5 @@ jobs:
 
       - name: Jest Coverage Comment
         uses: MishaKav/jest-coverage-comment@main
+        with:
+          coverage-summary-path: /app/coverage/coverage-final.json
