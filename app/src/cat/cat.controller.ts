@@ -4,7 +4,8 @@ import {
   Get,
   Param,
   Post,
-  Put, SerializeOptions,
+  Put,
+  SerializeOptions,
   UseGuards,
   Request,
 } from '@nestjs/common';
@@ -19,7 +20,8 @@ import { AuthGuard} from "@/auth/auth.guard";
 export class CatController {
   constructor(private catService: CatService) {}
 
-  @Get('/') // GET '/cat'
+  @Get('/')
+  @SerializeOptions({ type: CatResponseDto })// GET '/cat'
   @ApiOperation({ summary: 'Get all cats' })
   @ApiResponse({
     status: 200,
@@ -43,6 +45,7 @@ export class CatController {
   @ApiBearerAuth()
   @Post() // POST '/cat'
   @UseGuards(AuthGuard)
+  @SerializeOptions({ type: CatResponseDto })
   @ApiOperation({ summary: 'Create a cat' })
   @ApiResponse({ status: 201, description: 'Returns the created cat' })
   create(
@@ -57,6 +60,7 @@ export class CatController {
   @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Update a cat' })
   @ApiResponse({ status: 200, description: 'Returns the updated cat' })
+  @SerializeOptions({ type: CatResponseDto })
   async update(
     @Param('id') id: string,
     @Body() cat: UpdateCatDto,
