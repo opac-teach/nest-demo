@@ -4,10 +4,12 @@ import {
   Column,
   ManyToOne,
   BeforeUpdate,
-  JoinColumn,
+  JoinColumn, OneToMany,
 } from 'typeorm';
 
 import { BreedEntity } from '../breed/breed.entity';
+import { UserEntity } from '../user/entities/user.entity';
+import {CommentEntity} from "@/comment/entities/comment.entity";
 
 @Entity('cat')
 export class CatEntity {
@@ -23,9 +25,22 @@ export class CatEntity {
   @Column()
   breedId: string;
 
+  @Column({ nullable: true })
+  userId: string;
+
+  @ManyToOne(() => UserEntity, (user) => user.id)
+  @JoinColumn({ name: 'userId' })
+  user?: UserEntity;
+
   @ManyToOne(() => BreedEntity, (breed) => breed.id)
   @JoinColumn({ name: 'breedId' })
   breed?: BreedEntity;
+
+  @ManyToOne(() => UserEntity, (user) => user.cats)
+  owner: UserEntity;
+
+  @OneToMany(() => CommentEntity, (comment) => comment.cat)
+  comments: CommentEntity[];
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created: Date;

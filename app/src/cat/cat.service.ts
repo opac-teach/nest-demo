@@ -7,9 +7,11 @@ import { BreedService } from '@/breed/breed.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
+import {UserResponseDto} from "@/user/dto/user-response";
 export interface CatFindAllOptions extends FindManyOptions<CatEntity> {
   breedId?: string;
   includeBreed?: boolean;
+  userId?: string;
 }
 
 @Injectable()
@@ -27,6 +29,7 @@ export class CatService {
       relations: options?.includeBreed ? ['breed'] : undefined,
       where: {
         breedId: options?.breedId,
+        userId: options?.userId,
       },
     });
   }
@@ -42,7 +45,7 @@ export class CatService {
     return cat;
   }
 
-  async create(cat: CreateCatDto): Promise<CatEntity> {
+  async create(cat: CreateCatDto, user: UserResponseDto): Promise<CatEntity> {
     const breed = await this.breedService.findOne(cat.breedId);
 
     // const { seed } = breed;
@@ -51,7 +54,7 @@ export class CatService {
 
     const color = '11BB22';
 
-    const newCat = this.catRepository.create({ ...cat, color });
+    const newCat = this.catRepository.create({ ...cat, color, userId: user.id, owner: { id: user.id }, });
     const createdCat = await this.catRepository.save(newCat);
 
     this.eventEmitter.emit('data.crud', {
