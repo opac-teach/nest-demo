@@ -1,5 +1,5 @@
 name: Tests & Coverage
-on: [pull_request, push]
+on: [push]
 
 jobs:
   build:
@@ -20,4 +20,4 @@ jobs:
       - name: Jest Coverage Comment
         uses: MishaKav/jest-coverage-comment@main
         with:
-          coverage-summary-path: ./app/coverage/coverage-final.json
+          coverage-summary-path: ./app/coverage/coverage-summary.json
