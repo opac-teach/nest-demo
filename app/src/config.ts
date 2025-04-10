@@ -1,4 +1,5 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import * as dotenv from 'dotenv';
 
 export const databaseConfig: TypeOrmModuleOptions = {
   type: 'postgres',
@@ -16,5 +17,8 @@ export const redisConfig = {
   host: process.env.REDIS_HOST || 'localhost',
   port: parseInt(process.env.REDIS_PORT || '6379'),
 };
+
+dotenv.config();
+export const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
 
 export const port = process.env.PORT || 3000;

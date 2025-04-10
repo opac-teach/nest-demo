@@ -5,13 +5,17 @@ import {
   Param,
   Post,
   SerializeOptions,
+  UseGuards,
 } from '@nestjs/common';
 import { BreedService } from './breed.service';
 import { BreedResponseDto, CreateBreedDto } from './dtos';
 import { CatResponseDto } from '@/cat/dtos/cat-response.dto';
 import { CatService } from '@/cat/cat.service';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
 
+@ApiBearerAuth()
+@UseGuards(AuthGuard('jwt'))
 @Controller('breed')
 export class BreedController {
   constructor(

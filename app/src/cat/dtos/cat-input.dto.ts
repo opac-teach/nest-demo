@@ -25,14 +25,6 @@ export class CreateCatDto {
   @IsUUID()
   @IsNotEmpty()
   breedId: string;
-
-  @ApiProperty({
-    description: 'The id of the user of the cat',
-    type: String,
-  })
-  @IsUUID()
-  @IsNotEmpty()
-  userId: string;
 }
 
 /**

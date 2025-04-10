@@ -1,7 +1,6 @@
 import {
   Controller,
   Get,
-  Post,
   Body,
   Patch,
   Param,
@@ -9,13 +8,18 @@ import {
   HttpCode,
   HttpStatus,
   SerializeOptions,
+  Request,
+  UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto, UpdateUserDto } from './dtos/user-input.dto';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { UpdateUserDto } from './dtos/user-input.dto';
+import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { UserResponseDto } from './dtos/user-response.dto';
 import { CatResponseDto } from '@/cat/dtos';
 import { CatService } from '@/cat/cat.service';
+import RequestUserInformations from '@/interfaces/request-user-informations.interface';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('user') // route '/user'
 export class UserController {
@@ -62,19 +66,9 @@ export class UserController {
     return this.catService.findAll({ userId: id });
   }
 
-  @Post() // POST '/user'
-  @SerializeOptions({ type: UserResponseDto })
-  @ApiOperation({ summary: 'Create a user' })
-  @ApiResponse({
-    status: 201,
-    description: 'Returns the created user',
-    type: UserResponseDto,
-  })
-  create(@Body() userInputDto: CreateUserDto): Promise<UserResponseDto> {
-    return this.userService.create(userInputDto);
-  }
-
   @Patch(':id') // PATCH '/user/:id'
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
   @SerializeOptions({ type: UserResponseDto })
   @ApiOperation({ summary: 'Update a user' })
   @ApiResponse({
@@ -85,15 +79,31 @@ export class UserController {
   update(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
+    @Request() req: RequestUserInformations,
   ): Promise<UserResponseDto> {
+    if (req.user.userId !== id) {
+      throw new UnauthorizedException(
+        'You cannot update the information of a user other than yourself',
+      );
+    }
     return this.userService.update(id, updateUserDto);
   }
 
   @Delete(':id') // DELETE '/user/:id'
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete a user' })
   @ApiResponse({ status: HttpStatus.NO_CONTENT })
-  async remove(@Param('id') id: string): Promise<void> {
+  async remove(
+    @Param('id') id: string,
+    @Request() req: RequestUserInformations,
+  ): Promise<void> {
+    if (req.user.userId !== id) {
+      throw new UnauthorizedException(
+        'You cannot delete the information of a user other than yourself',
+      );
+    }
     await this.userService.remove(id);
   }
 }
