@@ -88,7 +88,17 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node",
-    "testTimeout": 500
+    "testTimeout": 500,
+    "reporters": [
+      "default",
+      "github-actions"
+    ],
+    "coverageReporters": [
+      "json",
+      "json-summary",
+      "text",
+      "lcov"
+    ]
   },
   "engines": {
     "node": ">=22.0.0"
