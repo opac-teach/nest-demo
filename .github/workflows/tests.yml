@@ -1,6 +1,13 @@
 name: Tests & Coverage
 on: [push]
 
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+  issues: write
+  statuses: write
+
 jobs:
   build:
     defaults:
