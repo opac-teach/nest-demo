@@ -25,7 +25,9 @@ export class CatEntity {
   breedId: string;
 
   @ManyToOne(() => UserEntity, (user) => user.cats)
+  @JoinColumn()
   user: UserEntity;
+
   @ManyToOne(() => BreedEntity, (breed) => breed.id)
   @JoinColumn({ name: 'breedId' })
   breed?: BreedEntity;

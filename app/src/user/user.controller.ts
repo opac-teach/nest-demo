@@ -4,6 +4,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
+import { JWTAuthGuard } from '@/auth/Jwt-auth-guard';
 
 @Controller('user')
 export class UserController {
@@ -15,13 +16,13 @@ export class UserController {
   }
 
   @Get()
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JWTAuthGuard)
   findAll() {
     return this.userService.findAll();
   }
 
   @Get(':id')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JWTAuthGuard)
   findOne(@Param('id') id: string) {
     return this.userService.findOne(id);
   }
@@ -32,7 +33,7 @@ export class UserController {
   // } 
 
   @Put(':id')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JWTAuthGuard)
   @ApiOperation({ summary: 'Update user' })
   @ApiResponse({ status: 200, description: 'Returns the updated user' })
   async update(
@@ -43,7 +44,7 @@ export class UserController {
   }
 
   @Delete(':id')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JWTAuthGuard)
   remove(@Param('id') id: string) {
     return this.userService.remove(id);
   }
