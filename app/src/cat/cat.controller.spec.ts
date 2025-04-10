@@ -17,6 +17,7 @@ describe('CatController', () => {
     updated: new Date(),
     color: '11BB22',
     updateTimestamp: jest.fn(),
+    userId: '1',
   };
 
   beforeEach(async () => {
@@ -64,7 +65,7 @@ describe('CatController', () => {
         breedId: '1',
       };
       jest.spyOn(catService, 'create').mockResolvedValue(mockCat);
-      const result = await controller.create(mockCreateCatDto);
+      const result = await controller.create(mockCreateCatDto, mockCat.userId);
       expect(result).toEqual(mockCat);
       expect(catService.create).toHaveBeenCalledWith(mockCreateCatDto);
     });

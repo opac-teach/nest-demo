@@ -79,6 +79,6 @@ export class CatResponseDto {
   @ApiProperty({ type: [CommentResponseDto] })
   @Expose()
   @Type(() => CommentResponseDto)
-  comments: CommentResponseDto[];
+  comments?: CommentResponseDto[];
 
 }
