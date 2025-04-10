@@ -6,6 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { BreedService } from '@/breed/breed.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ClientProxy } from '@nestjs/microservices';
+import { UsersService } from '@/users/users.service';
 import { firstValueFrom } from 'rxjs';
 export interface CatFindAllOptions extends FindManyOptions<CatEntity> {
   breedId?: string;
@@ -20,6 +21,7 @@ export class CatService {
     private readonly breedService: BreedService,
     private readonly eventEmitter: EventEmitter2,
     @Inject('COLORS_SERVICE') private client: ClientProxy,
+    private readonly usersService: UsersService
   ) {}
 
   async findAll(options?: CatFindAllOptions): Promise<CatEntity[]> {
@@ -42,7 +44,7 @@ export class CatService {
     return cat;
   }
 
-  async create(cat: CreateCatDto): Promise<CatEntity> {
+  async create(cat: CreateCatDto, user: any): Promise<CatEntity> {
     const breed = await this.breedService.findOne(cat.breedId);
 
     // const { seed } = breed;
@@ -51,11 +53,17 @@ export class CatService {
 
     const color = '11BB22';
     
+    const userId = user.UserId; 
+    
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
     const newCat = this.catRepository.create({
       name: cat.name,
       age: cat.age,
       breedId: cat.breedId,
-      userId: cat.userId,  // Ici on utilise userId directement
+      userId,  
       color,
     });
     

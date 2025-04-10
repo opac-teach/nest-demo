@@ -1,9 +1,12 @@
 import { Controller, Get } from '@nestjs/common';
 import { ApiResponse, ApiOperation } from '@nestjs/swagger';
 
+
 @Controller()
 export class AppController {
-  constructor() {}
+  constructor() {
+    console.log('AuthentificationService initialized'); 
+  }
 
   @Get()
   @ApiOperation({ summary: 'Health check' })
@@ -11,4 +14,14 @@ export class AppController {
   healthCheck(): string {
     return 'OK';
   }
-}
+
+  
+  }
+
+
+
+  
+
+  
+
+

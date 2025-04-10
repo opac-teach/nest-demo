@@ -13,7 +13,7 @@ import { UsersModule } from '@/users/users.module';
   controllers: [CatController],
   providers: [CatService],
   imports: [
-    TypeOrmModule.forFeature([CatEntity, BreedEntity,UserEntity]),
+    TypeOrmModule.forFeature([CatEntity, BreedEntity,UserEntity,]),
     
     ClientsModule.register([
       {
@@ -22,6 +22,9 @@ import { UsersModule } from '@/users/users.module';
         options: redisConfig,
       },
     ]),
+
+    UsersModule,
+
     forwardRef(() => BreedModule),
   ],
   

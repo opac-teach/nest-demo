@@ -15,9 +15,8 @@ import { Reflector } from '@nestjs/core';
 import { LiveModule } from './live/live.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { UsersModule } from './users/users.module';
-import { AuthentifationModule } from './authentifation/authentifation.module';
-import { AuthentificationController } from './authentification/authentification.controller';
-import { AuthentificationService } from './authentification/authentification.service';
+import { AuthentifationModule } from './authentification/authentification.module'; 
+
 
 @Module({
   imports: [
@@ -29,8 +28,8 @@ import { AuthentificationService } from './authentification/authentification.ser
     UsersModule,
     AuthentifationModule,
   ],
-  controllers: [AppController, AuthentificationController],
-  providers: [AuthentificationService],
+  controllers: [AppController],
+  providers: [],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
