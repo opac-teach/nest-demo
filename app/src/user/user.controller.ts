@@ -14,7 +14,7 @@ import { UserService } from './user.service';
 import { CreateUserDto, UpdateUserDto, UserResponseDto } from '@/user/dto';
 import { ApiOperation, ApiResponse } from "@nestjs/swagger";
 import { AuthGuard } from "@/auth/auth.guard";
-import {UserGuard} from "@/user/user.guard";
+import {OwnerGuard} from "@/user/user.guard";
 
 @Controller('user')
 export class UserController {
@@ -45,7 +45,7 @@ export class UserController {
   @Put(':id')
   @ApiOperation({ summary: 'Update a user by id' })
   @ApiResponse({ status: 200, description: 'Returns the updated user' })
-  @UseGuards(AuthGuard, UserGuard)
+  @UseGuards(AuthGuard, OwnerGuard)
   async update(
       @Param('id') id: string,
       @Body() user: UpdateUserDto): Promise<UserResponseDto> {
@@ -55,7 +55,7 @@ export class UserController {
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a user by id' })
   @ApiResponse({ status: 200, description: 'Returns the deleted user' })
-  @UseGuards(AuthGuard, UserGuard)
+  @UseGuards(AuthGuard, OwnerGuard)
   async delete(
       @Param('id') id: string
   ): Promise<{}> {

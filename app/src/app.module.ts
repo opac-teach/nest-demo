@@ -47,7 +47,7 @@ export function registerGlobals(app: INestApplication) {
   );
 
   // Enable class serialization globally
-  // This will automatically serialize all responses using the @Exclude decorator
+  // This will automatically serialize all responses using the @Exclude decorators
   // Sensitive fields will always be excluded from responses
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 }

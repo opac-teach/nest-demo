@@ -54,4 +54,7 @@ export class CatEntity {
 
   @OneToMany(() => CommentEntity, comment => comment.cat)
   comments: CommentEntity[];
+
+  @Column()
+  position?: String
 }

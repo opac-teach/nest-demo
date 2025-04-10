@@ -2,7 +2,7 @@ import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from
 import {CommentService} from "@/comment/comment.service";
 
 @Injectable()
-export class CommentGuard implements CanActivate {
+export class AuthorGuard implements CanActivate {
     constructor(private readonly commentService: CommentService) {}
 
     async canActivate(

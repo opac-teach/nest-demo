@@ -36,6 +36,15 @@ export class UpdateCatDto extends PartialType(
   OmitType(CreateCatDto, ['breedId'] as const),
 ) {}
 
+export class UpdatePositionCatDto {
+  @ApiProperty({
+    description: 'The position of the cat',
+    type: String,
+  })
+  @IsString()
+  @IsNotEmpty()
+  position: string;
+}
 
 export class BreedCatsDto {
   @IsUUID()

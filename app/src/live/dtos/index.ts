@@ -67,3 +67,12 @@ export class PublicDataCrudEvent {
   @Type(() => BreedResponseDto)
   breed?: BreedResponseDto;
 }
+
+
+export class DataCatPositionEvent {
+  action: 'update position';
+  model: 'cat';
+  @Expose()
+  @Type(() => CatEntity)
+  cat?: CatEntity;
+}

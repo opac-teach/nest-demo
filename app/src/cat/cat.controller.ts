@@ -6,20 +6,28 @@ import {
   Post,
   Put, Query,
   UseGuards,
-  Request
+  Request, Inject, Patch
 } from '@nestjs/common';
 import { CatService } from '@/cat/cat.service';
-import {BreedCatsDto, CatResponseDto, CreateCatDto, UpdateCatDto} from '@/cat/dtos';
+import {
+  BreedCatsDto,
+  CatPositionResponseDto,
+  CatResponseDto,
+  CreateCatDto,
+  UpdateCatDto,
+  UpdatePositionCatDto
+} from '@/cat/dtos';
 import { RandomGuard } from '@/lib/random.guard';
 import {ApiOperation, ApiQuery, ApiResponse} from '@nestjs/swagger';
 import {AuthGuard} from "@/auth/auth.guard";
-import {CatGuard} from "@/cat/cat.guard";
-import {CatEntity} from "@/cat/cat.entity";
+import {OwnerGuard} from "@/cat/cat.guard";
 
 @Controller('cat') // route '/cat'
 @UseGuards(RandomGuard)
 export class CatController {
-  constructor(private catService: CatService) {}
+  constructor(
+      private catService: CatService
+  ) {}
 
   @Get('/') // GET '/cat'
   @ApiOperation({ summary: 'Get all cats' })
@@ -69,7 +77,7 @@ export class CatController {
   @Put(':id') // PUT '/cat/:id'
   @ApiOperation({ summary: 'Update a cat' })
   @ApiResponse({ status: 200, description: 'Returns the updated cat' })
-  @UseGuards(AuthGuard, CatGuard)
+  @UseGuards(AuthGuard, OwnerGuard)
   async update(
     @Param('id') id: string,
     @Body() cat: UpdateCatDto,
@@ -85,4 +93,23 @@ export class CatController {
     return this.catService.breed(data, req.user.sub);
   }
 
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'Update a cat' })
+  @ApiResponse({ status: 200, description: 'Returns the updated position cat' })
+  @UseGuards(AuthGuard, OwnerGuard)
+  async changePosition(
+      @Param('id') id: string,
+      @Body() cat: UpdatePositionCatDto,
+  ): Promise<CatResponseDto> {
+    return this.catService.updatePosition(id, cat);
+  }
+
+  @Get('/position')
+  @ApiOperation({ summary: 'Get all cats position' })
+  @ApiResponse({ status: 200, description: 'Returns all cats position' })
+  findAllPositionCat(
+  ): Promise<CatPositionResponseDto[]> {
+    return this.catService.findAllCatPosition();
+  }
 }

@@ -2,7 +2,7 @@ import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from
 import { CatService } from './cat.service';
 
 @Injectable()
-export class CatGuard implements CanActivate {
+export class OwnerGuard implements CanActivate {
     constructor(private readonly catService: CatService) {}
 
     async canActivate(

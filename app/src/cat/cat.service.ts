@@ -1,5 +1,5 @@
 import {Inject, Injectable, NotFoundException, Param, UnauthorizedException} from '@nestjs/common';
-import {BreedCatsDto, CreateCatDto, UpdateCatDto} from '@/cat/dtos/cat-input.dto';
+import {BreedCatsDto, CreateCatDto, UpdateCatDto, UpdatePositionCatDto} from '@/cat/dtos/cat-input.dto';
 import { CatEntity } from '@/cat/cat.entity';
 import { FindManyOptions, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -41,6 +41,10 @@ export class CatService {
       ],
       where: where,
     })
+  }
+
+  async findAllCatPosition(): Promise<CatEntity[]> {
+    return await this.catRepository.find();
   }
 
   async findOne(id: string, includeBreed?: boolean): Promise<CatEntity> {
@@ -123,5 +127,19 @@ export class CatService {
       breedId,
     })
     return await this.create(catDto, userId)
+  }
+
+  async updatePosition(id: String, cat: UpdatePositionCatDto) {
+    const updateResponse = await this.catRepository.update(id, cat)
+    if (updateResponse.affected === 0) {
+      throw new NotFoundException('Cat not found');
+    }
+    const updatedCat = await this.findOne(id);
+    this.eventEmitter.emit('cat.position', {
+      action: 'update position',
+      model: 'cat',
+      cat: updatedCat,
+    });
+    return updatedCat;
   }
 }
