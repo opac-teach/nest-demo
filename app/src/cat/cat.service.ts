@@ -65,11 +65,11 @@ export class CatService {
   async create(cat: CreateCatDto, ownerId: String): Promise<CatEntity> {
     const breed = await this.breedService.findOne(cat.breedId);
 
-    // const { seed } = breed;
-    // const colorObservable = this.client.send<string, string>('generate_color', seed);
-    // const color = await firstValueFrom(colorObservable);
+    const { seed } = breed;
+    const colorObservable = this.client.send<string, string>('generate_color', seed);
+    const color = await firstValueFrom(colorObservable);
 
-    const color = '11BB22';
+    this.client.send<string, any>('update_stats', null)
     const newCat = this.catRepository.create({ ...cat, color, ownerId });
     const createdCat = await this.catRepository.save(newCat);
 
@@ -88,6 +88,8 @@ export class CatService {
       throw new NotFoundException('Cat not found');
     }
     const updatedCat = await this.findOne(id);
+
+    this.client.send<string, any>('update_stats', null)
     this.eventEmitter.emit('data.crud', {
       action: 'update',
       model: 'cat',
@@ -135,6 +137,8 @@ export class CatService {
       throw new NotFoundException('Cat not found');
     }
     const updatedCat = await this.findOne(id);
+
+    this.client.send<string, any>('update_stats', null)
     this.eventEmitter.emit('cat.position', {
       action: 'update position',
       model: 'cat',
