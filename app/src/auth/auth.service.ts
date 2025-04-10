@@ -19,7 +19,7 @@ export class AuthService {
     private readonly eventEmitter: EventEmitter2,
     private jwtService: JwtService,
   ) {}
-  public async login(loginDto: LoginUserDto): Promise<string> {
+  public async login(loginDto: LoginUserDto): Promise<{ token: string }> {
     const user = await this.userRepository.findOne({
       where: { email: loginDto.email },
       select: ['id', 'email', 'password', 'role'],
@@ -37,7 +37,7 @@ export class AuthService {
 
     const payload = { email: user.email, sub: user.id, role: user.role };
     const token = this.jwtService.sign(payload, {
-      privateKey: 'process.env.JWT_SECRET',
+      privateKey: process.env.JWT_SECRET || 'secret',
       expiresIn: '1d',
     });
     this.eventEmitter.emit('auth.login', {
@@ -47,6 +47,8 @@ export class AuthService {
       token,
     });
 
-    return token;
+    return {
+      token,
+    };
   }
 }

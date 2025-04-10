@@ -7,6 +7,7 @@ import { Repository } from 'typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import * as bcrypt from 'bcrypt';
 import { CommentEntity } from '@/comments/entities/comment.entity';
+import { RolesEnum } from '@/auth/roles/roles.enum';
 
 @Injectable()
 export class UserService {
@@ -22,13 +23,20 @@ export class UserService {
     const user = this.userRepository.create(createUserDto);
     const saltOrRounds = 10;
     user.password = await bcrypt.hash(user.password, saltOrRounds);
-    const createdUser = await this.userRepository.save(user);
-    this.eventEmitter.emit('data.crud', {
-      action: 'create',
-      model: 'user',
-      user: createdUser,
-    });
-    return createdUser;
+    try {
+      const createdUser = await this.userRepository.save(user);
+      this.eventEmitter.emit('data.crud', {
+        action: 'create',
+        model: 'user',
+        user: createdUser,
+      });
+      return createdUser;
+    } catch (error: any) {
+      if (error.code === '23505') {
+        throw new Error('Email already exists');
+      }
+      throw error;
+    }
   }
 
   public async findAll(): Promise<UserEntity[]> {
@@ -95,5 +103,27 @@ export class UserService {
       },
     );
     return user;
+  }
+
+  public async changeUserRole(
+    userId: string,
+    role: RolesEnum,
+  ): Promise<UserEntity> {
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    user.role = role;
+    const updatedUser = await this.userRepository.save(user);
+    this.eventEmitter.emit('data.crud', {
+      action: 'update',
+      model: 'user',
+      user: updatedUser,
+    });
+    return updatedUser;
   }
 }
