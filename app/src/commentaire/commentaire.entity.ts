@@ -24,7 +24,10 @@ export class CommentaireEntity {
   @Column()
   userId: string;
 
-  @ManyToOne(() => CatEntity, (cat) => cat.commentaires)
+  @ManyToOne(() => CatEntity, (cat) => cat.commentaires, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'catId' })
   cat?: CatEntity;
 

@@ -11,6 +11,7 @@ import { Socket, io } from 'socket.io-client';
 import { wait } from '@/lib/utils';
 import { CreateUserDto } from '@/user/dtos';
 import { AuthGuard } from '@/auth/guards/auth.guard';
+import { CommentaireResponseDto } from '@/commentaire/dtos';
 describe('AppController (e2e)', () => {
   let app: INestApplication<App>;
   let server: ReturnType<INestApplication['getHttpServer']>;
@@ -39,22 +40,7 @@ describe('AppController (e2e)', () => {
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    })
-      // .overrideGuard(AuthGuard)
-      // .useValue({
-      //   canActivate: (context: ExecutionContext) => {
-      //     const request = context.switchToHttp().getRequest();
-      //     if (request.headers.cookie?.includes('authToken=')) {
-      //       request.user = {
-      //         sub: userId,
-      //         email: inputUser.email,
-      //       };
-      //       return true;
-      //     }
-      //     return false;
-      //   },
-      // })
-      .compile();
+    }).compile();
 
     app = moduleFixture.createNestApplication();
     registerGlobals(app);
@@ -325,6 +311,7 @@ describe('AppController (e2e)', () => {
   describe('Commentaire', () => {
     let cat: CatResponseDto;
     let breed: BreedResponseDto;
+    let commentaire: CommentaireResponseDto;
 
     beforeAll(async () => {
       const resBreed = await request(server)
@@ -355,9 +342,42 @@ describe('AppController (e2e)', () => {
         })
         .expect(201);
 
+      commentaire = res.body;
+
       expect(res.body.content).toBe('This is a comment');
       expect(res.body.catId).toBe(cat.id);
       expect(res.body.id).toBeDefined();
+    });
+
+    it('should update a commentaire', async () => {
+      const res = await request(server)
+        .put(`/commentaire/${commentaire.id}`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .send({ content: 'This is an updated comment' })
+        .expect(200);
+
+      expect(res.body.content).toBe('This is an updated comment');
+      expect(res.body.id).toBe(commentaire.id);
+      expect(res.body.catId).toBe(cat.id);
+      commentaire = res.body;
+    });
+
+    it('should get all commentaires of a cat', async () => {
+      const res = await request(server)
+        .get(`/cat/${cat.id}/commentaires`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .expect(200);
+
+      expect(res.body).toContainEqual(commentaire);
+    });
+
+    it('should delete user', async () => {
+      const res = await request(server)
+        .delete(`/user`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .expect(200);
+
+      expect(res.body.message).toBe('Votre compte a bien été supprimé.');
     });
   });
 });

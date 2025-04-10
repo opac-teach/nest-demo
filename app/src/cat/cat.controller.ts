@@ -63,7 +63,7 @@ export class CatController {
   })
   @SerializeOptions({ type: CommentaireResponseDto })
   findCommentaires(@Param('id') id: string): Promise<CommentaireResponseDto[]> {
-    return this.commentaireService.findAll({ catId: id, includeCat: true });
+    return this.commentaireService.findAll({ catId: id });
   }
 
   @Post()

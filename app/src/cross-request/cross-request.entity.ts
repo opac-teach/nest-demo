@@ -18,14 +18,20 @@ export class CrossRequestEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => UserEntity, (user) => user.sentCrossRequests)
+  @ManyToOne(() => UserEntity, (user) => user.sentCrossRequests, {
+    onDelete: 'CASCADE',
+    cascade: true,
+  })
   @JoinColumn({ name: 'senderId' })
   sender: UserEntity;
 
   @Column()
   senderId: string;
 
-  @ManyToOne(() => UserEntity, (user) => user.receivedCrossRequests)
+  @ManyToOne(() => UserEntity, (user) => user.receivedCrossRequests, {
+    onDelete: 'CASCADE',
+    cascade: true,
+  })
   @JoinColumn({ name: 'receiverId' })
   receiver: UserEntity;
 

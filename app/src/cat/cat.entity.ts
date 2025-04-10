@@ -32,7 +32,10 @@ export class CatEntity {
   @Column()
   userId: string;
 
-  @ManyToOne(() => UserEntity, (user) => user.cats)
+  @ManyToOne(() => UserEntity, (user) => user.cats, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'userId' })
   user?: UserEntity;
 
