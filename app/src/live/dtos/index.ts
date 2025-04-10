@@ -25,12 +25,12 @@ export class DataCrudEvent {
   action: 'create' | 'update' | 'delete';
   model: 'cat' | 'breed';
   @Expose()
-  @Type(() => CatEntity)
-  cat?: CatEntity;
+  @Type(() => CatResponseDto)
+  cat?: CatResponseDto;
 
   @Expose()
-  @Type(() => BreedEntity)
-  breed?: BreedEntity;
+  @Type(() => BreedResponseDto)
+  breed?: BreedResponseDto;
 }
 
 @Exclude()

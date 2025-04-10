@@ -1,12 +1,13 @@
 import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Post,
-  Put, Query,
-  UseGuards,
-  Request, Inject, Patch
+    Body,
+    Controller,
+    Get,
+    Param,
+    Post,
+    Put,
+    SerializeOptions,
+    UseGuards,
+    Request, Inject, Patch, Query
 } from '@nestjs/common';
 import { CatService } from '@/cat/cat.service';
 import {
@@ -61,9 +62,14 @@ export class CatController {
 
   @Get(':id') // GET '/cat/:id'
   @ApiOperation({ summary: 'Get a cat by id' })
-  @ApiResponse({ status: 200, description: 'Returns a cat' })
-  findOne(@Param('id') id: string): Promise<CatResponseDto> {
-    return this.catService.findOne(id, true);
+  @ApiResponse({
+    status: 200,
+    description: 'Returns a cat',
+    type: CatResponseDto,
+  })
+  async findOne(@Param('id') id: string): Promise<CatResponseDto> {
+    const cat = await this.catService.findOne(id, true);
+    return new CatResponseDto(cat);
   }
 
   @Post() // POST '/cat'

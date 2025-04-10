@@ -43,7 +43,6 @@ describe('CatController', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [CatController],
       providers: [CatService],
-      imports: [EventEmitterModule.forRoot()],
     })
       .useMocker(mockTheRest)
       .compile();
