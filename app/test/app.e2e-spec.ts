@@ -1,29 +1,34 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, ExecutionContext } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule, registerGlobals } from '@/app.module';
 import { CreateBreedDto } from '@/breed/dtos/create-breed';
-import { CreateCatDto } from '@/cat/dtos';
+import { CreateCatDto, CreateKittenDto } from '@/cat/dtos';
 import { BreedResponseDto } from '@/breed/dtos';
 import { CatResponseDto } from '@/cat/dtos';
 import { Socket, io } from 'socket.io-client';
-import { wait } from '@/lib/utils';
 import { CreateUserDto } from '@/user/dtos';
 import { CommentaireResponseDto } from '@/commentaire/dtos';
 import { UserResponseDto } from '@/user/dtos';
-
+import { CrossRequestResponseDto } from '@/cross-request/dtos';
 describe('AppController (e2e)', () => {
   let app: INestApplication<App>;
   let server: ReturnType<INestApplication['getHttpServer']>;
   let ioClient: Socket;
-  let authToken: string;
-  let userId: string;
+  let authToken: string | undefined;
   // let events: { event: string; data: any }[] = [];
+
+  let user1: UserResponseDto;
 
   const inputBreed: CreateBreedDto = {
     name: 'Fluffy',
     description: 'A fluffy breed',
+  };
+
+  const inputBreed2: CreateBreedDto = {
+    name: 'Fluffy 2',
+    description: 'A fluffy breed 2',
   };
 
   const inputCat: CreateCatDto = {
@@ -36,6 +41,18 @@ describe('AppController (e2e)', () => {
     email: 'test@test.com',
     password: 'password',
     name: 'Test',
+  };
+
+  const inputUser2: CreateUserDto = {
+    email: 'test2@test.com',
+    password: 'password',
+    name: 'Test 2',
+  };
+
+  const kittenInput: CreateKittenDto = {
+    name: 'Kitten',
+    parent1Id: '',
+    parent2Id: '',
   };
 
   beforeAll(async () => {
@@ -78,6 +95,7 @@ describe('AppController (e2e)', () => {
 
   describe('Auth', () => {
     it('should create and login a user', async () => {
+      // on vérifie si l'user est déjà créé, sinon on le créé
       const allUsers = await request(server).get('/user').expect(200);
       const user = allUsers.body.find((user) => user.email === inputUser.email);
       if (!user) {
@@ -89,9 +107,6 @@ describe('AppController (e2e)', () => {
         expect(res.body.id).toBeDefined();
         expect(res.body.email).toBe(inputUser.email);
         expect(res.body.name).toBe(inputUser.name);
-        userId = res.body.id;
-      } else {
-        userId = user.id;
       }
 
       const loginRes = await request(server)
@@ -109,22 +124,32 @@ describe('AppController (e2e)', () => {
     });
 
     it('should get the current user', async () => {
-      console.log('authToken', authToken);
       const res = await request(server)
         .get('/auth/me')
         .set('Authorization', `Bearer ${authToken}`)
         .expect(200);
       expect(res.body.email).toBe(inputUser.email);
+      user1 = res.body;
     });
   });
 
   describe('User', () => {
     it('should get one user', async () => {
+      console.log('useeeeeeeeeeer1', user1);
       const res = await request(server)
-        .get(`/user/${userId}`)
+        .get(`/user/${user1.id}`)
         .set('Authorization', `Bearer ${authToken}`)
         .expect(200);
       expect(res.body.email).toBe(inputUser.email);
+    });
+
+    it('should update a user', async () => {
+      const res = await request(server)
+        .put(`/user/${user1.id}`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .send({ name: 'Test 2' })
+        .expect(200);
+      expect(res.body.name).toEqual('Test 2');
     });
   });
 
@@ -320,13 +345,142 @@ describe('AppController (e2e)', () => {
     });
   });
 
+  describe('Cross-cat', () => {
+    let catofUser1: CatResponseDto;
+    let catofUser2: CatResponseDto;
+    let breed: BreedResponseDto;
+    let crossRequest: CrossRequestResponseDto[];
+
+    beforeAll(async () => {
+      // on crée le deuxième user si il n'existe pas
+      const allUsers = await request(server).get('/user').expect(200);
+      const user = allUsers.body.find(
+        (user) => user.email === inputUser2.email,
+      );
+      if (!user) {
+        const res = await request(server)
+          .post('/auth/register')
+          .send(inputUser2)
+          .expect(201);
+
+        expect(res.body.id).toBeDefined();
+        expect(res.body.email).toBe(inputUser2.email);
+        expect(res.body.name).toBe(inputUser2.name);
+      }
+
+      // login avec le deuxième user
+      const loginRes = await request(server)
+        .post('/auth/login')
+        .send({ email: inputUser2.email, password: inputUser2.password })
+        .expect(200);
+
+      expect(loginRes.body.message).toBe(`Bienvenue ${inputUser2.name} !`);
+      expect(loginRes.body.token).toBeDefined();
+      authToken = loginRes.body.token;
+
+      // création de la deuxième race
+      const resBreed = await request(server)
+        .post('/breed')
+        .set('Authorization', `Bearer ${authToken}`)
+        .send(inputBreed2)
+        .expect(201);
+      breed = resBreed.body;
+
+      // création du chat du deuxième user
+      const resCat = await request(server)
+        .post('/cat')
+        .set('Authorization', `Bearer ${authToken}`)
+        .send({ ...inputCat, breedId: breed.id })
+        .expect(201);
+      catofUser2 = resCat.body;
+
+      // reconnecte le premier user
+      const loginRes2 = await request(server)
+        .post('/auth/login')
+        .send({ email: inputUser.email, password: inputUser.password })
+        .expect(200);
+      authToken = loginRes2.body.token;
+
+      const resCat2 = await request(server)
+        .post('/cat')
+        .set('Authorization', `Bearer ${authToken}`)
+        .send({ ...inputCat, breedId: breed.id })
+        .expect(201);
+      catofUser1 = resCat2.body;
+    });
+
+    it('should create a cross-cat', async () => {
+      const res = await request(server)
+        .post('/cross-request')
+        .set('Authorization', `Bearer ${authToken}`)
+        .send({ senderCatId: catofUser1.id, receiverCatId: catofUser2.id })
+        .expect(201);
+
+      expect(res.body.message).toBe(
+        'Demande de croisement envoyée avec succès !',
+      );
+    });
+
+    it('should connect with second user', async () => {
+      const res = await request(server)
+        .post('/auth/login')
+        .send({ email: inputUser2.email, password: inputUser2.password })
+        .expect(200);
+
+      expect(res.body.message).toBe(`Bienvenue ${inputUser2.name} !`);
+      expect(res.body.token).toBeDefined();
+      authToken = res.body.token;
+    });
+
+    it('should get all cross-requests', async () => {
+      const res = await request(server)
+        .get('/cross-request')
+        .set('Authorization', `Bearer ${authToken}`)
+        .expect(200);
+
+      expect(res.body).toBeDefined();
+      crossRequest = res.body;
+    });
+
+    it('should answer to a cross-request', async () => {
+      const res = await request(server)
+        .post(`/cross-request/${crossRequest[0].id}/answer?accept=true`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .expect(201);
+
+      expect(res.body.message).toBe('La requête a bien été acceptée !');
+    });
+
+    it('should connect with first user to start a cross with this cat and the second cat of user', async () => {
+      const res = await request(server)
+        .post('/cat/kitten')
+        .set('Authorization', `Bearer ${authToken}`)
+        .send({
+          ...kittenInput,
+          parent1Id: catofUser1.id,
+          parent2Id: catofUser2.id,
+        })
+        .expect(201);
+
+      expect(res.body.name).toBe(kittenInput.name);
+      expect(res.body.id).toBeDefined();
+      expect(res.body.age).toBe(1);
+    });
+  });
+
   describe('Commentaire', () => {
     let cat: CatResponseDto;
     let breed: BreedResponseDto;
     let commentaire: CommentaireResponseDto;
-    let user: UserResponseDto;
 
     beforeAll(async () => {
+      // on se connecte avec user 1
+      const loginRes = await request(server)
+        .post('/auth/login')
+        .send({ email: inputUser.email, password: inputUser.password })
+        .expect(200);
+      authToken = loginRes.body.token;
+
       const resBreed = await request(server)
         .post('/breed')
         .set('Authorization', `Bearer ${authToken}`)
@@ -386,15 +540,15 @@ describe('AppController (e2e)', () => {
 
     it('should get info of a user', async () => {
       const res = await request(server)
-        .get(`/user/${userId}`)
+        .get(`/user/${user1.id}`)
         .set('Authorization', `Bearer ${authToken}`)
         .expect(200);
-      user = res.body;
+      user1 = res.body;
     });
 
     it('should get all commentaires of a user', async () => {
       const res = await request(server)
-        .get(`/user/${userId}/commentaires`)
+        .get(`/user/${user1.id}/commentaires`)
         .set('Authorization', `Bearer ${authToken}`)
         .expect(200);
 
