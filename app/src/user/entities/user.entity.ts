@@ -19,7 +19,7 @@ export class UserEntity {
   email: string;
 
   @Column()
-  description: string;
+  password: string
 
   @OneToMany(() => CatEntity, (cat) => cat.user)
   cats: CatEntity[];

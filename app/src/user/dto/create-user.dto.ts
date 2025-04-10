@@ -22,13 +22,10 @@ export class CreateUserDto {
   })
   @IsEmail()
   email: string;
-
-  @ApiProperty({
-    description: 'A brief description of the user',
-    type: String,
-  })
+  
+  @IsNotEmpty()
   @IsString()
-  description: string;
+  password: string;
 
   @ApiProperty({
     description: 'The ID of the cat user',

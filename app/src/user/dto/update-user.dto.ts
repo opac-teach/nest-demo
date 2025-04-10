@@ -23,12 +23,4 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
   @IsEmail()
   email?: string;
 
-  @ApiProperty({
-    description: 'A brief description of the user',
-    type: String,
-    required: false,
-  })
-  @IsOptional()
-  @IsString()
-  description?: string;
 }
