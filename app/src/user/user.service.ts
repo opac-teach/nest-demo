@@ -49,6 +49,6 @@ export class UserService {
 
   async delete(id: string): Promise<string> {
     await this.userRepository.delete(id)
-    return 'Compte supprimé.'
+    return 'Compte supprimé'
   }
 }
