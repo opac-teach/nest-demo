@@ -28,12 +28,19 @@ export interface RequestWithCookies extends RequestWithUser {
 export class AuthGuard implements CanActivate {
   constructor(private jwtService: JwtService) {}
 
+  private extractTokenFromHeader(request: Request): string | undefined {
+    const [type, token] = request.headers.authorization?.split(' ') ?? [];
+    return type === 'Bearer' ? token : undefined;
+  }
+
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context
       .switchToHttp()
       .getRequest<RequestWithCookies & RequestWithUser>();
 
-    const token = (request as RequestWithCookies).cookies?.authToken;
+    const token =
+      (request as RequestWithCookies).cookies?.authToken ||
+      this.extractTokenFromHeader(request);
 
     if (!token) {
       throw new UnauthorizedException("Vous n'êtes pas connecté !");

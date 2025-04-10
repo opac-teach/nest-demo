@@ -7,6 +7,7 @@ import {
   Req,
   UseGuards,
   SerializeOptions,
+  HttpCode,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dtos/auth-input.dto';
@@ -32,13 +33,14 @@ export class AuthController {
   }
 
   @Post('login')
+  @HttpCode(200)
   @ApiOperation({ summary: 'Login a user' })
   @ApiResponse({ status: 200, description: 'Returns a confirmation message' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async login(
     @Body() loginDto: LoginDto,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<{ message: string }> {
+  ): Promise<{ message: string; token: string }> {
     const { token, user } = await this.authService.login(loginDto);
 
     res.cookie('authToken', token, {
@@ -50,6 +52,7 @@ export class AuthController {
 
     return {
       message: `Bienvenue ${user.name} !`,
+      token,
     };
   }
 
