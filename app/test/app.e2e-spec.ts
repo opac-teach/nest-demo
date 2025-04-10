@@ -135,7 +135,6 @@ describe('AppController (e2e)', () => {
 
   describe('User', () => {
     it('should get one user', async () => {
-      console.log('useeeeeeeeeeer1', user1);
       const res = await request(server)
         .get(`/user/${user1.id}`)
         .set('Authorization', `Bearer ${authToken}`)
@@ -499,7 +498,6 @@ describe('AppController (e2e)', () => {
     });
 
     it('should create a commentaire', async () => {
-      console.log('cat', cat);
       const res = await request(server)
         .post('/commentaire')
         .set('Authorization', `Bearer ${authToken}`)
