@@ -10,7 +10,6 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   dotenv.config();
   registerGlobals(app);
-  // Enable swagger and OpenAPI documentation
   const config = new DocumentBuilder()
     .setTitle('Cats example')
     .setDescription('The cats API description')
