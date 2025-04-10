@@ -24,8 +24,7 @@ export class AuthMiddleware implements NestMiddleware {
         req['userId'] = payload.sub;
         req['role'] = payload.role;
       } catch (error) {
-        console.error('JWT verification error:', error);
-        res.status(401).json({ message: 'Unauthorized' });
+        res.status(401).json({ message: 'Unauthorized test' });
         return;
       }
     }

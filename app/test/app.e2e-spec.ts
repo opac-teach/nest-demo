@@ -60,9 +60,11 @@ describe('Auth E2E', () => {
   });
 
   it('should edit the user', async () => {
+    const authHeaders = { Authorization: 'Bearer ' + token };
+    console.log(authHeaders);
     const updateUserResponse = await request(app.getHttpServer())
       .patch('/user')
-      .set('Authorization', `Bearer ${token}`)
+      .set(authHeaders)
       .expect(200);
 
     expect(updateUserResponse.body).toHaveProperty('id');
@@ -93,7 +95,7 @@ describe('Auth E2E', () => {
       .set('Authorization', `Bearer ${token}`)
       .send({
         name: 'Test cat',
-        breedId: 1,
+        breedId: breedId,
         age: 2,
         description: 'Test cat description',
       })
@@ -109,7 +111,7 @@ describe('Auth E2E', () => {
 
   it('should post a comment on a cat', async () => {
     const createdCommentResponse = await request(app.getHttpServer())
-      .post('/cat/1/comment')
+      .post('/comments')
       .set('Authorization', `Bearer ${token}`)
       .send({
         content: 'Test comment',
