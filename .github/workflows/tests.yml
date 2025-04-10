@@ -1,8 +1,18 @@
 name: Tests & Coverage
-on:
-  pull_request:
+on: [push, pull_request]
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+  issues: write
+  statuses: write
+
 jobs:
   build:
+    defaults:
+      run:
+        working-directory: ./app
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -16,3 +26,8 @@ jobs:
 
       - name: Jest Coverage Comment
         uses: MishaKav/jest-coverage-comment@main
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          coverage-summary-path: ./app/coverage/coverage-summary.json
+          coverage-path: ./app/coverage/coverage.txt
+          junitxml-path: ./app/coverage/junit.xml

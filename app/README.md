@@ -63,3 +63,4 @@ $ npm run test:cov
 - compression
 - file upload
 - streaming
+- gh actions
