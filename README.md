@@ -39,12 +39,16 @@ The main app is located in the [/app](./app) folder, please refer to its README 
 
 There is also a microservice app which is located in the [/app-microservice](./app-microservice) folder.
 
-## Docker
+## Install and run the project
 
 To run the all the stack with dependencies, you can use the following command:
 
 ```bash
-docker compose up -d --build
+cd app
 ```
-
-> The main app is currently disabled to run it without docker in develpment mode, you can enable it by uncommenting the `app` service in the [docker-compose.yml](./docker-compose.yml) file.
+```bash
+npm install
+```
+```bash
+npm run dev
+```
