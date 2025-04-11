@@ -33,14 +33,14 @@ export class UserEntity {
   }
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  created: Date;
+  created?: Date;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  updated: Date;
+  updated?: Date;
 
   @OneToMany(() => CatEntity, (cat) => cat.user)
-  cats: CatEntity[];
+  cats?: CatEntity[];
 
   @OneToMany(() => CommentEntity, (comment) => comment.user)
-  comments: CommentEntity[];
+  comments?: CommentEntity[];
 }

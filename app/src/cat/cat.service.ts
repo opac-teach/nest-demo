@@ -9,6 +9,7 @@ import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import {UserEntity} from "@/user/user.entity";
 import {UserResponseDto} from "@/user/dtos";
+import {_QueryDeepPartialEntity} from "typeorm/query-builder/QueryPartialEntity";
 export interface CatFindAllOptions extends FindManyOptions<CatEntity> {
   breedId?: string;
   includeBreed?: boolean;
@@ -68,7 +69,13 @@ export class CatService {
   }
 
   async update(id: string, cat: UpdateCatDto): Promise<CatEntity> {
-    const updateResponse = await this.catRepository.update(id, cat);
+
+    const updateData: _QueryDeepPartialEntity<CatEntity> = {
+      ...cat,
+      comments: cat.comments?.map((commentId) => ({ id: commentId })),
+    };
+
+    const updateResponse = await this.catRepository.update(id, updateData);
     if (updateResponse.affected === 0) {
       throw new NotFoundException('Cat not found');
     }

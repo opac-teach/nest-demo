@@ -12,18 +12,23 @@ export class AuthService {
   ) {}
 
   async register(registerDto: RegisterDto) {
-    const existingUser = await this.userService.findByEmail(registerDto.email);
-    if (existingUser) {
-      throw new Error('User already exists');
-    }
+    try {
+      const existingUser = await this.userService.findByEmail(registerDto.email);
+      if (existingUser) {
+        throw new Error('User already exists');
+      }
 
-    return this.userService.create({
-      username: registerDto.username,
-      firstname: registerDto.firstname,
-      lastname: registerDto.lastname,
-      email: registerDto.email,
-      password: registerDto.password
-    });
+      return await this.userService.create({
+        username: registerDto.username,
+        firstname: registerDto.firstname,
+        lastname: registerDto.lastname,
+        email: registerDto.email,
+        password: registerDto.password,
+      });
+    } catch (error) {
+      console.error('Error during user registration:', error.message);
+      throw error;
+    }
   }
 
   async validateUser(username: string, password: string): Promise<any> {

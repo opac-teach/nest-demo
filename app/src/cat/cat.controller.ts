@@ -20,8 +20,8 @@ import { AuthGuard} from "@/auth/auth.guard";
 export class CatController {
   constructor(private catService: CatService) {}
 
-  @Get('/')
-  @SerializeOptions({ type: CatResponseDto })// GET '/cat'
+  @Get('/') // GET '/cat'
+  @SerializeOptions({ type: CatResponseDto })
   @ApiOperation({ summary: 'Get all cats' })
   @ApiResponse({
     status: 200,
@@ -52,11 +52,11 @@ export class CatController {
     @Body() cat: CreateCatDto,
     @Request() req
     ): Promise<CatResponseDto> {
-    const userId = req.user.sub;
+    const userId = req.user?.sub;
     return this.catService.create(cat, userId);
   }
 
-  @Put(':id')// PUT '/cat/:id'
+  @Put(':id') // PUT '/cat/:id'
   @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Update a cat' })
   @ApiResponse({ status: 200, description: 'Returns the updated cat' })

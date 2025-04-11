@@ -63,10 +63,12 @@ describe('CatController', () => {
         age: 3,
         breedId: '1',
       };
+
+      const mockRequest = { user: {sub: mockCat.userId} };
       jest.spyOn(catService, 'create').mockResolvedValue(mockCat);
-      const result = await controller.create(mockCreateCatDto, mockCat.userId);
+      const result = await controller.create(mockCreateCatDto, mockRequest);
       expect(result).toEqual(mockCat);
-      expect(catService.create).toHaveBeenCalledWith(mockCreateCatDto);
+      expect(catService.create).toHaveBeenCalledWith(mockCreateCatDto, mockCat.userId);
     });
   });
 

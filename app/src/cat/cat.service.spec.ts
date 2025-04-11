@@ -17,6 +17,7 @@ describe('CatService', () => {
   let breedService: BreedService;
   let catRepository: Repository<CatEntity>;
   let eventEmitter: EventEmitter2;
+
   const mockCat: CatEntity = {
     id: '1',
     name: 'Fluffy',
@@ -141,6 +142,7 @@ describe('CatService', () => {
       expect(mockCatRepository.save).toHaveBeenCalledWith({
         ...newCat,
         color: mockColor,
+        userId: mockCat.userId,
       });
       expect(result).toEqual(mockCat);
 
