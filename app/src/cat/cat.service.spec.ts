@@ -41,7 +41,7 @@ describe('CatService', () => {
   };
 
   const mockUser: UsersEntity = {
-    userId: 1,
+    id: 1,
     firstname: "Moumgne",
     lastname: "Alain",
     username: "kaiser",

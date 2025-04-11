@@ -12,12 +12,10 @@ import {hashSync} from 'bcryptjs';
 describe('AuthService', () => {
   let service: AuthService;
   let usersService: UsersService;
-  let userRepository : Repository<UsersEntity>
-  let evenEmitter: EventEmitter2
   let jwtService: JwtService
 
   const mockUser: UsersEntity = {
-    userId: 1,
+    id: 1,
     firstname: "Moumgne",
     lastname: "Alain",
     username: "kaiser",
@@ -25,7 +23,7 @@ describe('AuthService', () => {
     password: hashSync('14523614'),
     description: "Hello world"
   }
-  const access_token = "acesstoken"
+  const accessToken = "acesstoken"
 
   const mockUserRepository: Partial<Repository<UsersEntity>> = {
     create: jest.fn().mockImplementation((user) => user),
@@ -64,10 +62,10 @@ describe('AuthService', () => {
         password: '14523614',
       };
       jest.spyOn(usersService, 'getUser').mockResolvedValue(mockUser);
-      jest.spyOn(jwtService, 'signAsync').mockResolvedValue(access_token)
+      jest.spyOn(jwtService, 'signAsync').mockResolvedValue(accessToken)
 
       const result = await service.login(mockLogin);
-      expect(result).toEqual({access_token: access_token });
+      expect(result).toEqual({access_token: accessToken });
 
       expect(service).toBeDefined();
     })
