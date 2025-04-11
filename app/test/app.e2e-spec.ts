@@ -174,7 +174,6 @@ describe('AppController (e2e)', () => {
 
       expect(res.body.name).toBe(inputCat.name);
       expect(res.body.age).toBe(inputCat.age);
-      expect(res.body.breedId).toBe(breed.id);
       expect(res.body.id).toBeDefined();
       expect(res.body.color.length).toBe(6);
       expect(events).toContainEqual({

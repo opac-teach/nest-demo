@@ -35,7 +35,7 @@ The API documentation is available at the `/swagger` endpoint.
 
 # Development
 
-The main app is located in the [/app](./app) folder, please refer to the [README](./app/README.md) for more information.
+The main app is located in the [/app](./app) folder, please refer to its README for more information.
 
 There is also a microservice app which is located in the [/app-microservice](./app-microservice) folder.
 
