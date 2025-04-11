@@ -14,6 +14,9 @@ import { databaseConfig } from './config';
 import { Reflector } from '@nestjs/core';
 import { LiveModule } from './live/live.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { UsersModule } from './users/users.module';
+import { AuthentifationModule } from './authentification/authentification.module'; 
+
 
 @Module({
   imports: [
@@ -22,8 +25,11 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     CatModule,
     BreedModule,
     LiveModule,
+    UsersModule,
+    AuthentifationModule,
   ],
   controllers: [AppController],
+  providers: [],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
