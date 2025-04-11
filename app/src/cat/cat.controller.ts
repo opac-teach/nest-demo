@@ -49,20 +49,9 @@ export class CatController {
 
   @Post() // POST '/cat'
   @ApiOperation({ summary: 'Create a cat' })
-<<<<<<< HEAD
   @ApiResponse({ status: 201, description: 'Returns the created cat' })
   create(@Body() cat: CreateCatDto, @Request() req: any ): Promise<CatResponseDto> {
     return this.catService.create(req.user.sub, cat);
-=======
-  @ApiResponse({
-    status: 201,
-    description: 'Returns the created cat',
-    type: CatResponseDto,
-  })
-  @SerializeOptions({ type: CatResponseDto })
-  create(@Body() cat: CreateCatDto): Promise<CatResponseDto> {
-    return this.catService.create(cat);
->>>>>>> main
   }
 
   @Put(':id') // PUT '/cat/:id'
