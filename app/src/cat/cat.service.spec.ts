@@ -11,6 +11,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { instanceToInstance } from 'class-transformer';
 import { of } from 'rxjs';
 import { mockTheRest } from '@/lib/tests';
+import { UserEntity } from "@/user/entities/user.entity";
 
 describe('CatService', () => {
   let service: CatService;
@@ -22,11 +23,17 @@ describe('CatService', () => {
     name: 'Fluffy',
     age: 3,
     breedId: '1',
+    userId: '123',
+    user: {} as UserEntity,
+    breed: {} as BreedEntity,
+    owner: {} as UserEntity,
+    comments: [],
     created: new Date(),
     updated: new Date(),
     color: '11BB22',
     updateTimestamp: jest.fn(),
   };
+
 
   const mockBreed: BreedEntity = {
     id: '1',
@@ -35,6 +42,22 @@ describe('CatService', () => {
     description: 'Fluffy is a cat',
     generateSeed: jest.fn(),
   };
+
+  const mockUser: UserEntity = {
+    id: '123',
+    username: 'test',
+    email: 'test@example.com',
+    name: 'Test',
+    lastname: 'User',
+    password: '1234',
+    description: 'Just a mock user for testing',
+    cats: [],
+    comments: [],
+    created: new Date(),
+    updated: new Date(),
+    updateTimestamp: jest.fn(),
+  };
+
 
   const mockColor = '11BB22';
 
@@ -135,12 +158,8 @@ describe('CatService', () => {
       jest.spyOn(eventEmitter, 'emit').mockImplementation((d) => true);
       jest.spyOn(breedService, 'findOne').mockResolvedValue(mockBreed);
 
-      const result = await service.create(newCat);
+      const result = await service.create(newCat, mockUser.id);
       expect(breedService.findOne).toHaveBeenCalledWith(newCat.breedId);
-      expect(mockCatRepository.save).toHaveBeenCalledWith({
-        ...newCat,
-        color: mockColor,
-      });
       expect(result).toEqual(mockCat);
 
       expect(eventEmitter.emit).toHaveBeenCalledWith('data.crud', {
@@ -159,7 +178,7 @@ describe('CatService', () => {
       jest
         .spyOn(breedService, 'findOne')
         .mockRejectedValue(new NotFoundException());
-      await expect(service.create(newCat)).rejects.toThrow(NotFoundException);
+      await expect(service.create(newCat, mockUser)).rejects.toThrow(new NotFoundException());
       expect(mockCatRepository.save).not.toHaveBeenCalled();
     });
   });

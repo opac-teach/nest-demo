@@ -45,7 +45,7 @@ export class CatService {
     return cat;
   }
 
-  async create(cat: CreateCatDto, user: UserResponseDto): Promise<CatEntity> {
+  async create(cat: CreateCatDto, userId): Promise<CatEntity> {
     const breed = await this.breedService.findOne(cat.breedId);
 
     // const { seed } = breed;
@@ -54,7 +54,7 @@ export class CatService {
 
     const color = '11BB22';
 
-    const newCat = this.catRepository.create({ ...cat, color, userId: user.id, owner: { id: user.id }, });
+    const newCat = this.catRepository.create({ ...cat, color, userId, owner: { id: userId }, });
     const createdCat = await this.catRepository.save(newCat);
 
     this.eventEmitter.emit('data.crud', {

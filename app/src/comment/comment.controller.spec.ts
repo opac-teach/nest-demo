@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CommentController } from './comment.controller';
 import { CommentService } from './comment.service';
+import { mockTheRest } from "@/lib/tests";
 
 describe('CommentController', () => {
   let controller: CommentController;
@@ -9,7 +10,9 @@ describe('CommentController', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [CommentController],
       providers: [CommentService],
-    }).compile();
+    })
+        .useMocker(mockTheRest)
+        .compile();
 
     controller = module.get<CommentController>(CommentController);
   });

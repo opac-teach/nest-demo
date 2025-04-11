@@ -5,8 +5,8 @@ import {
     BeforeUpdate,
     ManyToOne,
 } from 'typeorm';
-import { CatEntity } from 'src/cat/cat.entity';
-import { UserEntity } from 'src/user/entities/user.entity';
+import { CatEntity } from '@/cat/cat.entity';
+import { UserEntity } from '@/user/entities/user.entity';
 
 @Entity('comment')
 export class CommentEntity {

@@ -2,13 +2,16 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CatController } from '@/cat/cat.controller';
 import { CatService } from '@/cat/cat.service';
 import { CatEntity } from '@/cat/cat.entity';
-import { EventEmitterModule } from '@nestjs/event-emitter';
 import { mockTheRest } from '@/lib/tests';
+import { UserEntity } from "@/user/entities/user.entity";
 
 describe('CatController', () => {
   let controller: CatController;
   let catService: CatService;
   const mockCat: CatEntity = {
+    comments: [],
+    owner: {} as UserEntity,
+    userId: '',
     id: '1',
     name: 'Fluffy',
     age: 3,
@@ -16,7 +19,7 @@ describe('CatController', () => {
     created: new Date(),
     updated: new Date(),
     color: '11BB22',
-    updateTimestamp: jest.fn(),
+    updateTimestamp: jest.fn()
   };
 
   beforeEach(async () => {
@@ -55,6 +58,8 @@ describe('CatController', () => {
     });
   });
 
+  let req = { user: { id: '1' } };
+  const userId = req.user.id;
   describe('create', () => {
     it('should create a new cat', async () => {
       const mockCreateCatDto = {
@@ -63,9 +68,9 @@ describe('CatController', () => {
         breedId: '1',
       };
       jest.spyOn(catService, 'create').mockResolvedValue(mockCat);
-      const result = await controller.create(mockCreateCatDto);
+      const result = await controller.create(mockCreateCatDto, req);
       expect(result).toEqual(mockCat);
-      expect(catService.create).toHaveBeenCalledWith(mockCreateCatDto);
+      expect(catService.create).toHaveBeenCalledWith(mockCreateCatDto, userId);
     });
   });
 

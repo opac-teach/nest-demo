@@ -42,7 +42,7 @@ export class CatController {
   @ApiOperation({ summary: 'Create a cat' })
   @ApiResponse({ status: 201, description: 'Returns the created cat' })
   create(@Body() cat: CreateCatDto, @Req() req): Promise<CatResponseDto> {
-    return this.catService.create(cat, req.user);
+    return this.catService.create(cat, req.user.id);
   }
 
   @UseGuards(JwtAuthGuard)
