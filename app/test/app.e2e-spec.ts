@@ -349,6 +349,7 @@ describe('AppController (e2e)', () => {
     let catofUser2: CatResponseDto;
     let breed: BreedResponseDto;
     let crossRequest: CrossRequestResponseDto[];
+    let kitten: CatResponseDto;
 
     beforeAll(async () => {
       // on crée le deuxième user si il n'existe pas
@@ -464,6 +465,16 @@ describe('AppController (e2e)', () => {
       expect(res.body.name).toBe(kittenInput.name);
       expect(res.body.id).toBeDefined();
       expect(res.body.age).toBe(1);
+      kitten = res.body;
+    });
+
+    it('should get the kitten', async () => {
+      const res = await request(server)
+        .get(`/cat/${kitten.id}`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .expect(200);
+      const kittenWithBreed = { ...kitten, breed };
+      expect(res.body).toEqual(kittenWithBreed);
     });
   });
 
