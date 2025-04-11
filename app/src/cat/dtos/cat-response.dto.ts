@@ -67,4 +67,8 @@ export class CatResponseDto {
   })
   @Expose()
   color: string;
+
+  constructor(partial: Partial<CatResponseDto>) {
+    Object.assign(this, partial);
+  }
 }
