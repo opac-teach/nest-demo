@@ -5,14 +5,13 @@ import {
   Param,
   Post,
   Put,
-  SerializeOptions,
   Delete,
   Query,
   UseGuards,
   Request,
 } from '@nestjs/common';
 import { CatService } from '@/cat/cat.service';
-import { CatResponseDto, CreateCatDto, UpdateCatDto } from '@/cat/dtos';
+import { CatResponseDto, CreateCatDto, UpdateCatDto, BreedCatsDto } from '@/cat/dtos';
 import { AuthGuard } from '@nestjs/passport';
 import {
   ApiOperation,
@@ -89,4 +88,16 @@ export class CatController {
   delete(@Param('id') id: string, @Request() req): Promise<void> {
     return this.catService.delete(id, req.user.id);
   }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Post('breed')
+  @ApiOperation({ summary: 'Breed two cats' })
+  @ApiResponse({ status: 201, description: 'Crée un chaton à partir de deux autres chats. Le nom du chaton étant optionnel.' })
+  breed(
+    @Body() dto: BreedCatsDto,
+    @Request() req
+  ): Promise<CatResponseDto> {
+    return this.catService.breedCats(dto, req.user.id);
+  }
+
 }

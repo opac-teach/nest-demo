@@ -22,7 +22,7 @@ export class CatEntity {
   @Column()
   name: string;
 
-  @Column()
+  @Column({ type: 'int', default: 0 })
   age: number;
 
   @Column()

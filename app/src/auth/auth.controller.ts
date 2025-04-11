@@ -1,36 +1,24 @@
 import { Controller, Post, Body, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { JwtService } from '@nestjs/jwt';
+import { CreateUserDto } from '@/user/dtos/create-user.dto';
+import { LoginDto } from './dtos/login.dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-    private readonly jwtService: JwtService,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
   @Post('signup')
-  async signUp(
-    @Body('username') username: string,
-    @Body('email') email: string,
-    @Body('password') password: string,
-  ) {
-    return this.authService.signUp(username, email, password);
+  async signUp(@Body() dto: CreateUserDto) {
+    return this.authService.signUp(dto.username, dto.email, dto.password);
   }
 
   @Post('login')
-  async login(
-    @Body('email') email: string,
-    @Body('password') password: string,
-  ) {
-    const user = await this.authService.validateUser(email, password);
+  async login(@Body() dto: LoginDto) {
+    const user = await this.authService.validateUser(dto.email, dto.password);
     if (!user) {
       throw new UnauthorizedException('Email ou mot de passe invalide');
     }
 
-    const payload = { username: user.username, sub: user.id };
-    return {
-      access_token: this.jwtService.sign(payload),
-    };
+    return this.authService.login(user);
   }
 }

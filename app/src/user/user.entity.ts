@@ -8,6 +8,7 @@ import {
   } from 'typeorm';
   import { CatEntity } from '@/cat/cat.entity';
   import { Comment } from '@/comment/comment.entity';
+  import { Exclude } from 'class-transformer';
   
   @Entity()
   export class User {
@@ -21,6 +22,7 @@ import {
     email: string;
 
     @Column()
+    @Exclude()
     password: string;
   
     @Column({ nullable: true })

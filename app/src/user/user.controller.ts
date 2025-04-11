@@ -14,7 +14,7 @@ import {
 import { UserService } from './user.service';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 
 @Controller('users')
@@ -39,6 +39,7 @@ export class UserController {
 
   @UseGuards(AuthGuard('jwt'))
   @Patch(':id')
+  @ApiOperation({ summary: 'Update a user' })
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() data: UpdateUserDto,

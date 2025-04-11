@@ -11,6 +11,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { instanceToInstance } from 'class-transformer';
 import { of } from 'rxjs';
 import { mockTheRest } from '@/lib/tests';
+import { it } from 'node:test';
 
 describe('CatService', () => {
   let service: CatService;
@@ -180,6 +181,23 @@ describe('CatService', () => {
   
       await expect(service.delete('1', 999)).rejects.toThrow();
     });
+  });
+
+  describe('breedCats', () => {
+
+    const dto = {
+      catId1: 'cat-1',
+      catId2: 'cat-2',
+      name: 'Petit Chaton Magique',
+    };
+
+    const cat1 = { ...mockCat, id: dto.catId1, ownerId: 1 };
+    const cat2 = { ...mockCat, id: dto.catId2, ownerId: 1 };
+
+    it('should create a kitten from two cats with same breed', async () => {
+
+    });
+    
   });
   
 });

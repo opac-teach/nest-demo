@@ -1,9 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -32,7 +33,16 @@ export class UserService {
 
   async create(data: CreateUserDto): Promise<User> {
     const user = this.userRepo.create(data);
-    return this.userRepo.save(user);
+  
+    try {
+      return await this.userRepo.save(user);
+    } catch (err) {
+      console.error('Erreur typeORM:', err.detail);
+      if (err.code === '23505') {
+        throw new ConflictException('Email déjà utilisé');
+      }
+      throw new InternalServerErrorException('Erreur serveur');
+    }
   }
 
   async update(id: number, data: UpdateUserDto): Promise<User> {
