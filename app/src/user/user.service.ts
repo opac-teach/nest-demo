@@ -67,7 +67,7 @@ export class UserService {
     this.eventEmitter.emit('data.crud', {
       action: 'create',
       model: 'user',
-      cat: createdUser,
+      user: createdUser,
     });
 
     return createdUser;
@@ -84,7 +84,7 @@ export class UserService {
     this.eventEmitter.emit('data.crud', {
       action: 'update',
       model: 'user',
-      cat: updatedUser,
+      user: updatedUser,
     });
 
     return updatedUser;
@@ -118,14 +118,14 @@ export class UserService {
       this.eventEmitter.emit('data.crud', {
         action: 'delete',
         model: 'comment',
-        cat: comment,
+        comment: comment,
       });
     });
 
     this.eventEmitter.emit('data.crud', {
       action: 'delete',
       model: 'user',
-      cat: userToDelete,
+      user: userToDelete,
     });
   }
 }
