@@ -5,6 +5,7 @@ import {
   Param,
   Post,
   Put,
+  SerializeOptions,
   Query,
   UseGuards,
   Request
@@ -17,40 +18,39 @@ import { AuthGuard } from '@nestjs/passport';
 import { JWTAuthGuard } from '@/auth/Jwt-auth-guard';
 
 @Controller('cat') // route '/cat'
-// @UseGuards(RandomGuard)
-@UseGuards(JWTAuthGuard)
+@UseGuards(RandomGuard)
 export class CatController {
   constructor(private catService: CatService) {}
   @Get('/') // GET '/cat'
   @ApiOperation({ summary: 'Get all cats' })
   @ApiResponse({ status: 200, description: 'Returns all cats' })
-  findAll(@Query('userId') userId?: string): Promise<CatResponseDto[]> {
-    if (userId) {
-      return this.catService.findByUser(userId);
-    }
+  findAll(): Promise<CatResponseDto[]> {
     return this.catService.findAll({ includeBreed: true });
   }
 
   @Get(':id') // GET '/cat/:id'
   @ApiOperation({ summary: 'Get a cat by id' })
-  @ApiResponse({ status: 200, description: 'Returns a cat' })
-  findOne(@Param('id') id: string): Promise<CatResponseDto> {
-    return this.catService.findOne(id, true);
+  @ApiResponse({
+    status: 200,
+    description: 'Returns a cat',
+    type: CatResponseDto,
+  })
+  async findOne(@Param('id') id: string): Promise<CatResponseDto> {
+    const cat = await this.catService.findOne(id, true);
+    return new CatResponseDto(cat);
   }
 
   @Post() // POST '/cat'
   @ApiOperation({ summary: 'Create a cat' })
   @ApiResponse({ status: 201, description: 'Returns the created cat' })
-  // create(@Body() cat: CreateCatDto): Promise<CatResponseDto> {
-  //   return this.catService.create(cat);
-  async create(@Body() cat: CreateCatDto, @Request() req) {
-    const userId = req.user.userId;
-    return this.catService.create(cat, userId);
+  create(@Body() cat: CreateCatDto): Promise<CatResponseDto> {
+    return this.catService.create(cat);
   }
 
   @Put(':id') // PUT '/cat/:id'
   @ApiOperation({ summary: 'Update a cat' })
   @ApiResponse({ status: 200, description: 'Returns the updated cat' })
+  @SerializeOptions({ type: CatResponseDto })
   async update(
     @Param('id') id: string,
     @Body() cat: UpdateCatDto,
