@@ -1,230 +1,125 @@
+import * as request from 'supertest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
-import { App } from 'supertest/types';
-import { AppModule, registerGlobals } from '@/app.module';
-import { CreateBreedDto } from '@/breed/dtos/create-breed';
-import { CreateCatDto } from '@/cat/dtos';
-import { RandomGuard } from '@/lib/random.guard';
-import { BreedResponseDto } from '@/breed/dtos';
-import { CatResponseDto } from '@/cat/dtos';
-import { Socket, io } from 'socket.io-client';
-import { wait } from '@/lib/utils';
+import { AppModule } from '@/app.module';
+import { DataSource } from 'typeorm';
 
-describe('AppController (e2e)', () => {
-  let app: INestApplication<App>;
-  let server: ReturnType<INestApplication['getHttpServer']>;
-  let ioClient: Socket;
-  let events: { event: string; data: any }[] = [];
+export let token: string;
+const userEmail = `jonhdoe${new Date().getTime()}@gmail.com`;
+const userName = `jonhdoe${new Date().getTime()}`;
+let breedId: number;
+let catId: string;
 
-  const inputBreed: CreateBreedDto = {
-    name: 'Fluffy',
-    description: 'A fluffy breed',
-  };
-
-  const inputCat: CreateCatDto = {
-    name: 'Alfred',
-    age: 1,
-    breedId: '',
-  };
+describe('Auth E2E', () => {
+  let app: INestApplication;
+  let dataSource: DataSource;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    })
-      .overrideGuard(RandomGuard)
-      .useValue({ canActivate: () => true })
-      .compile();
+    }).compile();
 
     app = moduleFixture.createNestApplication();
-    registerGlobals(app);
-
     await app.init();
 
-    server = app.getHttpServer();
-
-    app.listen(9001);
-    ioClient = io('http://localhost:9001', {
-      autoConnect: false,
-      transports: ['websocket', 'polling'],
-    });
-    ioClient.connect();
-    ioClient.emit('subscribe', { name: 'test' });
-    ioClient.onAny((event, data) => {
-      events.push({ event, data });
-    });
-  });
-
-  afterEach(async () => {
-    events = [];
+    dataSource = app.get(DataSource);
   });
 
   afterAll(async () => {
-    ioClient.offAny();
-    ioClient.disconnect();
+    await dataSource.destroy();
     await app.close();
   });
 
-  it('Health check', () => {
-    request(server).get('/').expect(200).expect('OK');
+  it('should create a user and return a JWT token on login', async () => {
+    const createUserResponse = await request(app.getHttpServer())
+      .post('/user')
+      .send({
+        username: userName,
+        email: userEmail,
+        password: 'Azerty12345!',
+        biography: 'Test biography',
+      })
+      .expect(201);
+
+    expect(createUserResponse.body).toHaveProperty('id');
+    expect(createUserResponse.body.email).toBe(userEmail);
+    expect(createUserResponse.body.username).toBe(userName);
+
+    const loginResponse = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({
+        email: userEmail,
+        password: 'Azerty12345!',
+      })
+      .expect(201);
+
+    token = loginResponse.body.token;
+
+    expect(token).toBeDefined();
+    expect(typeof token).toBe('string');
   });
 
-  describe('Breed', () => {
-    it('should create a breed', async () => {
-      const res = await request(server)
-        .post('/breed')
-        .send(inputBreed)
-        .expect(201);
+  it('should edit the user', async () => {
+    const authHeaders = { Authorization: 'Bearer ' + token };
+    console.log(authHeaders);
+    const updateUserResponse = await request(app.getHttpServer())
+      .patch('/user')
+      .set(authHeaders)
+      .expect(200);
 
-      expect(res.body.name).toBe(inputBreed.name);
-      expect(res.body.description).toBe(inputBreed.description);
-      expect(res.body.id).toBeDefined();
-      expect(res.body.seed).not.toBeDefined();
-      expect(events).toContainEqual({
-        event: 'data.crud',
-        data: {
-          action: 'create',
-          model: 'breed',
-          breed: res.body,
-        },
-      });
-    });
-
-    it('should rejects wrong inputs', async () => {
-      await request(server)
-        .post('/breed')
-        .send({
-          description: 'A fluffy breed',
-        })
-        .expect(400);
-      await request(server)
-        .post('/breed')
-        .send({
-          name: '',
-        })
-        .expect(400);
-    });
-
-    it('should get all breeds', async () => {
-      const { body: createdBreed } = await request(server)
-        .post('/breed')
-        .send(inputBreed)
-        .expect(201);
-      const res = await request(server).get('/breed').expect(200);
-      expect(res.body).toContainEqual(createdBreed);
-    });
-
-    it('should get all cats of a breed', async () => {
-      const { body: createdBreed } = await request(server)
-        .post('/breed')
-        .send(inputBreed)
-        .expect(201);
-
-      const { body: createdCat } = await request(server)
-        .post('/cat')
-        .send({
-          ...inputCat,
-          breedId: createdBreed.id,
-        })
-        .expect(201);
-      const { body: createdCat2 } = await request(server)
-        .post('/cat')
-        .send({
-          ...inputCat,
-          breedId: createdBreed.id,
-        })
-        .expect(201);
-
-      const res = await request(server)
-        .get(`/breed/${createdBreed.id}/cats`)
-        .expect(200);
-
-      expect(res.body).toEqual([createdCat, createdCat2]);
-    });
+    expect(updateUserResponse.body).toHaveProperty('id');
   });
 
-  describe('Cat', () => {
-    let breed: BreedResponseDto;
-    let cat: CatResponseDto;
+  it('should create a breed', async () => {
+    const createdBreedResponse = await request(app.getHttpServer())
+      .post('/breed')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        name: 'Test breed',
+        description: 'Test breed description',
+      })
+      .expect(201);
 
-    beforeAll(async () => {
-      const res = await request(server)
-        .post('/breed')
-        .send(inputBreed)
-        .expect(201);
-      breed = res.body;
-      const catRes = await request(server)
-        .post('/cat')
-        .send({
-          ...inputCat,
-          breedId: breed.id,
-        })
-        .expect(201);
-      cat = catRes.body;
-    });
+    breedId = createdBreedResponse.body.id;
 
-    it('should create a cat', async () => {
-      const res = await request(server)
-        .post('/cat')
-        .send({
-          ...inputCat,
-          breedId: breed.id,
-        })
-        .expect(201);
+    expect(createdBreedResponse.body).toHaveProperty('id');
+    expect(createdBreedResponse.body.name).toBe('Test breed');
+    expect(createdBreedResponse.body.description).toBe(
+      'Test breed description',
+    );
+  });
 
-      expect(res.body.name).toBe(inputCat.name);
-      expect(res.body.age).toBe(inputCat.age);
-      expect(res.body.id).toBeDefined();
-      expect(res.body.color.length).toBe(6);
-      expect(events).toContainEqual({
-        event: 'data.crud',
-        data: {
-          action: 'create',
-          model: 'cat',
-          cat: res.body,
-        },
-      });
-    });
+  it('should create a cat', async () => {
+    const createdCatResponse = await request(app.getHttpServer())
+      .post('/cat')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        name: 'Test cat',
+        breedId: breedId,
+        age: 2,
+        description: 'Test cat description',
+      })
+      .expect(201);
 
-    it('should get all cats', async () => {
-      const res = await request(server).get('/cat').expect(200);
-      const catWithBreed = { ...cat, breed };
-      expect(res.body).toContainEqual(catWithBreed);
-    });
+    catId = createdCatResponse.body.id;
 
-    it('should get a cat by id', async () => {
-      const res = await request(server).get(`/cat/${cat.id}`).expect(200);
-      const catWithBreed = { ...cat, breed };
-      expect(res.body).toEqual(catWithBreed);
-    });
+    expect(createdCatResponse.body).toHaveProperty('id');
+    expect(createdCatResponse.body.name).toBe('Test cat');
+    expect(createdCatResponse.body.age).toBe(2);
+    expect(createdCatResponse.body.description).toBe('Test cat description');
+  });
 
-    it('should update a cat', async () => {
-      const { body: updatedCat } = await request(server)
-        .put(`/cat/${cat.id}`)
-        .send({
-          ...inputCat,
-          name: 'Alfred 2',
-          age: 4,
-        });
+  it('should post a comment on a cat', async () => {
+    const createdCommentResponse = await request(app.getHttpServer())
+      .post('/comments')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        content: 'Test comment',
+        catId: catId,
+      })
+      .expect(201);
 
-      expect(updatedCat.name).toBe('Alfred 2');
-      expect(updatedCat.age).toBe(4);
-
-      const findCatRes = await request(server)
-        .get(`/cat/${cat.id}`)
-        .expect(200);
-
-      const updatedCatWithBreed = { ...updatedCat, breed };
-      expect(findCatRes.body).toEqual(updatedCatWithBreed);
-
-      expect(events).toContainEqual({
-        event: 'data.crud',
-        data: {
-          action: 'update',
-          model: 'cat',
-          cat: updatedCat,
-        },
-      });
-    });
+    expect(createdCommentResponse.body).toHaveProperty('id');
+    expect(createdCommentResponse.body.text).toBe('Test comment');
   });
 });

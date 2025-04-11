@@ -1,36 +1,35 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CatController } from '@/cat/cat.controller';
-import { CatService } from '@/cat/cat.service';
-import { CatEntity } from '@/cat/cat.entity';
-import { EventEmitterModule } from '@nestjs/event-emitter';
-import { mockTheRest } from '@/lib/tests';
+import { CatController } from './cat.controller';
+import { CatService } from './cat.service';
+import { CreateCatDto, UpdateCatDto } from './dtos';
+import { NotFoundException } from '@nestjs/common';
+import { CreateCrossbreedCatDto } from './dtos/create-crossbredd-cat.dto';
 
 describe('CatController', () => {
   let controller: CatController;
-  let catService: CatService;
-  const mockCat: CatEntity = {
-    id: '1',
-    name: 'Fluffy',
-    age: 3,
-    breedId: '1',
-    created: new Date(),
-    updated: new Date(),
-    color: '11BB22',
-    updateTimestamp: jest.fn(),
+  let service: CatService;
+
+  const mockCatService = {
+    findAll: jest.fn(),
+    findOne: jest.fn(),
+    create: jest.fn(),
+    update: jest.fn(),
+    crossbreed: jest.fn(),
   };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [CatController],
-      providers: [CatService],
-    })
-      .useMocker(mockTheRest)
-      .compile();
+      providers: [
+        {
+          provide: CatService,
+          useValue: mockCatService,
+        },
+      ],
+    }).compile();
 
     controller = module.get<CatController>(CatController);
-    catService = module.get<CatService>(CatService);
-
-    jest.clearAllMocks();
+    service = module.get<CatService>(CatService);
   });
 
   it('should be defined', () => {
@@ -38,47 +37,112 @@ describe('CatController', () => {
   });
 
   describe('findAll', () => {
-    it('should return an array of cat', async () => {
-      jest.spyOn(catService, 'findAll').mockResolvedValue([mockCat]);
-      const result = await controller.findAll();
-      expect(result).toEqual([mockCat]);
-      expect(catService.findAll).toHaveBeenCalledWith({ includeBreed: true });
+    it('should call service.findAll with correct options', async () => {
+      const options = { breedId: 'breed-id', includeBreed: true };
+      const result = [{ id: 'cat-id', name: 'Cat' }];
+      mockCatService.findAll.mockResolvedValue(result);
+
+      const response = await controller.findAll(options);
+
+      expect(service.findAll).toHaveBeenCalledWith(options);
+      expect(response).toEqual(result);
     });
   });
 
   describe('findOne', () => {
-    it('should return a single cat', async () => {
-      jest.spyOn(catService, 'findOne').mockResolvedValue(mockCat);
-      const result = await controller.findOne('1');
-      expect(result).toEqual(mockCat);
-      expect(catService.findOne).toHaveBeenCalledWith('1', true);
+    it('should return a cat if found', async () => {
+      const catId = 'cat-id';
+      const result = { id: catId, name: 'Cat' };
+      mockCatService.findOne.mockResolvedValue(result);
+
+      const response = await controller.findOne(catId);
+
+      expect(service.findOne).toHaveBeenCalledWith(catId, true);
+      expect(response).toEqual(result);
+    });
+
+    it('should throw NotFoundException if cat is not found', async () => {
+      mockCatService.findOne.mockRejectedValue(new NotFoundException());
+
+      await expect(controller.findOne('nonexistent-id')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
   describe('create', () => {
-    it('should create a new cat', async () => {
-      const mockCreateCatDto = {
-        name: 'Fluffy',
-        age: 3,
-        breedId: '1',
+    it('should create and return a new cat', async () => {
+      const createCatDto: CreateCatDto = {
+        name: 'New Cat',
+        age: 1,
+        breedId: 'breed-id',
       };
-      jest.spyOn(catService, 'create').mockResolvedValue(mockCat);
-      const result = await controller.create(mockCreateCatDto);
-      expect(result).toEqual(mockCat);
-      expect(catService.create).toHaveBeenCalledWith(mockCreateCatDto);
+      const userId = 'user-id';
+      const result = { id: 'cat-id', ...createCatDto };
+      mockCatService.create.mockResolvedValue(result);
+
+      const response = await controller.create(createCatDto, { userId });
+
+      expect(service.create).toHaveBeenCalledWith(createCatDto, userId);
+      expect(response).toEqual(result);
     });
   });
 
   describe('update', () => {
-    it('should update a cat', async () => {
-      const mockUpdateCatDto = {
-        name: 'Fluffy',
-        age: 3,
+    it('should update and return the updated cat', async () => {
+      const updateCatDto: UpdateCatDto = { name: 'Updated Cat' };
+      const catId = 'cat-id';
+      const userId = 'user-id';
+      const result = { id: catId, ...updateCatDto };
+      mockCatService.update.mockResolvedValue(result);
+
+      const response = await controller.update(catId, updateCatDto, { userId });
+
+      expect(service.update).toHaveBeenCalledWith(catId, updateCatDto, userId);
+      expect(response).toEqual(result);
+    });
+
+    it('should throw NotFoundException if cat is not found', async () => {
+      mockCatService.update.mockRejectedValue(new NotFoundException());
+
+      await expect(
+        controller.update('nonexistent-id', {}, { userId: 'user-id' }),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('crossbreed', () => {
+    it('should create and return a crossbred cat', async () => {
+      const crossbreedDto: CreateCrossbreedCatDto = {
+        catId1: 'cat1-id',
+        catId2: 'cat2-id',
+        name: 'Crossbred Cat',
+        age: 1,
       };
-      jest.spyOn(catService, 'update').mockResolvedValue(mockCat);
-      const result = await controller.update('1', mockUpdateCatDto);
-      expect(result).toEqual(mockCat);
-      expect(catService.update).toHaveBeenCalledWith('1', mockUpdateCatDto);
+      const userId = 'user-id';
+      const result = { id: 'new-cat-id', ...crossbreedDto };
+      mockCatService.crossbreed.mockResolvedValue(result);
+
+      const response = await controller.crossbreed(crossbreedDto, { userId });
+
+      expect(service.crossbreed).toHaveBeenCalledWith(crossbreedDto, userId);
+      expect(response).toEqual(result);
+    });
+
+    it('should throw NotFoundException if one of the cats is not found', async () => {
+      mockCatService.crossbreed.mockRejectedValue(new NotFoundException());
+
+      await expect(
+        controller.crossbreed(
+          {
+            catId1: 'cat1-id',
+            catId2: 'cat2-id',
+            name: 'Crossbred Cat',
+            age: 1,
+          },
+          { userId: 'user-id' },
+        ),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 });

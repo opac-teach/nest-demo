@@ -7,11 +7,25 @@ import { BreedEntity } from '@/breed/breed.entity';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { BreedModule } from '@/breed/breed.module';
 import { redisConfig } from '@/config';
+import { AuthModule } from '@/auth/auth.module';
+import { UserService } from '@/user/user.service';
+import { UserEntity } from '@/user/entities/user.entity';
+import { UserModule } from '@/user/user.module';
+import { CommentsModule } from '@/comments/comments.module';
+import { CommentEntity } from '@/comments/entities/comment.entity';
 @Module({
   controllers: [CatController],
-  providers: [CatService],
+  providers: [CatService, UserService],
   imports: [
-    TypeOrmModule.forFeature([CatEntity, BreedEntity]),
+    TypeOrmModule.forFeature([
+      CatEntity,
+      BreedEntity,
+      UserEntity,
+      CommentEntity,
+    ]),
+    AuthModule,
+    CommentsModule,
+    UserModule,
     ClientsModule.register([
       {
         name: 'COLORS_SERVICE',
@@ -21,6 +35,6 @@ import { redisConfig } from '@/config';
     ]),
     forwardRef(() => BreedModule),
   ],
-  exports: [CatService],
+  exports: [CatService, UserService],
 })
 export class CatModule {}

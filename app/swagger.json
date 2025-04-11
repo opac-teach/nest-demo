@@ -1,0 +1,970 @@
+{
+"openapi": "3.0.0",
+"paths": {
+"http://localhost:3000/": {
+"get": {
+"operationId": "AppController_healthCheck",
+"parameters": [],
+"responses": {
+"200": {
+"description": "Returns a status message"
+}
+},
+"summary": "Health check",
+"tags": [
+"App"
+]
+}
+},
+"/cat": {
+"get": {
+"operationId": "CatController_findAll",
+"parameters": [
+{
+"name": "includeUser",
+"required": false,
+"in": "query",
+"schema": {
+"type": "boolean"
+}
+},
+{
+"name": "userId",
+"required": false,
+"in": "query",
+"schema": {
+"type": "string"
+}
+},
+{
+"name": "includeBreed",
+"required": false,
+"in": "query",
+"schema": {
+"type": "boolean"
+}
+},
+{
+"name": "breedId",
+"required": false,
+"in": "query",
+"schema": {
+"type": "string"
+}
+}
+],
+"responses": {
+"200": {
+"description": "Returns all cats",
+"content": {
+"application/json": {
+"schema": {
+"$ref": "#/components/schemas/CatResponseDto"
+}
+}
+}
+}
+},
+"summary": "Get all cats",
+"tags": [
+"Cat"
+]
+},
+"post": {
+"operationId": "CatController_create",
+"parameters": [],
+"requestBody": {
+"required": true,
+"content": {
+"application/json": {
+"schema": {
+"$ref": "#/components/schemas/CreateCatDto"
+}
+}
+}
+},
+"responses": {
+"201": {
+"description": "Returns the created cat"
+}
+},
+"security": [
+{
+"bearer": []
+}
+],
+"summary": "Create a cat",
+"tags": [
+"Cat"
+]
+}
+},
+"/cat/{id}": {
+"get": {
+"operationId": "CatController_findOne",
+"parameters": [
+{
+"name": "id",
+"required": true,
+"in": "path",
+"schema": {
+"type": "string"
+}
+}
+],
+"responses": {
+"200": {
+"description": "Returns a cat"
+}
+},
+"summary": "Get a cat by id",
+"tags": [
+"Cat"
+]
+},
+"put": {
+"operationId": "CatController_update",
+"parameters": [
+{
+"name": "id",
+"required": true,
+"in": "path",
+"schema": {
+"type": "string"
+}
+}
+],
+"requestBody": {
+"required": true,
+"content": {
+"application/json": {
+"schema": {
+"$ref": "#/components/schemas/UpdateCatDto"
+}
+}
+}
+},
+"responses": {
+"200": {
+"description": "Returns the updated cat"
+}
+},
+"security": [
+{
+"bearer": []
+}
+],
+"summary": "Update a cat",
+"tags": [
+"Cat"
+]
+}
+},
+"/cat/crossbreed": {
+"post": {
+"operationId": "CatController_crossbreed",
+"parameters": [],
+"requestBody": {
+"required": true,
+"content": {
+"application/json": {
+"schema": {
+"$ref": "#/components/schemas/CreateCrossbreedCatDto"
+}
+}
+}
+},
+"responses": {
+"200": {
+"description": "Returns the crossbred cat"
+}
+},
+"security": [
+{
+"bearer": []
+}
+],
+"summary": "Crossbreed two cats",
+"tags": [
+"Cat"
+]
+}
+},
+"/auth/login": {
+"post": {
+"operationId": "AuthController_login",
+"parameters": [],
+"requestBody": {
+"required": true,
+"content": {
+"application/json": {
+"schema": {
+"$ref": "#/components/schemas/LoginUserDto"
+}
+}
+}
+},
+"responses": {
+"201": {
+"description": ""
+}
+},
+"summary": "User login",
+"tags": [
+"auth"
+]
+}
+},
+"/comments": {
+"post": {
+"operationId": "CommentsController_create",
+"parameters": [],
+"requestBody": {
+"required": true,
+"content": {
+"application/json": {
+"schema": {
+"$ref": "#/components/schemas/CreateCommentDto"
+}
+}
+}
+},
+"responses": {
+"201": {
+"description": ""
+}
+},
+"security": [
+{
+"bearer": []
+}
+],
+"tags": [
+"Comments"
+]
+}
+},
+"/comments/by-cat/{catId}": {
+"get": {
+"operationId": "CommentsController_findAllByCatId",
+"parameters": [
+{
+"name": "catId",
+"required": true,
+"in": "path",
+"schema": {
+"type": "string"
+}
+}
+],
+"responses": {
+"200": {
+"description": ""
+}
+},
+"tags": [
+"Comments"
+]
+}
+},
+"/comments/by-user/{userId}": {
+"get": {
+"operationId": "CommentsController_findAllByUserId",
+"parameters": [
+{
+"name": "userId",
+"required": true,
+"in": "path",
+"schema": {
+"type": "string"
+}
+}
+],
+"responses": {
+"200": {
+"description": ""
+}
+},
+"tags": [
+"Comments"
+]
+}
+},
+"/comments/{id}": {
+"get": {
+"operationId": "CommentsController_findOne",
+"parameters": [
+{
+"name": "id",
+"required": true,
+"in": "path",
+"schema": {
+"type": "string"
+}
+}
+],
+"responses": {
+"200": {
+"description": ""
+}
+},
+"tags": [
+"Comments"
+]
+},
+"patch": {
+"operationId": "CommentsController_update",
+"parameters": [
+{
+"name": "id",
+"required": true,
+"in": "path",
+"schema": {
+"type": "string"
+}
+}
+],
+"requestBody": {
+"required": true,
+"content": {
+"application/json": {
+"schema": {
+"$ref": "#/components/schemas/UpdateCommentDto"
+}
+}
+}
+},
+"responses": {
+"200": {
+"description": ""
+}
+},
+"security": [
+{
+"bearer": []
+}
+],
+"tags": [
+"Comments"
+]
+},
+"delete": {
+"operationId": "CommentsController_remove",
+"parameters": [
+{
+"name": "id",
+"required": true,
+"in": "path",
+"schema": {
+"type": "string"
+}
+}
+],
+"responses": {
+"200": {
+"description": ""
+}
+},
+"security": [
+{
+"bearer": []
+}
+],
+"tags": [
+"Comments"
+]
+}
+},
+"/user": {
+"post": {
+"operationId": "UserController_create",
+"parameters": [],
+"requestBody": {
+"required": true,
+"content": {
+"application/json": {
+"schema": {
+"$ref": "#/components/schemas/CreateUserDto"
+}
+}
+}
+},
+"responses": {
+"201": {
+"description": ""
+}
+},
+"tags": [
+"User"
+]
+},
+"get": {
+"operationId": "UserController_findAll",
+"parameters": [],
+"responses": {
+"200": {
+"description": ""
+}
+},
+"tags": [
+"User"
+]
+},
+"patch": {
+"operationId": "UserController_update",
+"parameters": [],
+"requestBody": {
+"required": true,
+"content": {
+"application/json": {
+"schema": {
+"$ref": "#/components/schemas/UpdateUserDto"
+}
+}
+}
+},
+"responses": {
+"200": {
+"description": ""
+}
+},
+"tags": [
+"User"
+]
+},
+"delete": {
+"operationId": "UserController_remove",
+"parameters": [],
+"responses": {
+"200": {
+"description": ""
+}
+},
+"tags": [
+"User"
+]
+}
+},
+"/user/{id}": {
+"get": {
+"operationId": "UserController_findOne",
+"parameters": [
+{
+"name": "id",
+"required": true,
+"in": "path",
+"schema": {
+"type": "string"
+}
+}
+],
+"responses": {
+"200": {
+"description": ""
+}
+},
+"tags": [
+"User"
+]
+}
+},
+"/breed": {
+"get": {
+"operationId": "BreedController_findAll",
+"parameters": [],
+"responses": {
+"200": {
+"description": "Returns all breeds"
+}
+},
+"summary": "Get all breeds",
+"tags": [
+"Breed"
+]
+},
+"post": {
+"operationId": "BreedController_create",
+"parameters": [],
+"requestBody": {
+"required": true,
+"content": {
+"application/json": {
+"schema": {
+"$ref": "#/components/schemas/CreateBreedDto"
+}
+}
+}
+},
+"responses": {
+"201": {
+"description": "Returns the created breed"
+}
+},
+"security": [
+{
+"bearer": []
+}
+],
+"summary": "Create a breed",
+"tags": [
+"Breed"
+]
+}
+},
+"/breed/{id}": {
+"get": {
+"operationId": "BreedController_findOne",
+"parameters": [
+{
+"name": "id",
+"required": true,
+"in": "path",
+"schema": {
+"type": "string"
+}
+}
+],
+"responses": {
+"200": {
+"description": "Returns a breed"
+}
+},
+"summary": "Get a breed by id",
+"tags": [
+"Breed"
+]
+}
+},
+"/breed/{id}/cats": {
+"get": {
+"operationId": "BreedController_findCats",
+"parameters": [
+{
+"name": "id",
+"required": true,
+"in": "path",
+"schema": {
+"type": "string"
+}
+}
+],
+"responses": {
+"200": {
+"description": "Returns all cats by breed id"
+}
+},
+"summary": "Get all cats by breed id",
+"tags": [
+"Breed"
+]
+}
+},
+"/cross-breeeding-request": {
+"post": {
+"operationId": "CrossBreeedingRequestController_createCrossBreedingRequest",
+"parameters": [],
+"requestBody": {
+"required": true,
+"content": {
+"application/json": {
+"schema": {
+"$ref": "#/components/schemas/CreateCrossBreedingRequestDto"
+}
+}
+}
+},
+"responses": {
+"201": {
+"description": "Returns the created cross breeding request",
+"content": {
+"application/json": {
+"schema": {
+"$ref": "#/components/schemas/CrossBreedingRequestEntity"
+}
+}
+}
+}
+},
+"security": [
+{
+"bearer": []
+}
+],
+"summary": "Ask for cross breeding",
+"tags": [
+"CrossBreeedingRequest"
+]
+}
+},
+"/cross-breeeding-request/accept/{id}": {
+"get": {
+"operationId": "CrossBreeedingRequestController_acceptCrossBreedingRequest",
+"parameters": [
+{
+"name": "id",
+"required": true,
+"in": "path",
+"schema": {
+"type": "number"
+}
+}
+],
+"responses": {
+"200": {
+"description": "Returns the accepted cross breeding request",
+"content": {
+"application/json": {
+"schema": {
+"$ref": "#/components/schemas/CrossBreedingRequestEntity"
+}
+}
+}
+}
+},
+"security": [
+{
+"bearer": []
+}
+],
+"summary": "Accept a cross breeding request",
+"tags": [
+"CrossBreeedingRequest"
+]
+}
+},
+"/cross-breeeding-request/reject/{id}": {
+"get": {
+"operationId": "CrossBreeedingRequestController_refuseCrossBreedingRequest",
+"parameters": [
+{
+"name": "id",
+"required": true,
+"in": "path",
+"schema": {
+"type": "number"
+}
+}
+],
+"responses": {
+"200": {
+"description": "Returns the rejected cross breeding request",
+"content": {
+"application/json": {
+"schema": {
+"$ref": "#/components/schemas/CrossBreedingRequestEntity"
+}
+}
+}
+}
+},
+"security": [
+{
+"bearer": []
+}
+],
+"summary": "Reject a cross breeding request",
+"tags": [
+"CrossBreeedingRequest"
+]
+}
+}
+},
+"info": {
+"title": "Cats example",
+"description": "The cats API description",
+"version": "1.0",
+"contact": {}
+},
+"tags": [],
+"servers": [],
+"components": {
+"securitySchemes": {
+"bearer": {
+"scheme": "Bearer",
+"bearerFormat": "Bearer",
+"description": "[just text field] Please enter token in following format: Bearer <JWT>",
+"name": "Authorization",
+"type": "http",
+"in": "Header"
+}
+},
+"schemas": {
+"BreedResponseDto": {
+"type": "object",
+"properties": {
+"id": {
+"type": "string"
+},
+"name": {
+"type": "string",
+"description": "The name of the breed"
+},
+"description": {
+"type": "string",
+"description": "The description of the breed"
+},
+"cats": {
+"type": "array",
+"items": {
+"type": "array"
+}
+}
+},
+"required": [
+"id",
+"name",
+"description",
+"cats"
+]
+},
+"CatResponseDto": {
+"type": "object",
+"properties": {
+"id": {
+"type": "string",
+"description": "The id of the cat"
+},
+"name": {
+"type": "string",
+"description": "The name of the cat"
+},
+"age": {
+"type": "number",
+"description": "The age of the cat"
+},
+"breedId": {
+"type": "string",
+"description": "The id of the breed of the cat"
+},
+"breed": {
+"description": "The breed of the cat",
+"allOf": [
+{
+"$ref": "#/components/schemas/BreedResponseDto"
+}
+]
+},
+"created": {
+"format": "date-time",
+"type": "string",
+"description": "The date of creation of the cat"
+},
+"updated": {
+"format": "date-time",
+"type": "string",
+"description": "The date of update of the cat"
+},
+"color": {
+"type": "string",
+"description": "The color of the cat"
+}
+},
+"required": [
+"id",
+"name",
+"age",
+"breedId",
+"breed",
+"created",
+"updated",
+"color"
+]
+},
+"CreateCatDto": {
+"type": "object",
+"properties": {
+"name": {
+"type": "string",
+"description": "The name of the cat"
+},
+"age": {
+"type": "number",
+"description": "The age of the cat"
+},
+"breedId": {
+"type": "number",
+"description": "The id of the breed of the cat"
+}
+},
+"required": [
+"name",
+"age",
+"breedId"
+]
+},
+"UpdateCatDto": {
+"type": "object",
+"properties": {
+"name": {
+"type": "string",
+"description": "The name of the cat"
+},
+"age": {
+"type": "number",
+"description": "The age of the cat"
+}
+}
+},
+"CreateCrossbreedCatDto": {
+"type": "object",
+"properties": {
+"catId1": {
+"type": "string",
+"description": "The id of the cat"
+},
+"catId2": {
+"type": "string",
+"description": "The id of the cat"
+},
+"name": {
+"type": "string",
+"description": "The name of the cat"
+},
+"age": {
+"type": "number",
+"description": "The age of the cat"
+}
+},
+"required": [
+"catId1",
+"catId2",
+"name",
+"age"
+]
+},
+"LoginUserDto": {
+"type": "object",
+"properties": {
+"email": {
+"type": "string",
+"description": "The email of the user"
+},
+"password": {
+"type": "string",
+"description": "The password of the user"
+}
+},
+"required": [
+"email",
+"password"
+]
+},
+"CreateCommentDto": {
+"type": "object",
+"properties": {
+"content": {
+"type": "string",
+"description": "The content of the comment"
+},
+"catId": {
+"type": "string",
+"description": "The ID of the cat the comment belongs to"
+}
+},
+"required": [
+"content",
+"catId"
+]
+},
+"UpdateCommentDto": {
+"type": "object",
+"properties": {
+"content": {
+"type": "string",
+"description": "The content of the comment"
+},
+"catId": {
+"type": "string",
+"description": "The ID of the cat the comment belongs to"
+}
+}
+},
+"CreateUserDto": {
+"type": "object",
+"properties": {
+"username": {
+"type": "string",
+"description": "The username of the user"
+},
+"email": {
+"type": "string",
+"description": "The email of the user"
+},
+"password": {
+"type": "string",
+"description": "The password of the user"
+},
+"biography": {
+"type": "string",
+"description": "The biography of the user"
+}
+},
+"required": [
+"username",
+"email",
+"password",
+"biography"
+]
+},
+"UpdateUserDto": {
+"type": "object",
+"properties": {
+"username": {
+"type": "string",
+"description": "The username of the user"
+},
+"email": {
+"type": "string",
+"description": "The email of the user"
+},
+"password": {
+"type": "string",
+"description": "The password of the user"
+},
+"biography": {
+"type": "string",
+"description": "The biography of the user"
+}
+}
+},
+"CreateBreedDto": {
+"type": "object",
+"properties": {
+"name": {
+"type": "string",
+"description": "The name of the breed"
+},
+"description": {
+"type": "string",
+"description": "The description of the breed"
+}
+},
+"required": [
+"name",
+"description"
+]
+},
+"CreateCrossBreedingRequestDto": {
+"type": "object",
+"properties": {
+"askingCatId": {
+"type": "string",
+"description": "The id of the asking cat"
+},
+"askedCatId": {
+"type": "string",
+"description": "The id of the asked cat"
+}
+},
+"required": [
+"askingCatId",
+"askedCatId"
+]
+},
+"CrossBreedingRequestEntity": {
+"type": "object",
+"properties": {}
+}
+}
+}
+}

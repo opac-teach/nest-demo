@@ -3,7 +3,6 @@ import {
   PrimaryGeneratedColumn,
   Column,
   OneToMany,
-  BeforeInsert,
 } from 'typeorm';
 import { CatEntity } from '../cat/cat.entity';
 
@@ -20,12 +19,4 @@ export class BreedEntity {
 
   @OneToMany(() => CatEntity, (cat) => cat.breed)
   cats?: CatEntity[];
-
-  @Column()
-  seed: string;
-
-  @BeforeInsert()
-  generateSeed() {
-    this.seed = Math.random().toString(36).substring(2, 15);
-  }
 }

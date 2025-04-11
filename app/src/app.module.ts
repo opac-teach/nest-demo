@@ -14,6 +14,10 @@ import { databaseConfig } from './config';
 import { Reflector } from '@nestjs/core';
 import { LiveModule } from './live/live.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
+import { CommentsModule } from './comments/comments.module';
+import { CrossBreeedingRequestModule } from './cross-breeeding-request/cross-breeeding-request.module';
 
 @Module({
   imports: [
@@ -22,6 +26,10 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     CatModule,
     BreedModule,
     LiveModule,
+    UserModule,
+    AuthModule,
+    CommentsModule,
+    CrossBreeedingRequestModule,
   ],
   controllers: [AppController],
 })

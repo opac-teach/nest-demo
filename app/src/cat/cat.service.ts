@@ -6,10 +6,16 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { BreedService } from '@/breed/breed.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ClientProxy } from '@nestjs/microservices';
-import { firstValueFrom } from 'rxjs';
+import { UserEntity } from '@/user/entities/user.entity';
+import { UserService } from '@/user/user.service';
+import { CreateCrossbreedCatDto } from '@/cat/dtos/create-crossbredd-cat.dto';
+import { BreedEntity } from '@/breed/breed.entity';
+
 export interface CatFindAllOptions extends FindManyOptions<CatEntity> {
   breedId?: string;
   includeBreed?: boolean;
+  userId?: string;
+  includeUser?: boolean;
 }
 
 @Injectable()
@@ -18,23 +24,39 @@ export class CatService {
     @InjectRepository(CatEntity)
     private readonly catRepository: Repository<CatEntity>,
     private readonly breedService: BreedService,
+    private readonly userService: UserService,
     private readonly eventEmitter: EventEmitter2,
+    @InjectRepository(CatEntity)
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
     @Inject('COLORS_SERVICE') private client: ClientProxy,
   ) {}
 
   async findAll(options?: CatFindAllOptions): Promise<CatEntity[]> {
     return this.catRepository.find({
-      relations: options?.includeBreed ? ['breed'] : undefined,
+      relations: [
+        ...(options?.includeBreed ? ['breed'] : []),
+        ...(options?.includeUser ? ['user'] : []),
+        'comments',
+      ],
       where: {
         breedId: options?.breedId,
+        userId: options?.userId,
       },
     });
   }
 
-  async findOne(id: string, includeBreed?: boolean): Promise<CatEntity> {
+  async findOne(
+    id: string,
+    includeBreed?: boolean,
+    includeUser?: boolean,
+  ): Promise<CatEntity> {
     const cat = await this.catRepository.findOne({
       where: { id },
-      relations: includeBreed ? ['breed'] : undefined,
+      relations: [
+        ...(includeBreed ? ['breed'] : []),
+        ...(includeUser ? ['user'] : []),
+      ],
     });
     if (!cat) {
       throw new NotFoundException('Cat not found');
@@ -42,16 +64,21 @@ export class CatService {
     return cat;
   }
 
-  async create(cat: CreateCatDto): Promise<CatEntity> {
-    const breed = await this.breedService.findOne(cat.breedId);
-
-    // const { seed } = breed;
-    // const colorObservable = this.client.send<string, string>('generate_color', seed);
-    // const color = await firstValueFrom(colorObservable);
-
+  async create(
+    cat: CreateCatDto,
+    userId: string,
+    parent1Id?: string,
+    parent2Id?: string,
+  ): Promise<CatEntity> {
     const color = '11BB22';
 
-    const newCat = this.catRepository.create({ ...cat, color });
+    const newCat = this.catRepository.create({
+      ...cat,
+      color,
+      parent1Id,
+      parent2Id,
+    });
+    newCat.user = await this.userService.findOne(userId);
     const createdCat = await this.catRepository.save(newCat);
 
     this.eventEmitter.emit('data.crud', {
@@ -63,11 +90,22 @@ export class CatService {
     return createdCat;
   }
 
-  async update(id: string, cat: UpdateCatDto): Promise<CatEntity> {
-    const updateResponse = await this.catRepository.update(id, cat);
-    if (updateResponse.affected === 0) {
+  async update(
+    id: string,
+    cat: UpdateCatDto,
+    userId: string,
+  ): Promise<CatEntity> {
+    const existingCat = await this.catRepository.findOne({
+      where: {
+        id: id,
+        userId: userId,
+      },
+      relations: ['breed'],
+    });
+    if (!existingCat) {
       throw new NotFoundException('Cat not found');
     }
+    await this.catRepository.update(existingCat.id, cat);
     const updatedCat = await this.findOne(id);
     this.eventEmitter.emit('data.crud', {
       action: 'update',
@@ -75,5 +113,63 @@ export class CatService {
       cat: updatedCat,
     });
     return updatedCat;
+  }
+
+  public async crossbreed(
+    cat: CreateCrossbreedCatDto,
+    userId: string,
+  ): Promise<CatEntity> {
+    const cat1 = await this.catRepository.findOne({
+      where: { id: cat.catId1, userId: userId },
+      relations: ['breed'],
+    });
+    const cat2 = await this.catRepository.findOne({
+      where: { id: cat.catId2, userId: userId },
+      relations: ['breed'],
+    });
+
+    if (!cat1?.breed || !cat2?.breed) {
+      throw new NotFoundException('Cat or breed not found');
+    }
+
+    const newBreedId = await this.createCrossBreed(cat1, cat2);
+
+    if (!newBreedId) {
+      throw new NotFoundException('Crossbreed not found');
+    }
+
+    const newCat = this.catRepository.create({
+      name: cat.name,
+      userId: userId,
+      breedId: newBreedId,
+      color: '11BB22',
+      age: cat.age,
+      parent1Id: cat.catId1,
+      parent2Id: cat.catId2,
+    });
+
+    await this.catRepository.save(newCat);
+
+    return await this.findOne(newCat.id, true);
+  }
+
+  public async createCrossBreed(
+    cat1: CatEntity,
+    cat2: CatEntity,
+  ): Promise<string | undefined> {
+    if (!cat1?.breed || !cat2?.breed) return undefined;
+    let newBreedId: string;
+
+    if (cat1?.breedId === cat2?.breedId) {
+      newBreedId = cat1.breedId;
+    } else {
+      const newBreed = await this.breedService.create({
+        name: `${cat1.breed.name} x ${cat2.breed.name}`,
+        description: 'Crossbreed',
+      });
+      newBreedId = newBreed.id;
+    }
+
+    return newBreedId;
   }
 }
