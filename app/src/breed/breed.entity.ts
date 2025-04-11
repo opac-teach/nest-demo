@@ -3,9 +3,7 @@ import {
   PrimaryGeneratedColumn,
   Column,
   OneToMany,
-  BeforeInsert,
 } from 'typeorm';
-import { Exclude } from 'class-transformer';
 import { CatEntity } from '../cat/cat.entity';
 
 @Entity('breed')

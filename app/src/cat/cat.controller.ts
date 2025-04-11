@@ -7,6 +7,7 @@ import {
   Put,
   Query,
   Req,
+  SerializeOptions,
   UseGuards,
 } from '@nestjs/common';
 import { CatFindAllOptions, CatService } from '@/cat/cat.service';
@@ -19,8 +20,6 @@ import {
 } from '@nestjs/swagger';
 import { AuthGuard } from '@/auth/jwt-auth.guard';
 import { CreateCrossbreedCatDto } from '@/cat/dtos/create-crossbredd-cat.dto';
-import { Role } from '@/auth/roles/roles.decorator';
-import { RolesEnum } from '@/auth/roles/roles.enum';
 
 @Controller('cat')
 export class CatController {
@@ -43,9 +42,14 @@ export class CatController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a cat by id' })
-  @ApiResponse({ status: 200, description: 'Returns a cat' })
-  findOne(@Param('id') id: string): Promise<CatResponseDto> {
-    return this.catService.findOne(id, true);
+  @ApiResponse({
+    status: 200,
+    description: 'Returns a cat',
+    type: CatResponseDto,
+  })
+  async findOne(@Param('id') id: string): Promise<CatResponseDto> {
+    const cat = await this.catService.findOne(id, true);
+    return new CatResponseDto(cat);
   }
 
   @Post()
@@ -65,6 +69,7 @@ export class CatController {
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @ApiResponse({ status: 200, description: 'Returns the updated cat' })
+  @SerializeOptions({ type: CatResponseDto })
   async update(
     @Param('id') id: string,
     @Body() cat: UpdateCatDto,
