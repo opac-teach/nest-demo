@@ -76,7 +76,10 @@ describe('AuthController', () => {
     it('should login a user', async () => {
       jest.spyOn(authService, 'login').mockResolvedValue(mockLoginResponse);
       const result = await authController.login(mockLoginDto, res as Response);
-      expect(result).toEqual({ message: `Bienvenue ${mockUser.name} !` });
+      expect(result).toEqual({
+        message: `Bienvenue ${mockUser.name} !`,
+        token: 'token',
+      });
       expect(res.cookie).toHaveBeenCalledWith(
         'authToken',
         mockLoginResponse.token,
