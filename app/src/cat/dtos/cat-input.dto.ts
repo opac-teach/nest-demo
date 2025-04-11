@@ -20,7 +20,7 @@ export class CreateCatDto {
 
   @ApiProperty({
     description: 'The id of the breed of the cat',
-    type: Number,
+    type: String,
   })
   @IsUUID()
   @IsNotEmpty()

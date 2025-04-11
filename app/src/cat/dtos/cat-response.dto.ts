@@ -1,4 +1,5 @@
 import { BreedResponseDto } from '@/breed/dtos/breed-response';
+import { UserResponseDto } from '@/user/dtos/user-response.dto';
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose, Type } from 'class-transformer';
 
@@ -35,6 +36,14 @@ export class CatResponseDto {
   @Expose()
   @Type(() => BreedResponseDto)
   breed?: BreedResponseDto;
+
+  @ApiProperty({
+    description: 'The user of the cat',
+    type: UserResponseDto,
+  })
+  @Expose()
+  @Type(() => UserResponseDto)
+  user?: UserResponseDto;
 
   @ApiProperty({
     description: 'The date of creation of the cat',
