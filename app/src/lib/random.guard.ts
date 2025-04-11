@@ -11,8 +11,8 @@ export class RandomGuard implements CanActivate {
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
-    const canPass = Math.random() > 0.5;
-
+    // const canPass = Math.random() > 0.5;
+    const canPass = true;
     if (!canPass) {
       throw new ImATeapotException('Request randomly aborted');
     }
