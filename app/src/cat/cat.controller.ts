@@ -7,13 +7,17 @@ import {
   Put,
   SerializeOptions,
   UseGuards,
+  Request
 } from '@nestjs/common';
 import { CatService } from '@/cat/cat.service';
 import { CatResponseDto, CreateCatDto, UpdateCatDto } from '@/cat/dtos';
 import { RandomGuard } from '@/lib/random.guard';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { AuthGuard } from '@/lib/auth.guard';
 
 @Controller('cat') // route '/cat'
+@UseGuards(AuthGuard)
+@ApiBearerAuth()
 // @UseGuards(RandomGuard)
 export class CatController {
   constructor(private catService: CatService) {}
@@ -45,14 +49,9 @@ export class CatController {
 
   @Post() // POST '/cat'
   @ApiOperation({ summary: 'Create a cat' })
-  @ApiResponse({
-    status: 201,
-    description: 'Returns the created cat',
-    type: CatResponseDto,
-  })
-  @SerializeOptions({ type: CatResponseDto })
-  create(@Body() cat: CreateCatDto): Promise<CatResponseDto> {
-    return this.catService.create(cat);
+  @ApiResponse({ status: 201, description: 'Returns the created cat' })
+  create(@Body() cat: CreateCatDto, @Request() req: any ): Promise<CatResponseDto> {
+    return this.catService.create(req.user.sub, cat);
   }
 
   @Put(':id') // PUT '/cat/:id'
@@ -65,4 +64,12 @@ export class CatController {
   ): Promise<CatResponseDto> {
     return this.catService.update(id, cat);
   }
+
+  @Get('by-owner/:ownerId')
+  @ApiOperation({ summary: 'Get all cats by owner ID, including user info' })
+  @ApiResponse({ status: 200, description: 'Returns all cats for a specific owner' })
+  getCatsByOwner(@Param('ownerId') ownerId: string) {
+    return this.catService.findByOwner(ownerId);
+  }
+
 }

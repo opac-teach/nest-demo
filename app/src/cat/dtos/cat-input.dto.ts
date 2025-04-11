@@ -1,5 +1,6 @@
 import { ApiProperty, OmitType, PartialType } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber, IsString, IsUUID } from 'class-validator';
+import { UserEntity } from '@/users/users.entity';
 
 export class CreateCatDto {
   @ApiProperty({

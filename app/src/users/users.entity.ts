@@ -5,30 +5,26 @@ import {
   ManyToOne,
   BeforeUpdate,
   JoinColumn,
-  OneToMany
+  OneToMany,
+  Unique
 } from 'typeorm';
 
-import { BreedEntity } from '../breed/breed.entity';
-import { UserEntity } from '../users/users.entity';
+import { CatEntity } from '@/cat/cat.entity';
 import { CommentsEntity } from '@/comments/comments.entity';
 
-@Entity('cat')
-export class CatEntity {
+@Entity('user')
+export class UserEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column({unique:true})
   name: string;
 
   @Column()
-  age: number;
+  password: string;
 
   @Column()
-  breedId: string;
-
-  @ManyToOne(() => BreedEntity, (breed) => breed.id)
-  @JoinColumn({ name: 'breedId' })
-  breed?: BreedEntity;
+  description : string;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created: Date;
@@ -41,15 +37,8 @@ export class CatEntity {
     this.updated = new Date();
   }
 
-  @Column()
-  color: string;
-
-  @Column()
-  userId: string
-
-  @ManyToOne(() => UserEntity, { eager: true })
-  @JoinColumn({ name: 'userId' })
-  owner: UserEntity;
+  @OneToMany(() => CatEntity, (cat) => cat.owner)
+  cats: CatEntity[];
 
   @OneToMany(() => CommentsEntity, (comments) => comments.user)
   comments: CommentsEntity[];
