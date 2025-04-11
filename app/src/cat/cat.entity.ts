@@ -33,6 +33,10 @@ export class CatEntity {
   @ManyToOne(() => UserEntity, (user) => user.cats)
   @JoinColumn({ name: 'userId' })
   user: UserEntity;
+ 
+  @OneToMany(() => CommentaryEntity, (commentary) => commentary.cat)
+  @JoinColumn({ name: 'commentaryId' })
+  commentaries?: CommentaryEntity[]
 
   @Column()
   userId: string;
@@ -43,9 +47,6 @@ export class CatEntity {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updated: Date;
   
-  @OneToMany(() => CommentaryEntity, (commentary) => commentary.cat)
-  @JoinColumn({ name: 'commentaryId' })
-  commentaries: CommentaryEntity[]
 
   @BeforeUpdate()
   updateTimestamp() {

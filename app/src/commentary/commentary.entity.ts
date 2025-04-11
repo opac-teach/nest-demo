@@ -18,6 +18,12 @@ export class CommentaryEntity {
 
   @Column()
   text: string;
+
+  @Column()
+  catId: string;
+
+  @Column()
+  userId: string;
   
   @ManyToOne(() => CatEntity, (cat) => cat.commentaries)
   cat: CatEntity;

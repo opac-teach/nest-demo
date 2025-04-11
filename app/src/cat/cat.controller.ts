@@ -23,14 +23,14 @@ export class CatController {
   @ApiOperation({ summary: 'Get all cats' })
   @ApiResponse({ status: 200, description: 'Returns all cats' })
   findAll(): Promise<CatResponseDto[]> {
-    return this.catService.findAll({ includeBreed: true });
+    return this.catService.findAll({ includeBreed: true, includeCommentary: true });
   }
 
   @Get(':id') // GET '/cat/:id'
   @ApiOperation({ summary: 'Get a cat by id' })
   @ApiResponse({ status: 200, description: 'Returns a cat' })
   findOne(@Param('id') id: string): Promise<CatResponseDto> {
-    return this.catService.findOne(id, true);
+    return this.catService.findOne(id, { includeBreed: true, includeCommentary: true });
   }
 
   @Get('/owner/:ownerId')
@@ -44,7 +44,7 @@ export class CatController {
   @ApiOperation({ summary: 'Create a cat' })
   @ApiResponse({ status: 201, description: 'Returns the created cat' })
   create(@Body() cat: CreateCatDto, @Request() req): Promise<CatResponseDto> {
-    return this.catService.create(req, cat);
+    return this.catService.create(req.user.id, cat);
   }
 
   @Put(':id') // PUT '/cat/:id'

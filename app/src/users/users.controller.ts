@@ -17,14 +17,14 @@ export class UsersController {
   @ApiOperation({ summary: 'Get all Users' })
   @ApiResponse({ status: 200, description: 'Returns all Users' })
   findAll() {
-    return this.usersService.findAll();
+    return this.usersService.findAll({ includeCommentary: true });
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get all Users' })
   @ApiResponse({ status: 200, description: 'Returns all Users' })
   findOne(@Param('id') id: string) {
-    return this.usersService.findOne(id);
+    return this.usersService.findOne(id, { includeCommentary: true });
   }
 
   @Post()
@@ -40,15 +40,15 @@ export class UsersController {
   @ApiOperation({ summary: 'Update a user' })
   @ApiResponse({ status: 200, description: 'Returns the updated user' })
   update(@Body() updateUserDto: UpdateUserDto, @Request() req) {
-    return this.usersService.update(updateUserDto, req);
+    return this.usersService.update(updateUserDto, req.user.sub);
   }
 
-  @Delete('delete')
-  @UseGuards(AuthGuard)
-  @ApiBearerAuth()
+  @Delete('delete/:id')
+  // @UseGuards(AuthGuard)
+  // @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete a user' })
   @ApiResponse({ status: 200, description: 'Returns the deleted user' })
-  remove(@Request () req) {
-    return this.usersService.remove(req);
+  remove(@Param('id') id: string) {
+    return this.usersService.remove(id);
   }
 }
