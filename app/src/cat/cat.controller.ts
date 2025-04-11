@@ -5,6 +5,7 @@ import {
   Param,
   Post,
   Put,
+  SerializeOptions,
   UseGuards,
   Request,
 } from '@nestjs/common';
@@ -50,6 +51,7 @@ export class CatController {
   @Put(':id') // PUT '/cat/:id'
   @ApiOperation({ summary: 'Update a cat' })
   @ApiResponse({ status: 200, description: 'Returns the updated cat' })
+  @SerializeOptions({ type: CatResponseDto })
   async update(
     @Param('id') id: string,
     @Body() cat: UpdateCatDto,

@@ -120,7 +120,10 @@ describe('CatService', () => {
     it('should return an array of cat', async () => {
       const result = await service.findAll();
       expect(result).toEqual([mockCat]);
-      expect(mockCatRepository.find).toHaveBeenCalled();
+      expect(mockCatRepository.find).toHaveBeenCalledWith({
+        relations: undefined,
+        where: {},
+      });
     });
 
     it('should return an array of cat with a breedId', async () => {
@@ -137,6 +140,15 @@ describe('CatService', () => {
         relations: ['breed'],
         where: {},
       });
+    });
+  });
+
+  it('should return an array of cat with breeds', async () => {
+    const result = await service.findAll({ breedId: '1', includeBreed: true });
+    expect(result).toEqual([mockCat]);
+    expect(mockCatRepository.find).toHaveBeenCalledWith({
+      relations: ['breed'],
+      where: { breedId: '1' },
     });
   });
 
