@@ -5,7 +5,7 @@ import {
   OneToMany,
   BeforeInsert,
 } from 'typeorm';
-import { CatEntity } from '../cat/cat.entity';
+import { CatEntity } from '@/cat/cat.entity';
 
 @Entity('breed')
 export class BreedEntity {
@@ -22,7 +22,7 @@ export class BreedEntity {
   cats?: CatEntity[];
 
   @Column()
-  seed: string;
+  seed?: string;
 
   @BeforeInsert()
   generateSeed() {

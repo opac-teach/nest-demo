@@ -1,5 +1,5 @@
 import { ApiProperty, OmitType, PartialType } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsString, IsUUID } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString, IsUUID, IsOptional, IsArray } from 'class-validator';
 
 export class CreateCatDto {
   @ApiProperty({
@@ -20,12 +20,13 @@ export class CreateCatDto {
 
   @ApiProperty({
     description: 'The id of the breed of the cat',
-    type: Number,
+    type: String,
   })
   @IsUUID()
   @IsNotEmpty()
   breedId: string;
 }
+
 
 /**
  * UpdateCatDto is a partial type of CreateCatDto,
@@ -34,4 +35,14 @@ export class CreateCatDto {
  */
 export class UpdateCatDto extends PartialType(
   OmitType(CreateCatDto, ['breedId'] as const),
-) {}
+) {
+  @ApiProperty({
+    description: 'The comments for the cat',
+    type: [String],
+    required: false,
+  })
+  @IsArray()
+  @IsOptional()
+  @IsString({ each: true })
+  comments?: string[];
+}

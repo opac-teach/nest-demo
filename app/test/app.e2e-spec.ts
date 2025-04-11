@@ -10,13 +10,15 @@ import { BreedResponseDto } from '@/breed/dtos';
 import { CatResponseDto } from '@/cat/dtos';
 import { Socket, io } from 'socket.io-client';
 import { wait } from '@/lib/utils';
+import {CreateUserDto} from "@/user/dtos";
+import {RegisterDto} from "@/auth/dtos";
 
 describe('AppController (e2e)', () => {
   let app: INestApplication<App>;
   let server: ReturnType<INestApplication['getHttpServer']>;
   let ioClient: Socket;
   let events: { event: string; data: any }[] = [];
-
+  let jwt = '';
   const inputBreed: CreateBreedDto = {
     name: 'Fluffy',
     description: 'A fluffy breed',
@@ -27,6 +29,14 @@ describe('AppController (e2e)', () => {
     age: 1,
     breedId: '',
   };
+
+  const inputUser: RegisterDto  = {
+    username: 'JohnDoe',
+    firstname: 'John',
+    lastname: 'Doe',
+    email: 'johndoe@test2.com',
+    password: 'password123',
+  }
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -59,6 +69,10 @@ describe('AppController (e2e)', () => {
     events = [];
   });
 
+  beforeEach(async () => {
+    await app.get('UserRepository').clear();
+  });
+
   afterAll(async () => {
     ioClient.offAny();
     ioClient.disconnect();
@@ -69,12 +83,49 @@ describe('AppController (e2e)', () => {
     request(server).get('/').expect(200).expect('OK');
   });
 
+  describe('User', () => {
+    it('should create a user', async () => {
+      const res = await request(server)
+        .post('/register')
+        .send({
+          username: inputUser.username,
+          firstname: inputUser.firstname,
+          lastname: inputUser.lastname,
+          email: inputUser.email,
+          password: inputUser.password,
+        })
+        .expect(201);
+
+      expect(res.body.username).toBe(inputUser.username);
+      expect(res.body.firstname).toBe(inputUser.firstname);
+      expect(res.body.lastname).toBe(inputUser.lastname);
+      expect(res.body.email).toBe(inputUser.email);
+      expect(res.body.id).toBeDefined();
+      expect(res.body.password).not.toBeDefined();
+    });
+
+    it('should log a user', async () => {
+      const res = await request(server)
+        .post('/login')
+        .send({
+          email: inputUser.email,
+          password: inputUser.password,
+        })
+        .expect(201);
+
+      expect(res.body.access_token).toBeDefined();
+      jwt = res.body.access_token;
+    });
+  });
+
   describe('Breed', () => {
     it('should create a breed', async () => {
       const res = await request(server)
         .post('/breed')
+        .set('Authorization', `Bearer ${jwt}`)
         .send(inputBreed)
         .expect(201);
+
 
       expect(res.body.name).toBe(inputBreed.name);
       expect(res.body.description).toBe(inputBreed.description);
@@ -93,6 +144,7 @@ describe('AppController (e2e)', () => {
     it('should rejects wrong inputs', async () => {
       await request(server)
         .post('/breed')
+        .set('Authorization', `Bearer ${jwt}`)
         .send({
           description: 'A fluffy breed',
         })
@@ -108,6 +160,7 @@ describe('AppController (e2e)', () => {
     it('should get all breeds', async () => {
       const { body: createdBreed } = await request(server)
         .post('/breed')
+        .set('Authorization', `Bearer ${jwt}`)
         .send(inputBreed)
         .expect(201);
       const res = await request(server).get('/breed').expect(200);
@@ -117,18 +170,22 @@ describe('AppController (e2e)', () => {
     it('should get all cats of a breed', async () => {
       const { body: createdBreed } = await request(server)
         .post('/breed')
+        .set('Authorization', `Bearer ${jwt}`)
         .send(inputBreed)
         .expect(201);
 
       const { body: createdCat } = await request(server)
         .post('/cat')
+        .set('Authorization', `Bearer ${jwt}`)
         .send({
           ...inputCat,
           breedId: createdBreed.id,
         })
+
         .expect(201);
       const { body: createdCat2 } = await request(server)
         .post('/cat')
+        .set('Authorization', `Bearer ${jwt}`)
         .send({
           ...inputCat,
           breedId: createdBreed.id,
@@ -150,11 +207,13 @@ describe('AppController (e2e)', () => {
     beforeAll(async () => {
       const res = await request(server)
         .post('/breed')
+        .set('Authorization', `Bearer ${jwt}`)
         .send(inputBreed)
         .expect(201);
       breed = res.body;
       const catRes = await request(server)
         .post('/cat')
+        .set('Authorization', `Bearer ${jwt}`)
         .send({
           ...inputCat,
           breedId: breed.id,
@@ -166,6 +225,7 @@ describe('AppController (e2e)', () => {
     it('should create a cat', async () => {
       const res = await request(server)
         .post('/cat')
+        .set('Authorization', `Bearer ${jwt}`)
         .send({
           ...inputCat,
           breedId: breed.id,
@@ -201,6 +261,7 @@ describe('AppController (e2e)', () => {
     it('should update a cat', async () => {
       const { body: updatedCat } = await request(server)
         .put(`/cat/${cat.id}`)
+        .set('Authorization', `Bearer ${jwt}`)
         .send({
           ...inputCat,
           name: 'Alfred 2',

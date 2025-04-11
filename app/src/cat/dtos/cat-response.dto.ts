@@ -2,6 +2,9 @@ import { BreedResponseDto } from '@/breed/dtos/breed-response';
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose, Type } from 'class-transformer';
 
+import {IsUUID} from "class-validator";
+import { CommentResponseDto } from '@/comments/dtos/comment-response.dto';
+
 @Exclude()
 export class CatResponseDto {
   @ApiProperty({
@@ -27,6 +30,22 @@ export class CatResponseDto {
   @Expose()
   @Type(() => Number)
   age: number;
+
+  // @ApiProperty({
+  //   description: 'The id of the breed of the cat',
+  //   type: String,
+  // })
+  // @Expose()
+  // @IsUUID()
+  // breedId: string;
+
+  @ApiProperty({
+    description: 'The id of the user of the cat',
+    type: String,
+  })
+  @Expose()
+  @IsUUID()
+  userId: string;
 
   @ApiProperty({
     description: 'The breed of the cat',
@@ -62,4 +81,10 @@ export class CatResponseDto {
   constructor(partial: Partial<CatResponseDto>) {
     Object.assign(this, partial);
   }
+
+  @ApiProperty({ type: [CommentResponseDto] })
+  @Expose()
+  @Type(() => CommentResponseDto)
+  comments?: CommentResponseDto[];
+
 }

@@ -7,9 +7,13 @@ import { BreedService } from '@/breed/breed.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
+import {UserEntity} from "@/user/user.entity";
+import {UserResponseDto} from "@/user/dtos";
+import {_QueryDeepPartialEntity} from "typeorm/query-builder/QueryPartialEntity";
 export interface CatFindAllOptions extends FindManyOptions<CatEntity> {
   breedId?: string;
   includeBreed?: boolean;
+  userId?: string;
 }
 
 @Injectable()
@@ -27,6 +31,7 @@ export class CatService {
       relations: options?.includeBreed ? ['breed'] : undefined,
       where: {
         breedId: options?.breedId,
+        userId: options?.userId,
       },
     });
   }
@@ -42,7 +47,7 @@ export class CatService {
     return cat;
   }
 
-  async create(cat: CreateCatDto): Promise<CatEntity> {
+  async create(cat: CreateCatDto, userId): Promise<CatEntity> {
     const breed = await this.breedService.findOne(cat.breedId);
 
     // const { seed } = breed;
@@ -51,7 +56,7 @@ export class CatService {
 
     const color = '11BB22';
 
-    const newCat = this.catRepository.create({ ...cat, color });
+    const newCat = this.catRepository.create({ ...cat, color, userId: userId });
     const createdCat = await this.catRepository.save(newCat);
 
     this.eventEmitter.emit('data.crud', {
@@ -64,7 +69,13 @@ export class CatService {
   }
 
   async update(id: string, cat: UpdateCatDto): Promise<CatEntity> {
-    const updateResponse = await this.catRepository.update(id, cat);
+
+    const updateData: _QueryDeepPartialEntity<CatEntity> = {
+      ...cat,
+      comments: cat.comments?.map((commentId) => ({ id: commentId })),
+    };
+
+    const updateResponse = await this.catRepository.update(id, updateData);
     if (updateResponse.affected === 0) {
       throw new NotFoundException('Cat not found');
     }
