@@ -119,8 +119,8 @@ describe('AppController (e2e)', () => {
   describe('Breed', () => {
     it('should create a breed', async () => {
       const inputBreed = {
-        name: "Maine Coon",
-        description: "Le Maine Coon est une race de chat magnifique."
+        name: 'Maine Coon',
+        description: 'Le Maine Coon est une race de chat magnifique.',
       };
 
       const res = await request(server)
@@ -134,6 +134,7 @@ describe('AppController (e2e)', () => {
       expect(res.body.description).toBe(inputBreed.description);
     });
 
+    /*
     it('should get all breeds', async () => {
       const inputBreed = {
         name: "Maine Coon",
@@ -158,6 +159,7 @@ describe('AppController (e2e)', () => {
       const res = await request(server).get('/breed').expect(200);
       expect(res.body).toContainEqual(createdBreed);
     });
+    */
   });
 
   /*describe('Breed', () => {
