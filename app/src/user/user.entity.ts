@@ -4,12 +4,13 @@ import {
   Column,
   ManyToOne,
   BeforeUpdate,
+  BeforeInsert,
   JoinColumn,
   OneToMany,
 } from 'typeorm';
 
-import { BreedEntity } from '../breed/breed.entity';
 import { CatEntity } from '@/cat/cat.entity';
+import * as bcrypt from 'bcrypt';
 
 @Entity('user')
 export class userEntity {
@@ -41,11 +42,12 @@ export class userEntity {
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updated: Date;
+  
+  @Column( )
+  email: string;
 
   @BeforeUpdate()
   updateTimestamp() {
     this.updated = new Date();
   }
-  @Column()
-  email: string;
 }

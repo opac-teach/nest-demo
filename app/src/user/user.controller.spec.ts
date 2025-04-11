@@ -1,13 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { userController } from '@/user/user.controller';
-import { userService } from '@/user/user.service';
+import { UserService } from '@/user/user.service';
 import { userEntity } from '@/user/user.entity';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { mockTheRest } from '@/lib/tests';
 
 describe('userController', () => {
   let controller: userController;
-  let service: userService;
+  let service: UserService;
 
   const mockuser: userEntity = {
     id: '1',
@@ -31,7 +31,7 @@ describe('userController', () => {
       .compile();
 
     controller = module.get(userController);
-    service = module.get(userService);
+    service = module.get(UserService);
 
     jest.clearAllMocks();
   });
@@ -66,6 +66,7 @@ describe('userController', () => {
         description: 'homme',
         age: 21,
         sexe: 'homme',
+        email: 'S.t@gmail.com'
       };
       jest.spyOn(service, 'create').mockResolvedValue(mockuser);
       const result = await controller.create(mockCreateuserDto);

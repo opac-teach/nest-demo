@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { userService } from './user.service';
+import { UserService } from './user.service';
 import { userEntity } from './user.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -13,7 +13,7 @@ import { of } from 'rxjs';
 import { mockTheRest } from '@/lib/tests';
 
 describe('userService', () => {
-  let service: userService;
+  let service: UserService;
   let breedService: BreedService;
   let userRepository: Repository<userEntity>;
   let eventEmitter: EventEmitter2;
@@ -41,14 +41,14 @@ describe('userService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        userService,
+        UserService,
         EventEmitter2,
       ],
     })
       .useMocker(mockTheRest)
       .compile();
 
-    service = module.get<userService>(userService);
+    service = module.get<UserService>(UserService);
     userRepository = module.get<Repository<userEntity>>(
       getRepositoryToken(userEntity),
     );
@@ -101,6 +101,7 @@ describe('userService', () => {
         age: 3,
         sexe: 'homme',
         password: 'root',
+        email: 'lm.ok@gmail.com'
       };
 
       jest.spyOn(eventEmitter, 'emit').mockImplementation((d) => true);
@@ -125,6 +126,7 @@ describe('userService', () => {
         age: 21,
         sexe: 'homme',
         password: 'root',
+        email: 'lm.esok@gmail.com'
         /*catId: '1',*/
       };
       jest

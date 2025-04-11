@@ -7,17 +7,17 @@ import { CatService } from '@/cat/cat.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
+import * as bcrypt from 'bcrypt';
+import { promises } from 'dns';
 export interface userFindAllOptions extends FindManyOptions<userEntity> {
   catId?: string;
-  includeBreed?: boolean;
 }
 
 @Injectable()
-export class userService {
+export class UserService {
   constructor(
     @InjectRepository(userEntity)
     private readonly userRepository: Repository<userEntity>,
-    private readonly catService: CatService,
     private readonly eventEmitter: EventEmitter2,
     @Inject('COLORS_SERVICE') private client: ClientProxy,
   ) {}
@@ -26,10 +26,14 @@ export class userService {
       return this.userRepository.find();
     }
 
-  async findOne(id: string, includeBreed?: boolean): Promise<userEntity> {
+  async findByEmail(email: string): Promise<userEntity | null> {
+    return this.userRepository.findOne({ where: { email } });
+    }
+    
+
+  async findOne(id: string): Promise<userEntity> {
     const user = await this.userRepository.findOne({
       where: { id },
-      relations: includeBreed ? ['breed'] : undefined,
     });
     if (!user) {
       throw new NotFoundException('user not found');
@@ -43,9 +47,10 @@ export class userService {
     // const colorObservable = this.client.send<string, string>('generate_color', seed);
     // const color = await firstValueFrom(colorObservable);
 
+    const hashedPassword = await bcrypt.hash(user.password, 10);
     
 
-    const newuser = this.userRepository.create({ ...user });
+    const newuser = this.userRepository.create({...user, password: hashedPassword,});
     const createduser = await this.userRepository.save(newuser);
 
     this.eventEmitter.emit('data.crud', {
@@ -58,10 +63,14 @@ export class userService {
   }
 
   async update(id: string, user: UpdateuserDto): Promise<userEntity> {
-    const updateResponse = await this.userRepository.update(id, user);
-    if (updateResponse.affected === 0) {
-      throw new NotFoundException('user not found');
+
+    const userToUpdate = { ...user };
+    if (user.password) {
+      userToUpdate.password = await bcrypt.hash(user.password, 10);
     }
+    const updateResponse = await this.userRepository.update(id, userToUpdate);
+
+    if (updateResponse.affected === 0) {throw new NotFoundException('user not found');}
     const updateduser = await this.findOne(id);
     this.eventEmitter.emit('data.crud', {
       action: 'update',

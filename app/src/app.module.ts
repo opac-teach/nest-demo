@@ -14,16 +14,23 @@ import { databaseConfig } from './config';
 import { Reflector } from '@nestjs/core';
 import { LiveModule } from './live/live.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import { userModule } from './user/user.module';
+import { UserModule } from './user/user.module';
+import { ConnecModule} from './connexion/connec.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     TypeOrmModule.forRoot(databaseConfig),
     EventEmitterModule.forRoot(),
-    userModule,
+    UserModule,
     CatModule,
     BreedModule,
     LiveModule,
+    ConnecModule,
+    
   ],
   controllers: [AppController],
 })

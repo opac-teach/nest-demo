@@ -1,6 +1,6 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { userController } from './user.controller';
-import { userService } from './user.service';
+import { UserService } from './user.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { userEntity } from './user.entity';
 import { BreedEntity } from '@/breed/breed.entity';
@@ -10,7 +10,7 @@ import { redisConfig } from '@/config';
 import { CatModule } from '@/cat/cat.module';
 @Module({
   controllers: [userController],
-  providers: [userService],
+  providers: [UserService],
   imports: [
     TypeOrmModule.forFeature([userEntity, BreedEntity]),
     ClientsModule.register([
@@ -23,6 +23,6 @@ import { CatModule } from '@/cat/cat.module';
     forwardRef(() => BreedModule),
     CatModule
   ],
-  exports: [userService],
+  exports: [UserService],
 })
-export class userModule {}
+export class UserModule {}
