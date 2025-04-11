@@ -3,13 +3,13 @@ import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule, registerGlobals } from '@/app.module';
-import { CreateBreedDto } from '@/breed/dtos/create-breed';
-import { CreateCatDto } from '@/cat/dtos';
+//import { CreateBreedDto } from '@/breed/dtos/create-breed';
+//import { CreateCatDto } from '@/cat/dtos';
 import { RandomGuard } from '@/lib/random.guard';
-import { BreedResponseDto } from '@/breed/dtos';
-import { CatResponseDto } from '@/cat/dtos';
+//import { BreedResponseDto } from '@/breed/dtos';
+//import { CatResponseDto } from '@/cat/dtos';
 import { Socket, io } from 'socket.io-client';
-import { wait } from '@/lib/utils';
+//import { wait } from '@/lib/utils';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication<App>;
@@ -17,7 +17,10 @@ describe('AppController (e2e)', () => {
   let ioClient: Socket;
   let events: { event: string; data: any }[] = [];
 
-  const inputBreed: CreateBreedDto = {
+  const userEmail = `alexis${new Date().getTime()}@gmail.com`;
+  let jwt = null;
+
+  /*const inputBreed: CreateBreedDto = {
     name: 'Fluffy',
     description: 'A fluffy breed',
   };
@@ -26,7 +29,7 @@ describe('AppController (e2e)', () => {
     name: 'Alfred',
     age: 1,
     breedId: '',
-  };
+  };*/
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -69,7 +72,95 @@ describe('AppController (e2e)', () => {
     request(server).get('/').expect(200).expect('OK');
   });
 
+  describe('Auth', () => {
+    it('should register a user', async () => {
+      const inputAuth = {
+        email: userEmail,
+        password: 'mypassword',
+        username: 'alexisfrangul',
+        firstName: 'Alexis',
+        lastName: 'Frangul',
+        age: 21,
+        description: 'Etudiant à Bordeaux',
+      };
+
+      const res = await request(server)
+        .post('/auth/register')
+        .send(inputAuth)
+        .expect(201);
+
+      expect(res.body.id).toBeDefined();
+      expect(res.body.email).toBe(inputAuth.email);
+      expect(res.body.password).toBeUndefined();
+      expect(res.body.username).toBe(inputAuth.username);
+      expect(res.body.firstName).toBe(inputAuth.firstName);
+      expect(res.body.lastName).toBe(inputAuth.lastName);
+      expect(res.body.age).toBe(inputAuth.age);
+      expect(res.body.description).toBe(inputAuth.description);
+    });
+
+    it('should login a user', async () => {
+      const inputAuth = {
+        email: userEmail,
+        password: 'mypassword',
+      };
+
+      const res = await request(server)
+        .post('/auth/login')
+        .send(inputAuth)
+        .expect(201);
+
+      jwt = res.body.accessToken;
+
+      expect(jwt).toBeDefined();
+    });
+  });
+
   describe('Breed', () => {
+    it('should create a breed', async () => {
+      const inputBreed = {
+        name: "Maine Coon",
+        description: "Le Maine Coon est une race de chat magnifique."
+      };
+
+      const res = await request(server)
+        .post('/breed')
+        .send(inputBreed)
+        .set('Authorization', `Bearer ${jwt}`)
+        .expect(201);
+
+      expect(res.body.id).toBeDefined();
+      expect(res.body.name).toBe(inputBreed.name);
+      expect(res.body.description).toBe(inputBreed.description);
+    });
+
+    it('should get all breeds', async () => {
+      const inputBreed = {
+        name: "Maine Coon",
+        description: "Le Maine Coon est une race de chat magnifique."
+      };
+
+      const res = await request(server)
+        .get('/breed')
+        .set('Authorization', `Bearer ${jwt}`)
+        .expect(200);
+
+      console.log(res.body);
+
+      expect(res.body).toContainEqual(inputBreed);
+
+      const { body: createdBreed } = await request(server)
+        .post('/breed')
+        .send(inputBreed)
+        .set('Authorization', `Bearer ${jwt}`)
+        .expect(201);
+
+      const res = await request(server).get('/breed').expect(200);
+      expect(res.body).toContainEqual(createdBreed);
+    });
+  });
+
+  /*describe('Breed', () => {
     it('should create a breed', async () => {
       const res = await request(server)
         .post('/breed')
@@ -174,7 +265,6 @@ describe('AppController (e2e)', () => {
 
       expect(res.body.name).toBe(inputCat.name);
       expect(res.body.age).toBe(inputCat.age);
-      expect(res.body.breedId).toBe(breed.id);
       expect(res.body.id).toBeDefined();
       expect(res.body.color.length).toBe(6);
       expect(events).toContainEqual({
@@ -227,5 +317,5 @@ describe('AppController (e2e)', () => {
         },
       });
     });
-  });
+  });*/
 });

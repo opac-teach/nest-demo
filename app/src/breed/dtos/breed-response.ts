@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Expose, Type } from 'class-transformer';
+import { Exclude, Expose, Type } from 'class-transformer';
 import { CatResponseDto } from '@/cat/dtos/cat-response.dto';
 
+@Exclude()
 export class BreedResponseDto {
   @ApiProperty({ type: String })
   @Expose()
@@ -20,7 +21,11 @@ export class BreedResponseDto {
   @Type(() => String)
   description: string;
 
-  @ApiProperty({ type: [CatResponseDto] })
+  @ApiProperty({
+    description: 'The cats of the breed',
+    type: CatResponseDto,
+    isArray: true,
+  })
   @Expose()
   @Type(() => CatResponseDto)
   cats?: CatResponseDto[];

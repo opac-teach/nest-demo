@@ -1,12 +1,12 @@
-import { BreedResponseDto } from '@/breed/dtos/breed-response';
+import { CatResponseDto } from '@/cat/dtos';
 import { UserResponseDto } from '@/user/dtos/user-response.dto';
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose, Type } from 'class-transformer';
 
 @Exclude()
-export class CatResponseDto {
+export class CommentResponseDto {
   @ApiProperty({
-    description: 'The id of the cat',
+    description: 'The id of the comment',
     type: String,
   })
   @Expose()
@@ -14,31 +14,31 @@ export class CatResponseDto {
   id: string;
 
   @ApiProperty({
-    description: 'The name of the cat',
+    description: 'The subject of the comment',
     type: String,
   })
   @Expose()
   @Type(() => String)
-  name: string;
+  subject: string;
 
   @ApiProperty({
-    description: 'The age of the cat',
-    type: Number,
+    description: 'The description of the comment',
+    type: String,
   })
   @Expose()
-  @Type(() => Number)
-  age: number;
+  @Type(() => String)
+  description: string;
 
   @ApiProperty({
-    description: 'The breed of the cat',
-    type: BreedResponseDto,
+    description: 'The cat of the comment',
+    type: CatResponseDto,
   })
   @Expose()
-  @Type(() => BreedResponseDto)
-  breed?: BreedResponseDto;
+  @Type(() => CatResponseDto)
+  cat?: CatResponseDto;
 
   @ApiProperty({
-    description: 'The user of the cat',
+    description: 'The user of the comment',
     type: UserResponseDto,
   })
   @Expose()
@@ -46,7 +46,7 @@ export class CatResponseDto {
   user?: UserResponseDto;
 
   @ApiProperty({
-    description: 'The date of creation of the cat',
+    description: 'The date of creation of the comment',
     type: Date,
   })
   @Expose()
@@ -54,17 +54,10 @@ export class CatResponseDto {
   created: Date;
 
   @ApiProperty({
-    description: 'The date of update of the cat',
+    description: 'The date of update of the comment',
     type: Date,
   })
   @Expose()
   @Type(() => Date)
   updated: Date;
-
-  @ApiProperty({
-    description: 'The color of the cat',
-    type: String,
-  })
-  @Expose()
-  color: string;
 }
