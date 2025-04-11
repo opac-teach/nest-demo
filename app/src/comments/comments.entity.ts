@@ -5,26 +5,18 @@ import {
   ManyToOne,
   BeforeUpdate,
   JoinColumn,
-  OneToMany,
-  Unique
 } from 'typeorm';
 
+import { UserEntity } from '../users/users.entity';
 import { CatEntity } from '@/cat/cat.entity';
-import { CommentsEntity } from '@/comments/comments.entity';
 
-@Entity('user')
-export class UserEntity {
+@Entity('comments')
+export class CommentsEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({unique:true})
-  name: string;
-
   @Column()
-  password: string;
-
-  @Column()
-  description : string;
+  content: string;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created: Date;
@@ -37,9 +29,11 @@ export class UserEntity {
     this.updated = new Date();
   }
 
-  @OneToMany(() => CatEntity, (cat) => cat.owner)
-  cats: CatEntity[];
+  @ManyToOne(() => UserEntity)
+  @JoinColumn({ name: 'userId' })
+  user: UserEntity;
 
-  @OneToMany(() => CommentsEntity, (comments) => comments.user)
-  comments: CommentsEntity[];
+  @ManyToOne(() => CatEntity)
+  @JoinColumn({ name: 'catId' })
+  cat: CatEntity;
 }

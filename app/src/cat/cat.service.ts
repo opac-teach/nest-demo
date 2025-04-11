@@ -57,7 +57,7 @@ export class CatService {
     // const { seed } = breed;
     // const colorObservable = this.client.send<string, string>('generate_color', seed);
     // const color = await firstValueFrom(colorObservable);
-    console.log("id", userId)
+
     const color = '11BB22';
     const newCat = this.catRepository.create({ ...cat, color, userId });
     const createdCat = await this.catRepository.save(newCat);

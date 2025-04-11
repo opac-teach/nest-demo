@@ -5,10 +5,12 @@ import {
   ManyToOne,
   BeforeUpdate,
   JoinColumn,
+  OneToMany
 } from 'typeorm';
 
 import { BreedEntity } from '../breed/breed.entity';
 import { UserEntity } from '../users/users.entity';
+import { CommentsEntity } from '@/comments/comments.entity';
 
 @Entity('cat')
 export class CatEntity {
@@ -48,4 +50,7 @@ export class CatEntity {
   @ManyToOne(() => UserEntity, { eager: true })
   @JoinColumn({ name: 'userId' })
   owner: UserEntity;
+
+  @OneToMany(() => CommentsEntity, (comments) => comments.user)
+  comments: CommentsEntity[];
 }

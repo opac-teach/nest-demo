@@ -1,5 +1,5 @@
 import { ApiProperty, OmitType, PartialType } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsString, IsUUID } from 'class-validator';
+import { IsNotEmpty, IsNumber, isString, IsString, IsUUID } from 'class-validator';
 
 export class AuthDto {
   @ApiProperty({
@@ -17,4 +17,14 @@ export class AuthDto {
   @IsString()
   @IsNotEmpty()
   password: string;
+}
+
+export class AuthResponseDto {
+  @ApiProperty({
+    description: 'token',
+    type: String,
+  })
+  @IsString()
+  @IsNotEmpty()
+  access_token: string;
 }

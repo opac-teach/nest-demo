@@ -10,22 +10,42 @@ import { BreedResponseDto } from '@/breed/dtos';
 import { CatResponseDto } from '@/cat/dtos';
 import { Socket, io } from 'socket.io-client';
 import { wait } from '@/lib/utils';
+import { UserEntity } from '@/users/users.entity';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication<App>;
   let server: ReturnType<INestApplication['getHttpServer']>;
   let ioClient: Socket;
   let events: { event: string; data: any }[] = [];
-
+  let userId : string;
+  let tockenJwt : string;
   const inputBreed: CreateBreedDto = {
     name: 'Fluffy',
     description: 'A fluffy breed',
   };
 
   const inputCat: CreateCatDto = {
-    name: 'Alfred',
+    name: 'agga',
     age: 1,
     breedId: '',
+  };
+
+  function makeid(length) {
+      let result = '';
+      const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      const charactersLength = characters.length;
+      let counter = 0;
+      while (counter < length) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+        counter += 1;
+      }
+      return result;
+  }
+
+  const inputUser: Partial<UserEntity> = {
+    name: makeid(8),
+    password: 'testpassword',
+    description: 'A new user',
   };
 
   beforeAll(async () => {
@@ -67,6 +87,74 @@ describe('AppController (e2e)', () => {
 
   it('Health check', () => {
     request(server).get('/').expect(200).expect('OK');
+  });
+
+  describe('User', () => {
+    it('should create a user', async () => {
+      const res = await request(server)
+        .post('/users')
+        .send(inputUser)
+        .expect(201);
+
+      expect(res.body.name).toBe(inputUser.name);
+      expect(res.body.description).toBe(inputUser.description);
+      expect(res.body.id).toBeDefined();
+      userId = res.body.id;
+    });
+
+    const auth = {
+      name: inputUser.name,
+      password: inputUser.password,
+    };
+
+    it('login', async () => {
+      const res = await request(server).post('/auth/login').send(auth).expect(200);
+      expect(res.body.access_token).toBeDefined()
+
+      tockenJwt = res.body.access_token;
+    });
+
+    it('should get all users', async () => {
+      const res = await request(server).get('/users').expect(200);
+      expect(res.body).toContainEqual(expect.objectContaining({
+        name: inputUser.name,
+        description: inputUser.description,
+      }));
+    });
+
+    it('should get a user by id', async () => {
+      const res = await request(server).get(`/users/${userId}`).expect(200);
+      expect(res.body.id).toBe(userId);
+      expect(res.body.name).toBe(inputUser.name);
+      expect(res.body.description).toBe(inputUser.description);
+    });
+
+    it('should update a user', async () => {
+      const updatedData = {
+        name: makeid(8),
+        password : inputUser.password,
+        description: 'Updated description',
+      };
+
+      const res = await request(server)
+        .put(`/users/${userId}`)
+        .send(updatedData)
+        .set('Authorization', `Bearer ${tockenJwt}`)
+        .expect(200);
+
+      expect(res.body.name).toBe(updatedData.name);
+      expect(res.body.description).toBe(updatedData.description);
+    });
+
+    it('should delete a user', async () => {
+      await request(server)
+        .delete(`/users/${userId}`)
+        .expect(200);
+
+      await request(server)
+        .get(`/users/${userId}`)
+        .expect(404); 
+    });
   });
 
   describe('Breed', () => {
@@ -159,6 +247,7 @@ describe('AppController (e2e)', () => {
           ...inputCat,
           breedId: breed.id,
         })
+        .set('Authorization', `Bearer ${tockenJwt}`)
         .expect(201);
       cat = catRes.body;
     });
@@ -170,7 +259,15 @@ describe('AppController (e2e)', () => {
           ...inputCat,
           breedId: breed.id,
         })
+        .set('Authorization', `Bearer ${tockenJwt}`)
         .expect(201);
+
+      const expectedCat = {
+        age: inputCat.age,
+        breedId: breed.id,
+        color: res.body.color,
+        name: inputCat.name,
+      };
 
       expect(res.body.name).toBe(inputCat.name);
       expect(res.body.age).toBe(inputCat.age);
@@ -182,7 +279,15 @@ describe('AppController (e2e)', () => {
         data: {
           action: 'create',
           model: 'cat',
-          cat: res.body,
+          cat: expect.objectContaining({
+            age: res.body.age,
+            breedId: res.body.breedId,
+            color: res.body.color,
+            name: res.body.name,
+            created: expect.any(String), 
+            updated: expect.any(String), 
+            id: expect.any(String),      
+          }),
         },
       });
     });
