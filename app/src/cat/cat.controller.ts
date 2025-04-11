@@ -6,28 +6,25 @@ import {
   Post,
   Put,
   SerializeOptions,
+  Query,
   UseGuards,
+  Request
 } from '@nestjs/common';
 import { CatService } from '@/cat/cat.service';
 import { CatResponseDto, CreateCatDto, UpdateCatDto } from '@/cat/dtos';
 import { RandomGuard } from '@/lib/random.guard';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
+import { JWTAuthGuard } from '@/auth/Jwt-auth-guard';
 
 @Controller('cat') // route '/cat'
-// @UseGuards(RandomGuard)
+@UseGuards(RandomGuard)
 export class CatController {
   constructor(private catService: CatService) {}
-
   @Get('/') // GET '/cat'
   @ApiOperation({ summary: 'Get all cats' })
-  @ApiResponse({
-    status: 200,
-    description: 'Returns all cats',
-    type: CatResponseDto,
-    isArray: true,
-  })
-  @SerializeOptions({ type: CatResponseDto })
-  async findAll(): Promise<CatResponseDto[]> {
+  @ApiResponse({ status: 200, description: 'Returns all cats' })
+  findAll(): Promise<CatResponseDto[]> {
     return this.catService.findAll({ includeBreed: true });
   }
 
@@ -45,12 +42,7 @@ export class CatController {
 
   @Post() // POST '/cat'
   @ApiOperation({ summary: 'Create a cat' })
-  @ApiResponse({
-    status: 201,
-    description: 'Returns the created cat',
-    type: CatResponseDto,
-  })
-  @SerializeOptions({ type: CatResponseDto })
+  @ApiResponse({ status: 201, description: 'Returns the created cat' })
   create(@Body() cat: CreateCatDto): Promise<CatResponseDto> {
     return this.catService.create(cat);
   }
