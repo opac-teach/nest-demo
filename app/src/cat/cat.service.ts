@@ -6,10 +6,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { BreedService } from '@/breed/breed.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ClientProxy } from '@nestjs/microservices';
-import { firstValueFrom } from 'rxjs';
 export interface CatFindAllOptions extends FindManyOptions<CatEntity> {
   breedId?: string;
   includeBreed?: boolean;
+  includeUser?: boolean;
+  includeCommentary?: boolean;
 }
 
 @Injectable()
@@ -23,18 +24,32 @@ export class CatService {
   ) {}
 
   async findAll(options?: CatFindAllOptions): Promise<CatEntity[]> {
+    const relations: string[] = [];
+    if (options?.includeCommentary) {
+      relations.push('commentaries');
+    }
+    if (options?.includeBreed) {
+      relations.push('breed');
+    }
     return this.catRepository.find({
-      relations: options?.includeBreed ? ['breed'] : undefined,
+      relations: relations.length ? relations : undefined,
       where: {
         breedId: options?.breedId,
       },
     });
   }
 
-  async findOne(id: string, includeBreed?: boolean): Promise<CatEntity> {
+  async findOne(id: string, options?: CatFindAllOptions): Promise<CatEntity> {
+    const relations: string[] = [];
+    if (options?.includeCommentary) {
+      relations.push('commentaries');
+    }
+    if (options?.includeBreed) {
+      relations.push('breed');
+    }
     const cat = await this.catRepository.findOne({
+      relations:  relations.length ? relations : undefined,
       where: { id },
-      relations: includeBreed ? ['breed'] : undefined,
     });
     if (!cat) {
       throw new NotFoundException('Cat not found');
@@ -42,16 +57,19 @@ export class CatService {
     return cat;
   }
 
-  async create(cat: CreateCatDto): Promise<CatEntity> {
+  async findByOwner(ownerId: string, options?: CatFindAllOptions): Promise<CatEntity[]> {
+    return this.catRepository.find({
+      relations: options?.includeUser ? ['user'] : undefined,
+      where: {
+        userId: ownerId,
+      },
+    });
+  }
+
+  async create(id: string, cat: CreateCatDto): Promise<CatEntity> {
     const breed = await this.breedService.findOne(cat.breedId);
-
-    // const { seed } = breed;
-    // const colorObservable = this.client.send<string, string>('generate_color', seed);
-    // const color = await firstValueFrom(colorObservable);
-
     const color = '11BB22';
-
-    const newCat = this.catRepository.create({ ...cat, color });
+    const newCat = this.catRepository.create({ ...cat, color, userId: id });
     const createdCat = await this.catRepository.save(newCat);
 
     this.eventEmitter.emit('data.crud', {
