@@ -5,15 +5,13 @@ import {
   Param,
   Post,
   Put,
-  Request
+  Request, SerializeOptions,
 } from '@nestjs/common';
 import { CatService } from '@/cat/cat.service';
 import { CatResponseDto, CreateCatDto, UpdateCatDto } from '@/cat/dtos';
-import { RandomGuard } from '@/lib/random.guard';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 @Controller('cat') // route '/cat'
-// @UseGuards(RandomGuard)
 export class CatController {
   constructor(private catService: CatService) {}
 
@@ -37,7 +35,7 @@ export class CatController {
     description: 'Returns a cat',
     type: CatResponseDto,
   })
-  async findOne(@Param('id') id: string): Promise<CatResponseDto> {
+  async findOne(@Param('id') id: number): Promise<CatResponseDto> {
     const cat = await this.catService.findOne(id, true);
     return new CatResponseDto(cat);
   }
@@ -50,8 +48,8 @@ export class CatController {
     type: CatResponseDto,
   })
   @SerializeOptions({ type: CatResponseDto })
-  create(@Body() cat: CreateCatDto): Promise<CatResponseDto> {
-    return this.catService.create(cat);
+  create(@Body() cat: CreateCatDto, @Request() req): Promise<CatResponseDto> {
+    return this.catService.create(cat, req.user.userId);
   }
 
   @Put(':id') // PUT '/cat/:id'
@@ -59,7 +57,7 @@ export class CatController {
   @ApiResponse({ status: 200, description: 'Returns the updated cat' })
   @SerializeOptions({ type: CatResponseDto })
   async update(
-    @Param('id') id: string,
+    @Param('id') id: number,
     @Body() cat: UpdateCatDto,
   ): Promise<CatResponseDto> {
     return this.catService.update(id, cat);

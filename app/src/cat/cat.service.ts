@@ -37,7 +37,7 @@ export class CatService {
   async findOne(id: number, includeBreed?: boolean): Promise<CatEntity> {
     const cat = await this.catRepository.findOne({
       where: { id },
-      relations: includeBreed ? ['breed', 'user'] : undefined,
+      relations: includeBreed ? ['breed'] : undefined,
 
     });
     if (!cat) {

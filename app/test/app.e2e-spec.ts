@@ -102,14 +102,12 @@ describe('AppController (e2e)', () => {
   })
 
 
-
-
   describe('Breed', () => {
     it('should create a breed', async () => {
       const res = await request(server)
         .post('/breed')
-        .set('Authorization', `Bearer ${token}`)
         .send(inputBreed)
+        .set("Authorization", `Bearer ${token.accessToken}`)
         .expect(201);
 
       expect(res.body.name).toBe(inputBreed.name);
@@ -132,12 +130,14 @@ describe('AppController (e2e)', () => {
         .send({
           description: 'A fluffy breed',
         })
+        .set("Authorization", `Bearer ${token.accessToken}`)
         .expect(400);
       await request(server)
         .post('/breed')
         .send({
           name: '',
         })
+        .set("Authorization", `Bearer ${token.accessToken}`)
         .expect(400);
     });
 
@@ -145,8 +145,9 @@ describe('AppController (e2e)', () => {
       const { body: createdBreed } = await request(server)
         .post('/breed')
         .send(inputBreed)
+        .set("Authorization", `Bearer ${token.accessToken}`)
         .expect(201);
-      const res = await request(server).get('/breed').expect(200);
+      const res = await request(server).get('/breed') .set("Authorization", `Bearer ${token.accessToken}`).expect(200);
       expect(res.body).toContainEqual(createdBreed);
     });
 
@@ -154,6 +155,7 @@ describe('AppController (e2e)', () => {
       const { body: createdBreed } = await request(server)
         .post('/breed')
         .send(inputBreed)
+        .set("Authorization", `Bearer ${token.accessToken}`)
         .expect(201);
 
       const { body: createdCat } = await request(server)
@@ -162,6 +164,7 @@ describe('AppController (e2e)', () => {
           ...inputCat,
           breedId: createdBreed.id,
         })
+        .set("Authorization", `Bearer ${token.accessToken}`)
         .expect(201);
       const { body: createdCat2 } = await request(server)
         .post('/cat')
@@ -169,10 +172,12 @@ describe('AppController (e2e)', () => {
           ...inputCat,
           breedId: createdBreed.id,
         })
+        .set("Authorization", `Bearer ${token.accessToken}`)
         .expect(201);
 
       const res = await request(server)
         .get(`/breed/${createdBreed.id}/cats`)
+        .set("Authorization", `Bearer ${token.accessToken}`)
         .expect(200);
 
       expect(res.body).toEqual([createdCat, createdCat2]);
@@ -187,6 +192,7 @@ describe('AppController (e2e)', () => {
       const res = await request(server)
         .post('/breed')
         .send(inputBreed)
+        .set("Authorization", `Bearer ${token.accessToken}`)
         .expect(201);
       breed = res.body;
       const catRes = await request(server)
@@ -195,6 +201,7 @@ describe('AppController (e2e)', () => {
           ...inputCat,
           breedId: breed.id,
         })
+        .set("Authorization", `Bearer ${token.accessToken}`)
         .expect(201);
       cat = catRes.body;
     });
@@ -206,6 +213,7 @@ describe('AppController (e2e)', () => {
           ...inputCat,
           breedId: breed.id,
         })
+        .set("Authorization", `Bearer ${token.accessToken}`)
         .expect(201);
 
       expect(res.body.name).toBe(inputCat.name);
@@ -223,13 +231,13 @@ describe('AppController (e2e)', () => {
     });
 
     it('should get all cats', async () => {
-      const res = await request(server).get('/cat').expect(200);
+      const res = await request(server).get('/cat').set("Authorization", `Bearer ${token.accessToken}`).expect(200);
       const catWithBreed = { ...cat, breed };
       expect(res.body).toContainEqual(catWithBreed);
     });
 
     it('should get a cat by id', async () => {
-      const res = await request(server).get(`/cat/${cat.id}`).expect(200);
+      const res = await request(server).get(`/cat/${cat.id}`).set("Authorization", `Bearer ${token.accessToken}`).expect(200);
       const catWithBreed = { ...cat, breed };
       expect(res.body).toEqual(catWithBreed);
     });
@@ -241,13 +249,15 @@ describe('AppController (e2e)', () => {
           ...inputCat,
           name: 'Alfred 2',
           age: 4,
-        });
+        })
+        .set("Authorization", `Bearer ${token.accessToken}`);
 
       expect(updatedCat.name).toBe('Alfred 2');
       expect(updatedCat.age).toBe(4);
 
       const findCatRes = await request(server)
         .get(`/cat/${cat.id}`)
+        .set("Authorization", `Bearer ${token.accessToken}`)
         .expect(200);
 
       const updatedCatWithBreed = { ...updatedCat, breed };
