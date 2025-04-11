@@ -1,21 +1,22 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CatController } from '@/cat/cat.controller';
 import { CatService } from '@/cat/cat.service';
-import { CatEntity } from '@/cat/cat.entity';
-import { EventEmitterModule } from '@nestjs/event-emitter';
+import { CatEntity } from '@/cat/entities/cat.entity';
 import { mockTheRest } from '@/lib/tests';
 
 describe('CatController', () => {
   let controller: CatController;
   let catService: CatService;
+
   const mockCat: CatEntity = {
-    id: '1',
+    id: 1,
     name: 'Fluffy',
     age: 3,
-    breedId: '1',
+    breedId: 1,
     created: new Date(),
     updated: new Date(),
     color: '11BB22',
+    userId: 1,
     updateTimestamp: jest.fn(),
   };
 
@@ -49,9 +50,9 @@ describe('CatController', () => {
   describe('findOne', () => {
     it('should return a single cat', async () => {
       jest.spyOn(catService, 'findOne').mockResolvedValue(mockCat);
-      const result = await controller.findOne('1');
+      const result = await controller.findOne(1);
       expect(result).toEqual(mockCat);
-      expect(catService.findOne).toHaveBeenCalledWith('1', true);
+      expect(catService.findOne).toHaveBeenCalledWith(1, true);
     });
   });
 
@@ -60,12 +61,13 @@ describe('CatController', () => {
       const mockCreateCatDto = {
         name: 'Fluffy',
         age: 3,
-        breedId: '1',
+        breedId: 1,
       };
+      const req =  { user: { userId: 1}};
       jest.spyOn(catService, 'create').mockResolvedValue(mockCat);
-      const result = await controller.create(mockCreateCatDto);
+      const result = await controller.create(mockCreateCatDto, req);
       expect(result).toEqual(mockCat);
-      expect(catService.create).toHaveBeenCalledWith(mockCreateCatDto);
+      expect(catService.create).toHaveBeenCalledWith(mockCreateCatDto, 1);
     });
   });
 
@@ -76,9 +78,9 @@ describe('CatController', () => {
         age: 3,
       };
       jest.spyOn(catService, 'update').mockResolvedValue(mockCat);
-      const result = await controller.update('1', mockUpdateCatDto);
+      const result = await controller.update(1, mockUpdateCatDto);
       expect(result).toEqual(mockCat);
-      expect(catService.update).toHaveBeenCalledWith('1', mockUpdateCatDto);
+      expect(catService.update).toHaveBeenCalledWith(1, mockUpdateCatDto);
     });
   });
 });

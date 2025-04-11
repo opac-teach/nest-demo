@@ -6,7 +6,7 @@ import { CatResponseDto } from '@/cat/dtos/cat-response.dto';
 export class BreedResponseDto {
   @ApiProperty({ type: String })
   @Expose()
-  id: string;
+  id: number;
 
   @ApiProperty({
     description: 'The name of the breed',

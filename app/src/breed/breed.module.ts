@@ -3,7 +3,7 @@ import { BreedController } from './breed.controller';
 import { BreedService } from './breed.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BreedEntity } from './breed.entity';
-import { CatEntity } from '@/cat/cat.entity';
+import { CatEntity } from '@/cat/entities/cat.entity';
 import { CatModule } from '@/cat/cat.module';
 
 @Module({

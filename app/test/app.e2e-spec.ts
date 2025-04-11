@@ -5,17 +5,19 @@ import { App } from 'supertest/types';
 import { AppModule, registerGlobals } from '@/app.module';
 import { CreateBreedDto } from '@/breed/dtos/create-breed';
 import { CreateCatDto } from '@/cat/dtos';
-import { RandomGuard } from '@/lib/random.guard';
 import { BreedResponseDto } from '@/breed/dtos';
 import { CatResponseDto } from '@/cat/dtos';
 import { Socket, io } from 'socket.io-client';
-import { wait } from '@/lib/utils';
+import { CreateUserBodyDto } from '@/users/dto/usersBodyDto';
+import { CreateUserResponseDto } from '@/users/dto/usersResponseDto';
+import { AuthResponseDto } from '@/auth/dtos/AuthResponseDto';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication<App>;
   let server: ReturnType<INestApplication['getHttpServer']>;
   let ioClient: Socket;
   let events: { event: string; data: any }[] = [];
+  let token: AuthResponseDto;
 
   const inputBreed: CreateBreedDto = {
     name: 'Fluffy',
@@ -25,15 +27,13 @@ describe('AppController (e2e)', () => {
   const inputCat: CreateCatDto = {
     name: 'Alfred',
     age: 1,
-    breedId: '',
+    breedId: 0,
   };
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     })
-      .overrideGuard(RandomGuard)
-      .useValue({ canActivate: () => true })
       .compile();
 
     app = moduleFixture.createNestApplication();
@@ -43,7 +43,7 @@ describe('AppController (e2e)', () => {
 
     server = app.getHttpServer();
 
-    app.listen(9001);
+    await app.listen(9001);
     ioClient = io('http://localhost:9001', {
       autoConnect: false,
       transports: ['websocket', 'polling'],
@@ -68,12 +68,46 @@ describe('AppController (e2e)', () => {
   it('Health check', () => {
     request(server).get('/').expect(200).expect('OK');
   });
+  const newUser: CreateUserBodyDto = {
+    "firstname": "Moumgne",
+    "lastname": "Alain",
+    "username": "kaiser"+new Date().getTime(),
+    "email":"moumgne@gmail.com",
+    "password": "690403765"
+  }
+  describe('authentification', ()=> {
+    it('should create and connect user', async () => {
+      const res = await request(server)
+        .post('/users/createUser')
+        .send(newUser)
+        .expect(201);
+
+      const createdUser: CreateUserResponseDto = res.body;
+      expect(createdUser.success).toBe(true);
+      expect(createdUser.message).toBe(`Le user ${newUser.username} enregistré avec succès`);
+    });
+
+    it('should be authentificate user', async () => {
+      const res = await request(server)
+        .post('/auth/login')
+        .send({
+          username: newUser.username,
+          password: newUser.password,
+        })
+        .expect(201);
+
+      token  = res.body;
+      expect(token.accessToken).toBeDefined();
+    })
+  })
+
 
   describe('Breed', () => {
     it('should create a breed', async () => {
       const res = await request(server)
         .post('/breed')
         .send(inputBreed)
+        .set("Authorization", `Bearer ${token.accessToken}`)
         .expect(201);
 
       expect(res.body.name).toBe(inputBreed.name);
@@ -96,12 +130,14 @@ describe('AppController (e2e)', () => {
         .send({
           description: 'A fluffy breed',
         })
+        .set("Authorization", `Bearer ${token.accessToken}`)
         .expect(400);
       await request(server)
         .post('/breed')
         .send({
           name: '',
         })
+        .set("Authorization", `Bearer ${token.accessToken}`)
         .expect(400);
     });
 
@@ -109,8 +145,9 @@ describe('AppController (e2e)', () => {
       const { body: createdBreed } = await request(server)
         .post('/breed')
         .send(inputBreed)
+        .set("Authorization", `Bearer ${token.accessToken}`)
         .expect(201);
-      const res = await request(server).get('/breed').expect(200);
+      const res = await request(server).get('/breed') .set("Authorization", `Bearer ${token.accessToken}`).expect(200);
       expect(res.body).toContainEqual(createdBreed);
     });
 
@@ -118,6 +155,7 @@ describe('AppController (e2e)', () => {
       const { body: createdBreed } = await request(server)
         .post('/breed')
         .send(inputBreed)
+        .set("Authorization", `Bearer ${token.accessToken}`)
         .expect(201);
 
       const { body: createdCat } = await request(server)
@@ -126,6 +164,7 @@ describe('AppController (e2e)', () => {
           ...inputCat,
           breedId: createdBreed.id,
         })
+        .set("Authorization", `Bearer ${token.accessToken}`)
         .expect(201);
       const { body: createdCat2 } = await request(server)
         .post('/cat')
@@ -133,10 +172,12 @@ describe('AppController (e2e)', () => {
           ...inputCat,
           breedId: createdBreed.id,
         })
+        .set("Authorization", `Bearer ${token.accessToken}`)
         .expect(201);
 
       const res = await request(server)
         .get(`/breed/${createdBreed.id}/cats`)
+        .set("Authorization", `Bearer ${token.accessToken}`)
         .expect(200);
 
       expect(res.body).toEqual([createdCat, createdCat2]);
@@ -151,6 +192,7 @@ describe('AppController (e2e)', () => {
       const res = await request(server)
         .post('/breed')
         .send(inputBreed)
+        .set("Authorization", `Bearer ${token.accessToken}`)
         .expect(201);
       breed = res.body;
       const catRes = await request(server)
@@ -159,6 +201,7 @@ describe('AppController (e2e)', () => {
           ...inputCat,
           breedId: breed.id,
         })
+        .set("Authorization", `Bearer ${token.accessToken}`)
         .expect(201);
       cat = catRes.body;
     });
@@ -170,6 +213,7 @@ describe('AppController (e2e)', () => {
           ...inputCat,
           breedId: breed.id,
         })
+        .set("Authorization", `Bearer ${token.accessToken}`)
         .expect(201);
 
       expect(res.body.name).toBe(inputCat.name);
@@ -187,13 +231,13 @@ describe('AppController (e2e)', () => {
     });
 
     it('should get all cats', async () => {
-      const res = await request(server).get('/cat').expect(200);
+      const res = await request(server).get('/cat').set("Authorization", `Bearer ${token.accessToken}`).expect(200);
       const catWithBreed = { ...cat, breed };
       expect(res.body).toContainEqual(catWithBreed);
     });
 
     it('should get a cat by id', async () => {
-      const res = await request(server).get(`/cat/${cat.id}`).expect(200);
+      const res = await request(server).get(`/cat/${cat.id}`).set("Authorization", `Bearer ${token.accessToken}`).expect(200);
       const catWithBreed = { ...cat, breed };
       expect(res.body).toEqual(catWithBreed);
     });
@@ -205,13 +249,15 @@ describe('AppController (e2e)', () => {
           ...inputCat,
           name: 'Alfred 2',
           age: 4,
-        });
+        })
+        .set("Authorization", `Bearer ${token.accessToken}`);
 
       expect(updatedCat.name).toBe('Alfred 2');
       expect(updatedCat.age).toBe(4);
 
       const findCatRes = await request(server)
         .get(`/cat/${cat.id}`)
+        .set("Authorization", `Bearer ${token.accessToken}`)
         .expect(200);
 
       const updatedCatWithBreed = { ...updatedCat, breed };

@@ -1,5 +1,5 @@
 import { BreedResponseDto } from '@/breed/dtos';
-import { CatEntity } from '@/cat/cat.entity';
+import { CatEntity } from '@/cat/entities/cat.entity';
 import { BreedEntity } from '@/breed/breed.entity';
 import { CatResponseDto } from '@/cat/dtos';
 import { Exclude, Expose, Type } from 'class-transformer';

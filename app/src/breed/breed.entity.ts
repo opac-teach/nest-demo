@@ -5,12 +5,12 @@ import {
   OneToMany,
   BeforeInsert,
 } from 'typeorm';
-import { CatEntity } from '../cat/cat.entity';
+import { CatEntity } from '../cat/entities/cat.entity';
 
 @Entity('breed')
 export class BreedEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn()
+  id: number;
 
   @Column()
   name: string;

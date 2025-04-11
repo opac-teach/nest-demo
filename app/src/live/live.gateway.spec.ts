@@ -99,7 +99,7 @@ describe('LiveGateway', () => {
       action: 'create',
       model: 'cat',
       cat: {
-        id: '1',
+        id: 1,
         name: 'John',
         age: 1,
         created: new Date(),
@@ -119,7 +119,7 @@ describe('LiveGateway', () => {
             action: 'create',
             model: 'cat',
             cat: {
-              id: '1',
+              id: 1,
               name: 'John',
               age: 1,
               created: dataCrudEvent.cat?.created.toISOString(),
@@ -142,7 +142,7 @@ describe('LiveGateway', () => {
       action: 'create',
       model: 'breed',
       breed: {
-        id: '1',
+        id: 1,
         name: 'John',
         description: 'A fluffy breed',
       },
@@ -158,7 +158,7 @@ describe('LiveGateway', () => {
             action: 'create',
             model: 'breed',
             breed: {
-              id: '1',
+              id: 1,
               name: 'John',
               description: 'A fluffy breed',
             },
