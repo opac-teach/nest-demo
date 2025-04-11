@@ -65,7 +65,7 @@ describe('AuthService', () => {
       jest.spyOn(jwtService, 'signAsync').mockResolvedValue(accessToken)
 
       const result = await service.login(mockLogin);
-      expect(result).toEqual({access_token: accessToken });
+      expect(result).toEqual({accessToken: accessToken });
 
       expect(service).toBeDefined();
     })

@@ -157,7 +157,7 @@ describe('CatService', () => {
       expect(mockCatRepository.save).toHaveBeenCalledWith({
         ...newCat,
         color: mockColor,
-        userId: mockUser.userId,
+        userId: mockUser.id,
       });
       expect(result).toEqual(mockCat);
 

@@ -7,7 +7,7 @@ import {AuthService} from '@/auth/auth.service';
 describe('AuthController', () => {
   let controller: AuthController;
   let authService: AuthService;
-  const mockToken = {access_token: "access_token"};
+  const mockToken = {accessToken: "access_token"};
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
