@@ -10,7 +10,7 @@ describe('UsersController', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [UsersController],
+      controllers: [UsersService],
       providers: [
         {
           provide: UsersService,
