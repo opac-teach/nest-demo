@@ -61,7 +61,7 @@ export class CommentService {
     this.eventEmitter.emit('data.crud', {
       action: 'create',
       model: 'comment',
-      cat: createdComment,
+      comment: createdComment,
     });
 
     return createdComment;
@@ -89,7 +89,7 @@ export class CommentService {
     this.eventEmitter.emit('data.crud', {
       action: 'update',
       model: 'comment',
-      cat: commentToUpdate,
+      comment: commentToUpdate,
     });
     return commentToUpdate;
   }
@@ -112,7 +112,7 @@ export class CommentService {
     this.eventEmitter.emit('data.crud', {
       action: 'delete',
       model: 'comment',
-      cat: comment,
+      comment: comment,
     });
   }
 }
