@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   Post,
+  UseGuards,
   SerializeOptions,
 } from '@nestjs/common';
 import { BreedService } from './breed.service';
@@ -11,6 +12,7 @@ import { BreedResponseDto, CreateBreedDto } from './dtos';
 import { CatResponseDto } from '@/cat/dtos/cat-response.dto';
 import { CatService } from '@/cat/cat.service';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('breed')
 export class BreedController {
@@ -20,6 +22,7 @@ export class BreedController {
   ) {}
 
   @Get('/')
+  @UseGuards(AuthGuard('jwt')) 
   @ApiOperation({ summary: 'Get all breeds' })
   @ApiResponse({ status: 200, description: 'Returns all breeds' })
   @SerializeOptions({ type: BreedResponseDto })
@@ -28,6 +31,7 @@ export class BreedController {
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard('jwt')) 
   @ApiOperation({ summary: 'Get a breed by id' })
   @ApiResponse({ status: 200, description: 'Returns a breed' })
   @SerializeOptions({ type: BreedResponseDto })
@@ -36,6 +40,7 @@ export class BreedController {
   }
 
   @Get(':id/cats')
+  @UseGuards(AuthGuard('jwt')) 
   @ApiOperation({ summary: 'Get all cats by breed id' })
   @ApiResponse({ status: 200, description: 'Returns all cats by breed id' })
   @SerializeOptions({ type: CatResponseDto })
@@ -44,6 +49,7 @@ export class BreedController {
   }
 
   @Post()
+  @UseGuards(AuthGuard('jwt')) 
   @ApiOperation({ summary: 'Create a breed' })
   @ApiResponse({ status: 201, description: 'Returns the created breed' })
   @SerializeOptions({ type: BreedResponseDto })

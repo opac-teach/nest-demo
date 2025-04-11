@@ -1,2 +1,16 @@
-bruno
+# Node modules
+node_modules
+dist
+
+# Environment files
+.env
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Others
 .DS_Store
+*.log
+bruno

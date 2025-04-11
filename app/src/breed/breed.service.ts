@@ -37,4 +37,13 @@ export class BreedService {
     });
     return createdBreed;
   }
+
+  async createMixBreed(b1: BreedEntity, b2: BreedEntity): Promise<BreedEntity> {
+    const name = `Mix : ${b1.name} x ${b2.name}`;
+    const seed = `${b1.seed}-${b2.seed}`.slice(0, 32);
+  
+    const breed = this.breedRepository.create({ name, seed });
+    return this.breedRepository.save(breed);
+  }
+  
 }
