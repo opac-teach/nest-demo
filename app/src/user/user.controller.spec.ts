@@ -126,7 +126,6 @@ describe('UserController', () => {
       expect(result).toEqual(mockCommentaires);
       expect(commentaireService.findAll).toHaveBeenLastCalledWith({
         userId: mockUser.id,
-        includeUser: true,
       });
     });
   });
