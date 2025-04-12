@@ -14,6 +14,9 @@ import { databaseConfig } from './config';
 import { Reflector } from '@nestjs/core';
 import { LiveModule } from './live/live.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { AuthModule } from './auth/auth.module';
+import { CommentModule } from './comment/comment.module';
+import { StatsModule } from './stats/stats.module';
 
 @Module({
   imports: [
@@ -22,6 +25,9 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     CatModule,
     BreedModule,
     LiveModule,
+    AuthModule,
+    CommentModule,
+    StatsModule,
   ],
   controllers: [AppController],
 })
@@ -42,7 +48,7 @@ export function registerGlobals(app: INestApplication) {
   );
 
   // Enable class serialization globally
-  // This will automatically serialize all responses using the @Exclude decorator
+  // This will automatically serialize all responses using the @Exclude decorators
   // Sensitive fields will always be excluded from responses
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 }

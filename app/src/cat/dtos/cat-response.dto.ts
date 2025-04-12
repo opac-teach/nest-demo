@@ -63,3 +63,29 @@ export class CatResponseDto {
     Object.assign(this, partial);
   }
 }
+
+
+export class CatPositionResponseDto {
+  @ApiProperty({
+    description: 'The id of the cat',
+    type: String,
+  })
+  @Expose()
+  @Type(() => String)
+  id: string;
+
+  @ApiProperty({
+    description: 'The name of the cat',
+    type: String,
+  })
+  @Expose()
+  @Type(() => String)
+  name: string;
+
+  @ApiProperty({
+    description: 'The position of the cat',
+    type: String,
+  })
+  @Expose()
+  position: string;
+}

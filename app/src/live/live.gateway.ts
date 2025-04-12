@@ -12,6 +12,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { Logger } from '@nestjs/common';
 import {
+  DataCatPositionEvent,
   DataCrudEvent,
   HelloRequestDto,
   HelloResponseDto,
@@ -100,6 +101,21 @@ export class LiveGateway
 
     this.subscribedClients.forEach((client) => {
       client.emit('data.crud', publicPayload);
+    });
+  }
+
+  @OnEvent('cat.position')
+  handlePositionCat(payload: DataCatPositionEvent) {
+    this.logger.log(`Data cat position event received`);
+    this.logger.debug(`Payload: ${payload}`);
+
+    const publicPayload = instanceToPlain(
+        plainToInstance(DataCatPositionEvent, payload as any),
+        { excludeExtraneousValues: true },
+    );
+
+    this.subscribedClients.forEach((client) => {
+      client.emit('cat.position', publicPayload);
     });
   }
 }
