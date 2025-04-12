@@ -5,11 +5,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { BreedEntity } from './breed.entity';
 import { CatEntity } from '@/cat/cat.entity';
 import { CatModule } from '@/cat/cat.module';
+import { AuthModule } from '@/auth/auth.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([BreedEntity, CatEntity]),
     forwardRef(() => CatModule),
+    AuthModule,
   ],
   controllers: [BreedController],
   providers: [BreedService],

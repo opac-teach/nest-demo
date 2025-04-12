@@ -37,4 +37,9 @@ export class BreedService {
     });
     return createdBreed;
   }
+
+  async delete(id: string): Promise<void> {
+    const breed = await this.findOne(id);
+    await this.breedRepository.remove(breed);
+  }
 }

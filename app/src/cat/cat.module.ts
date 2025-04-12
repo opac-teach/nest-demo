@@ -7,6 +7,10 @@ import { BreedEntity } from '@/breed/breed.entity';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { BreedModule } from '@/breed/breed.module';
 import { redisConfig } from '@/config';
+import { AuthModule } from '../auth/auth.module';
+import { CommentaireModule } from '@/commentaire/commentaire.module';
+import { CrossRequestModule } from '@/cross-request/cross-request.module';
+
 @Module({
   controllers: [CatController],
   providers: [CatService],
@@ -20,6 +24,9 @@ import { redisConfig } from '@/config';
       },
     ]),
     forwardRef(() => BreedModule),
+    AuthModule,
+    CommentaireModule,
+    forwardRef(() => CrossRequestModule),
   ],
   exports: [CatService],
 })

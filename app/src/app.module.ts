@@ -14,14 +14,26 @@ import { databaseConfig } from './config';
 import { Reflector } from '@nestjs/core';
 import { LiveModule } from './live/live.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { UserModule } from './user/user.module';
+import { ConfigModule } from '@nestjs/config';
+import { AuthModule } from './auth/auth.module';
+import { CommentaireModule } from './commentaire/commentaire.module';
+import { CrossRequestModule } from './cross-request/cross-request.module';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     TypeOrmModule.forRoot(databaseConfig),
     EventEmitterModule.forRoot(),
     CatModule,
     BreedModule,
     LiveModule,
+    UserModule,
+    AuthModule,
+    CommentaireModule,
+    CrossRequestModule,
   ],
   controllers: [AppController],
 })
