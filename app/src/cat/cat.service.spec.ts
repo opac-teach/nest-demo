@@ -106,7 +106,7 @@ describe('CatService', () => {
       const result = await service.findAll();
       expect(result).toEqual([mockCat]);
       expect(mockCatRepository.find).toHaveBeenCalledWith({
-        relations: undefined,
+        relations: [],
         where: {},
       });
     });

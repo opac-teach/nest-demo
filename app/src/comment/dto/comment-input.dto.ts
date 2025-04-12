@@ -34,7 +34,7 @@ export class UpdateCommentDto {
     })
     @IsString()
     @IsNotEmpty()
-    title: string;
+    title?: string;
 
     @ApiProperty({
         description: 'The text of the comment',
@@ -42,5 +42,5 @@ export class UpdateCommentDto {
     })
     @IsString()
     @IsNotEmpty()
-    text: string;
+    text?: string;
 }

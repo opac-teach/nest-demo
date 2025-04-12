@@ -118,14 +118,9 @@ describe('LiveGateway', () => {
         id: '1',
         name: 'John',
         age: 1,
-        breedId: '1',
         created: new Date(),
         updated: new Date(),
-        color: 'white',
-        updateTimestamp: jest.fn(),
-        ownerId: '1',
-          owner: mockUser,
-        comments: []
+        color: 'white'
       },
     };
 
@@ -143,7 +138,6 @@ describe('LiveGateway', () => {
               id: '1',
               name: 'John',
               age: 1,
-              breedId: '1',
               created: dataCrudEvent.cat?.created.toISOString(),
               updated: dataCrudEvent.cat?.updated.toISOString(),
               color: 'white',
@@ -166,9 +160,7 @@ describe('LiveGateway', () => {
       breed: {
         id: '1',
         name: 'John',
-        description: 'A fluffy breed',
-        seed: '123',
-        generateSeed: () => '123',
+        description: 'A fluffy breed'
       },
     };
 

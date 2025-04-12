@@ -131,7 +131,7 @@ export class CatService {
     return await this.create(catDto, userId)
   }
 
-  async updatePosition(id: String, cat: UpdatePositionCatDto) {
+  async updatePosition(id: string, cat: UpdatePositionCatDto) {
     const updateResponse = await this.catRepository.update(id, cat)
     if (updateResponse.affected === 0) {
       throw new NotFoundException('Cat not found');

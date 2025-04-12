@@ -22,6 +22,7 @@ import { RandomGuard } from '@/lib/random.guard';
 import {ApiOperation, ApiQuery, ApiResponse} from '@nestjs/swagger';
 import {AuthGuard} from "@/auth/auth.guard";
 import {OwnerGuard} from "@/cat/cat.guard";
+import {CatEntity} from "@/cat/cat.entity";
 
 @Controller('cat') // route '/cat'
 @UseGuards(RandomGuard)
@@ -115,7 +116,7 @@ export class CatController {
   @ApiOperation({ summary: 'Get all cats position' })
   @ApiResponse({ status: 200, description: 'Returns all cats position' })
   findAllPositionCat(
-  ): Promise<CatPositionResponseDto[]> {
+  ): Promise<CatEntity[]> {
     return this.catService.findAllCatPosition();
   }
 }
