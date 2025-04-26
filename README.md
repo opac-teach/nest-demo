@@ -8,6 +8,10 @@
 
 This is a basic NestJS application which showcases fundamentals features of the framework.
 
+### Course content
+
+https://teach.opac.me/cours/dev-backend/nestjs/
+
 ### Project description
 
 This project is a RESTful API that allows to manage cats and breeds.
