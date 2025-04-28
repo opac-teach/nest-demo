@@ -20,7 +20,7 @@ export class CatResolver {
 
   @Query(() => [CatResponseDto]) // GET '/cat'
   async cats(): Promise<CatResponseDto[]> {
-    return this.catService.findAll({);
+    return this.catService.findAll();
   }
 
   @Query(() => CatResponseDto) // GET '/cat/:id'
