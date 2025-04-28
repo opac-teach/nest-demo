@@ -1,6 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { Field, InputType } from '@nestjs/graphql';
 
+@InputType()
 export class CreateBreedDto {
   @ApiProperty({
     description: 'The name of the breed',
@@ -8,6 +10,7 @@ export class CreateBreedDto {
   })
   @IsString()
   @IsNotEmpty()
+  @Field()
   name: string;
 
   @ApiProperty({
@@ -16,5 +19,6 @@ export class CreateBreedDto {
   })
   @IsString()
   @IsOptional()
+  @Field({ nullable: true })
   description?: string;
 }

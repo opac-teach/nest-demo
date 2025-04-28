@@ -7,9 +7,11 @@ import { BreedEntity } from '@/breed/breed.entity';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { BreedModule } from '@/breed/breed.module';
 import { redisConfig } from '@/config';
+import { CatResolver } from './cat.resolvers';
+
 @Module({
   controllers: [CatController],
-  providers: [CatService],
+  providers: [CatService, CatResolver],
   imports: [
     TypeOrmModule.forFeature([CatEntity, BreedEntity]),
     ClientsModule.register([

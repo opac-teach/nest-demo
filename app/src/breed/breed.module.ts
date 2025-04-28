@@ -5,14 +5,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { BreedEntity } from './breed.entity';
 import { CatEntity } from '@/cat/cat.entity';
 import { CatModule } from '@/cat/cat.module';
-
+import { BreedResolver } from './breed.resolver';
 @Module({
   imports: [
     TypeOrmModule.forFeature([BreedEntity, CatEntity]),
     forwardRef(() => CatModule),
   ],
   controllers: [BreedController],
-  providers: [BreedService],
+  providers: [BreedService, BreedResolver],
   exports: [BreedService],
 })
 export class BreedModule {}

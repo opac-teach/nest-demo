@@ -1,8 +1,10 @@
-import { BreedResponseDto } from '@/breed/dtos/breed-response';
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose, Type } from 'class-transformer';
+import { Field, ObjectType, ID, Int } from '@nestjs/graphql';
+import { BreedResponseDto } from '@/breed/dtos/breed-response';
 
 @Exclude()
+@ObjectType()
 export class CatResponseDto {
   @ApiProperty({
     description: 'The id of the cat',
@@ -10,6 +12,7 @@ export class CatResponseDto {
   })
   @Expose()
   @Type(() => String)
+  @Field((type) => ID)
   id: string;
 
   @ApiProperty({
@@ -18,6 +21,7 @@ export class CatResponseDto {
   })
   @Expose()
   @Type(() => String)
+  @Field()
   name: string;
 
   @ApiProperty({
@@ -26,6 +30,7 @@ export class CatResponseDto {
   })
   @Expose()
   @Type(() => Number)
+  @Field((type) => Int)
   age: number;
 
   @ApiProperty({
@@ -34,7 +39,17 @@ export class CatResponseDto {
   })
   @Expose()
   @Type(() => BreedResponseDto)
+  @Field((type) => BreedResponseDto)
   breed?: BreedResponseDto;
+
+  @ApiProperty({
+    description: 'The id of the breed of the cat',
+    type: String,
+  })
+  @Expose()
+  @Type(() => String)
+  @Field((type) => ID)
+  breedId: string;
 
   @ApiProperty({
     description: 'The date of creation of the cat',
@@ -42,6 +57,7 @@ export class CatResponseDto {
   })
   @Expose()
   @Type(() => Date)
+  @Field()
   created: Date;
 
   @ApiProperty({
@@ -50,6 +66,7 @@ export class CatResponseDto {
   })
   @Expose()
   @Type(() => Date)
+  @Field()
   updated: Date;
 
   @ApiProperty({
@@ -57,6 +74,7 @@ export class CatResponseDto {
     type: String,
   })
   @Expose()
+  @Field()
   color: string;
 
   constructor(partial: Partial<CatResponseDto>) {

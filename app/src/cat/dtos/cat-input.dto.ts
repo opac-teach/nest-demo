@@ -1,6 +1,8 @@
+import { Field, InputType, Int } from '@nestjs/graphql';
 import { ApiProperty, OmitType, PartialType } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber, IsString, IsUUID } from 'class-validator';
 
+@InputType()
 export class CreateCatDto {
   @ApiProperty({
     description: 'The name of the cat',
@@ -8,6 +10,7 @@ export class CreateCatDto {
   })
   @IsString()
   @IsNotEmpty()
+  @Field()
   name: string;
 
   @ApiProperty({
@@ -16,6 +19,7 @@ export class CreateCatDto {
   })
   @IsNumber()
   @IsNotEmpty()
+  @Field((type) => Int)
   age: number;
 
   @ApiProperty({
@@ -24,6 +28,7 @@ export class CreateCatDto {
   })
   @IsUUID()
   @IsNotEmpty()
+  @Field()
   breedId: string;
 }
 
@@ -32,6 +37,13 @@ export class CreateCatDto {
  * all fields becomes optional,
  * with the breedId field excluded.
  */
+@InputType()
 export class UpdateCatDto extends PartialType(
   OmitType(CreateCatDto, ['breedId'] as const),
-) {}
+) {
+  @Field({ nullable: true })
+  name?: string;
+
+  @Field((type) => Int, { nullable: true })
+  age?: number;
+}

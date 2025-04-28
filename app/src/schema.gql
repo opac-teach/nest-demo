@@ -1,0 +1,55 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type BreedResponseDto {
+  id: ID!
+  name: String!
+  description: String!
+  cats: [CatResponseDto!]!
+}
+
+type CatResponseDto {
+  id: ID!
+  name: String!
+  age: Int!
+  breed: BreedResponseDto!
+  breedId: ID!
+  created: DateTime!
+  updated: DateTime!
+  color: String!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Query {
+  cats: [CatResponseDto!]!
+  cat(id: String!): CatResponseDto!
+  breeds: [BreedResponseDto!]!
+  breed(id: String!): BreedResponseDto!
+}
+
+type Mutation {
+  createCat(cat: CreateCatDto!): CatResponseDto!
+  updateCat(id: String!, cat: UpdateCatDto!): CatResponseDto!
+  createBreed(breed: CreateBreedDto!): BreedResponseDto!
+}
+
+input CreateCatDto {
+  name: String!
+  age: Int!
+  breedId: String!
+}
+
+input UpdateCatDto {
+  name: String
+  age: Int
+}
+
+input CreateBreedDto {
+  name: String!
+  description: String
+}
